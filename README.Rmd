@@ -1,6 +1,13 @@
+---
+output: github_document
+title: README
+---
 
+
+Demonstration of computing TWFE weights and $ATT^O$ weights.
 
 ```{r}
+library(twfeweights)
 library(did)
 library(fixest)
 library(ggplot2)

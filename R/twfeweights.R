@@ -1,3 +1,10 @@
+#' @title twfe_weights
+#' @description A function to compute TWFE regression weights on ATT(g,t)
+#'  in a staggered treatment adoption setting.
+#' @param attgt_res Results from did::att_gt function
+#'
+#' @return a data.frame containing the TWFE weighs
+#' @export
 twfe_weights <- function(attgt_res) {
 
   if (attgt_res$DIDparams$control_group != "nevertreated") {
@@ -55,7 +62,14 @@ twfe_weights <- function(attgt_res) {
   
 }
 
-
+#' @title attO_weights
+#' @description A function to compute weights on ATT(g,t) to deliver
+#'  ATT^O as discussed in Callaway and Sant'Anna (2021)
+#' @inheritParams twfe_weights
+#' @param w Optional external unit-specific weights
+#'
+#' @return a data.frame containing attO weights
+#' @export
 attO_weights <- function(attgt_res, w=rep(1,nrow(attgt_res$DIDparams$data))) {
 
   .gname <- attgt_res$DIDparams$gname
