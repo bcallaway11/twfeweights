@@ -1,0 +1,70 @@
+
+
+```{r}
+library(did)
+library(fixest)
+library(ggplot2)
+data(mpdta)
+mpdta$post <- 1*( (mpdta$year >= mpdta$first.treat) & (mpdta$treat==1) )
+
+# compute ATT(g,t)
+attgt <- did::att_gt(yname="lemp",
+                idname="countyreal",
+                gname="first.treat",
+                tname="year",
+                data=mpdta,
+                control_group="nevertreated",
+                base_period="universal")
+summary(attgt)
+
+# compute TWFE estimate
+fixest::feols(lemp ~ post | countyreal + year, cluster="countyreal", data=mpdta)
+
+# compute TWFE weights
+tw <- twfe_weights(attgt)
+tw
+twfe_alp <- sum(tw$wTWFEgt * tw$attgt)
+twfe_alp
+
+sum(tw$wTWFEgt[tw$post==1] * tw$attgt[tw$post==1])
+
+
+# drop untreated group
+tw <- tw[tw$G != 0,]
+tw$post <- as.factor(1*(tw$TP >= tw$G))
+sum(tw$wTWFEgt[tw$post==1])
+
+ggplot(data=tw,
+       mapping=aes(x=wTWFEgt, y=attgt, color=post)) +
+  geom_hline(yintercept=0, linewidth=1.2) +
+  geom_vline(xintercept=0, linewidth=1.2) + 
+  geom_point(size=3) +
+  theme_bw() +
+  ylim(c(-.15,.05)) + xlim(c(-.25,.7))
+
+wO <- attO_weights(attgt)
+wO <- wO[wO$G != 0,]
+wO$post <- as.factor(1*(wO$TP >= wO$G))
+sum(wO$wOgt * wO$attgt)
+
+ggplot(data=wO,
+       mapping=aes(x=wOgt, y=attgt, color=post)) +
+  geom_hline(yintercept=0, linewidth=1.2) +
+  geom_vline(xintercept=0, linewidth=1.2) + 
+  geom_point(shape=18, size=5) +
+  theme_bw() +
+  ylim(c(-.15,.05)) + xlim(c(-.25,.7))
+
+# plot the difference between the weights in post-treatment periods
+plot_df <- cbind.data.frame(tw, wOgt=wO$wOgt)
+plot_df <- plot_df[plot_df$post==1,]
+sapply(unique(plot_df$G), function(g) mean(subset(plot_df, G==g)$wTWFEgt))
+plot_df$g.t <- as.factor(paste0(plot_df$G,",",plot_df$TP))
+
+ggplot(plot_df, aes(x=wTWFEgt, y=attgt, color=g.t)) +
+  geom_point(size=3) +
+  theme_bw() +
+  ylim(c(-.15,.05)) + xlim(c(-.25,.7)) +
+  geom_point(aes(x=wOgt), shape=18, size=5) +
+  xlab("weight")
+```
