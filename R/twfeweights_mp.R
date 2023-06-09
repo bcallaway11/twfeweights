@@ -18,6 +18,7 @@
 #'  after applying weights_comparison to it
 #' @param weighted_outcome_diff the difference between the mean outcomes for 
 #'  the treated and comparison groups after applying weights to them
+#' @param alpha_weight the contribution of this term to the estimate of alpha
 #' @export
 gt_weights <- function(g,
                        tp,
@@ -27,7 +28,8 @@ gt_weights <- function(g,
                        weights_comparison,
                        weighted_outcome_treated=NULL,
                        weighted_outcome_comparison=NULL,
-                       weighted_outcome_diff=NULL) {
+                       weighted_outcome_diff=NULL,
+                       alpha_weight) {
   
   ret_gt_weights <- list(g=g,
                          tp=tp,
@@ -37,10 +39,11 @@ gt_weights <- function(g,
                          weights_comparison=weights_comparison,
                          weighted_outcome_treated=weighted_outcome_treated,
                          weighted_outcome_comparison=weighted_outcome_comparison,
-                         weighted_outcome_diff=weighted_outcome_diff)
+                         weighted_outcome_diff=weighted_outcome_diff,
+                         alpha_weight=alpha_weight)
   class(ret_gt_weights) <- "gt_weights"
   ret_gt_weights
-
+}
 
 #' @title twfe_weights_gt
 #' @description Compute TWFE weights for a particular group
@@ -56,7 +59,7 @@ gt_weights <- function(g,
 #' @inheritParams did::att_gt
 #' @param xformla formula for covariates that are included in the 
 #'  TWFE regression.
-#' @param xname by default, `twfe_weight_gt` applies the 
+#' @param xname by default, `twfe_weights_gt` applies the 
 #'  implicit TWFE regression weights to the outcome.  In 
 #'  cases where the researcher would like to apply the 
 #'  implicit regression weights to some other variable, the 
@@ -71,6 +74,7 @@ gt_weights <- function(g,
 #'  is to violations of linearity.
 #'  
 #'  @return a gt_weights object
+#'  @export
 twfe_weights_gt <- function(g,
                            tp,
                            yname,
@@ -81,13 +85,33 @@ twfe_weights_gt <- function(g,
                            xname=NULL,
                            data) {
   
+  # confirm balanced panel and sort data
+  data <- BMisc::makeBalancedPanel(data, idname=idname, tname=tname)
+  
+  data <- dplyr::arrange(data, idname, tname)
+
+  # setup 
   G <- data[,gname]
   TP <- data[,tname]
   Yit <- data[,yname]
+  xformla <- BMisc::addCovToFormla("-1", xformla)
+  Xit <- model.matrix(xformla, data=data)
+  Dit <- 1*( (data[,tname] >= data[,gname]) & (data[,gname] != 0) )
   if (!is.null(xname)) Xi <- data[,xname]
   minT <- min(unique(TP))
   nT <- length(unique(TP))
   
+  # double demean variables in the model
+  ddotDit <- demean(Dit, data[,c(idname,tname)]) %>% as.numeric
+  ddotYit <- demean(Yit, data[,c(idname,tname)]) %>% as.numeric
+  ddotXit <- demean(Xit, data[,c(idname,tname)])
+  
+  # weights depend on linear projection of treatment 
+  # on covariates using all periods
+  lp_treat <- lm(ddotDit ~ -1 + ddotXit)
+  gam <- as.matrix(coef(lp_treat))
+  
+  # pick the right periods and compute the weights
   idx <- G==g & TP==tp
   idx_preg <- G==g & TP==(g-1)
   pg <- mean(G==g)
@@ -95,50 +119,122 @@ twfe_weights_gt <- function(g,
   pu <- mean(G==0)
   time_weight <- (nT-(g-minT+1)+1)/nT
   pg_weight <- pg/pbarg
+  linear_pscore <- as.numeric(ddotXit%*%gam)
+  alp_den <- mean((ddotDit - linear_pscore)*(ddotDit))
+  weights_1 <- (ddotDit[idx] - linear_pscore[idx])*time_weight*pg_weight/alp_den
   if (is.null(xname)) {
-    term_1 <- mean( (ddotDit[idx] - ddotXit[idx]*gam)*(Yit[idx] - Yit[idx_preg])*time_weight*pg_weight/alp_den )
+    this_treated <- Yit[idx] - Yit[idx_preg]
   } else {
-    term_1 <- mean( (ddotDit[idx] - ddotXit[idx]*gam)*Xi[idx]*time_weight*pg_weight/alp_den )
+    this_treated <- Xi[idx]
   }
+  term_1 <- mean( weights_1 * this_treated)
+  
   idx2 <- G==0 & TP==tp
   idx2_preg <- G==0 & TP==(g-1)
+  weights_2 <- (ddotDit[idx2] - linear_pscore[idx2])*time_weight*pu/alp_den
   if (is.null(xname)) {
-    term_2 <- mean( (ddotDit[idx2] - ddotXit[idx2]*gam)*(Yit[idx2] - Yit[idx2_preg])*time_weight*pu/alp_den )
+    this_comparison <- Yit[idx2] - Yit[idx2_preg]
   } else {
-    term_2 <- mean( (ddotDit[idx2] - ddotXit[idx2]*gam)*Xi[idx2]*time_weight*pu/alp_den )
+    this_comparison <- Xi[idx2]
   }
-  term_1 + term_2
+  term_2 <- mean(weights_2 * this_comparison)
+  
+  alpha_weight <- combine_twfe_weights_gt(g,tp,gname,tname,data)
+  
+  out <- gt_weights(g=g,
+                    tp=tp,
+                    treated=this_treated,
+                    comparison=this_comparison,
+                    weights_treated=weights_1,
+                    weights_comparison=weights_2,
+                    weighted_outcome_treated=term_1,
+                    weighted_outcome_comparison=term_2,
+                    weighted_outcome_diff=(term_1 + term_2),
+                    alpha_weight=alpha_weight)
+  out
 }
 
-df$pop2006 <- get_Yi1(df, "id", "population", "year", "group")
-
-years <- c(2006, 2007, 2008)
-gt_mat <- expand.grid(years, years[-1])
-gt_mat <- cbind.data.frame(gt_mat[,2], gt_mat[,1])
-colnames(gt_mat) <- c("group","time.period")
-
-twfe_gt <- sapply(1:nrow(gt_mat), function(i) {
-  twfe_weight_gt(g=gt_mat[i,1],
-                 tp=gt_mat[i,2],
-                 yname="homicide_c",
-                 tname="year",
-                 idname="id",
-                 gname="group",
-                 xformla=NULL,
-                 data=df)
-})
-
-combine_twfe_weights_gt <- function(g,tp,gname,data) {
+#' @title combine_twfe_weights_gt
+#' @description a function that recovers the weights on each implicit 
+#'  group-time average treatment effect from the TWFE regression
+#' @inheritParams twfe_weights_gt
+#' @export
+combine_twfe_weights_gt <- function(g,
+                                    tp,
+                                    gname,
+                                    tname,
+                                    data) {
   G <- data[,gname]
+  TP <- data[,tname]
+  minT <- min(unique(TP))
+  nT <- length(unique(TP))
   pbarg <- mean( G[G!=0] == g)
   ntreatedperiods <- (nT-(g-minT+1)+1)
   pbarg/ntreatedperiods
 }
 
+#' @title all_twfe_weights 
+#' @description a function to compute implicit TWFE weights 
+#' 
+#' @inheritParams twfe_weights_gt
+#' @return a `decomposed_twfe` object
+#' @export
+all_twfe_weights <- function(yname,
+                             tname,
+                             idname,
+                             gname,
+                             xformla=NULL,
+                             xname=NULL,
+                             data) {
+  tlist <- sort(unique(data[,tname]))
+  glist <- sort(unique(data[,gname]))
+  glist <- glist[glist!=0] # drop never-treated group
+  gt_mat <- as.data.frame(expand.grid(glist,tlist))
+  colnames(gt_mat) <- c("group","time.period")
+  
+  twfe_gt <- lapply(1:nrow(gt_mat), function(i) {
+    twfe_weights_gt(g=gt_mat[i,1],
+                   tp=gt_mat[i,2],
+                   yname=yname,
+                   tname=tname,
+                   idname=idname,
+                   gname=gname,
+                   xformla=xformla,
+                   xname=xname,
+                   data=df)
+  })  
+  
+  class(twfe_gt) <- "decomposed_twfe"
+  twfe_gt
+}
 
-twfe_gt_weight <- sapply(1:nrow(gt_mat), function(i) {
-  combine_twfe_weights_gt(g=gt_mat[i,1],
-                          tp=gt_mat[i,2],
-                          gname="group",
-                          data=df)
-})
+summary.decomposed_twfe <- function(object, ...) {
+  twfe_att_gt <- unlist(BMisc::getListElement(object, "weighted_outcome_diff"))
+  group <- unlist(BMisc::getListElement(object, "g"))
+  time.period <- unlist(BMisc::getListElement(object, "tp"))
+  alpha_weight <- unlist(BMisc::getListElement(object, "alpha_weight"))
+  post <- 1*(time.period >= group)
+  print_df <- cbind.data.frame(group, time.period, post, twfe_att_gt, alpha_weight)
+  alpha <- sum(alpha_weight*twfe_att_gt)
+  pt_violations_bias <- sum(alpha_weight[post==0]*twfe_att_gt[post==0])
+  cat("alpha twfe:          ", round(alpha,4), "\n")
+  cat("pta violations bias: ", round(pt_violations_bias,4),"\n")
+  print_df
+}
+
+library(tidyr)
+library(dplyr)
+df$id <- as.numeric(as.factor(df$state))
+df <- as.data.frame(df)
+df$pop2006 <- get_Yi1(df, "id", "population", "year", "group")
+twfe_res <- all_twfe_weights(yname="homicide_c",
+                 tname="year",
+                 idname="id",
+                 gname="group",
+                 xformla=~population+unemployrt,
+                 xname="pop2006",
+                 data=df)
+
+temp <- summary(twfe_res)
+
+sum(temp$post*temp$twfe_att_gt*temp$alpha_weight)
