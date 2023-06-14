@@ -93,6 +93,8 @@ twfe_weights_gt <- function(g,
   # setup 
   G <- data[,gname]
   TP <- data[,tname]
+  tlist <- sort(unique(TP))
+  preg <- tlist[tail(which(tlist < g),1)] # universal base period
   Yit <- data[,yname]
   xformla <- BMisc::addCovToFormla("-1", xformla)
   Xit <- model.matrix(xformla, data=data)
@@ -113,11 +115,12 @@ twfe_weights_gt <- function(g,
   
   # pick the right periods and compute the weights
   idx <- G==g & TP==tp
-  idx_preg <- G==g & TP==(g-1)
+  idx_preg <- G==g & TP==preg
   pg <- mean(G==g)
   pbarg <- mean( G[G!=0] == g)
   pu <- mean(G==0)
-  time_weight <- (nT-(g-minT+1)+1)/nT
+  local_g <- which(tlist == g)
+  time_weight <- (nT-local_g+1)/nT
   pg_weight <- pg/pbarg
   linear_pscore <- as.numeric(ddotXit%*%gam)
   alp_den <- mean((ddotDit - linear_pscore)*(ddotDit))
@@ -130,7 +133,7 @@ twfe_weights_gt <- function(g,
   term_1 <- mean( weights_1 * this_treated)
   
   idx2 <- G==0 & TP==tp
-  idx2_preg <- G==0 & TP==(g-1)
+  idx2_preg <- G==0 & TP==preg
   weights_2 <- (ddotDit[idx2] - linear_pscore[idx2])*time_weight*pu/alp_den
   if (is.null(xname)) {
     this_comparison <- Yit[idx2] - Yit[idx2_preg]
@@ -146,7 +149,7 @@ twfe_weights_gt <- function(g,
                     treated=this_treated,
                     comparison=this_comparison,
                     weights_treated=weights_1,
-                    weights_comparison=weights_2,
+                    weights_comparison=-weights_2,
                     weighted_outcome_treated=term_1,
                     weighted_outcome_comparison=term_2,
                     weighted_outcome_diff=(term_1 + term_2),
@@ -166,10 +169,12 @@ combine_twfe_weights_gt <- function(g,
                                     data) {
   G <- data[,gname]
   TP <- data[,tname]
+  tlist <- sort(unique(TP))
+  local_g <- which(tlist == g) # the group in terms of t=1,2,3,...,T
   minT <- min(unique(TP))
   nT <- length(unique(TP))
   pbarg <- mean( G[G!=0] == g)
-  ntreatedperiods <- (nT-(g-minT+1)+1)
+  ntreatedperiods <- nT - local_g + 1#(nT-(g-minT+1)+1)
   pbarg/ntreatedperiods
 }
 
@@ -208,6 +213,13 @@ all_twfe_weights <- function(yname,
   twfe_gt
 }
 
+#'@title summary.decomposed_twfe
+#'@description summarizes a two-way fixed effects regression 
+#' decomposition
+#'@param object a decomposed_twfe object
+#'@param ... extra arguments, not used here
+#'
+#'@export
 summary.decomposed_twfe <- function(object, ...) {
   twfe_att_gt <- unlist(BMisc::getListElement(object, "weighted_outcome_diff"))
   group <- unlist(BMisc::getListElement(object, "g"))
@@ -222,19 +234,3 @@ summary.decomposed_twfe <- function(object, ...) {
   print_df
 }
 
-library(tidyr)
-library(dplyr)
-df$id <- as.numeric(as.factor(df$state))
-df <- as.data.frame(df)
-df$pop2006 <- get_Yi1(df, "id", "population", "year", "group")
-twfe_res <- all_twfe_weights(yname="homicide_c",
-                 tname="year",
-                 idname="id",
-                 gname="group",
-                 xformla=~population+unemployrt,
-                 xname="pop2006",
-                 data=df)
-
-temp <- summary(twfe_res)
-
-sum(temp$post*temp$twfe_att_gt*temp$alpha_weight)
