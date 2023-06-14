@@ -1,10 +1,9 @@
 Package: twfeweights
-Title: What the Package Does (One Line, Title Case)
+Title: Computes Implicit Weights from TWFE Regressions
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+    person("Brantly", "Callaway", , "brantly.callaway@uga.edu", role = c("aut", "cre"))
+Description: The `twfeweights` package computes implicit weights on group-time average treatment effects (these are disaggregated causal effect parameters) when researchers estimate a two-way fixed effects (TWFE) regression.  These weights are useful for understanding how a regression implicitly combines underlying building blocks into a single number.  In settings where the TWFE regression additionally includes covariates, the `twfeweights` package can be useful for researchers for assessing how well implicit weight balance (functions of) the covariates across groups and time periods. 
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

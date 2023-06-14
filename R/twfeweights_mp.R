@@ -195,6 +195,7 @@ all_twfe_weights <- function(yname,
   glist <- sort(unique(data[,gname]))
   glist <- glist[glist!=0] # drop never-treated group
   gt_mat <- as.data.frame(expand.grid(glist,tlist))
+  gt_mat <- gt_mat %>% arrange_all()
   colnames(gt_mat) <- c("group","time.period")
   
   twfe_gt <- lapply(1:nrow(gt_mat), function(i) {
