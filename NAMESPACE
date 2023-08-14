@@ -3,6 +3,7 @@
 S3method(summary,decomposed_twfe)
 export(all_twfe_weights)
 export(attO_weights)
+export(att_simple_weights)
 export(combine_twfe_weights_gt)
 export(gt_weights)
 export(twfe_weights)
