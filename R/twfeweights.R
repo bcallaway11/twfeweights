@@ -96,3 +96,41 @@ attO_weights <- function(attgt_res, w=rep(1,nrow(attgt_res$DIDparams$data))) {
   
   cbind.data.frame(G=.group, TP=.t, wOgt, attgt=.attgt)
 }
+
+
+#' @title att_simple_weights
+#' @description A function to compute weights on ATT(g,t) to deliver
+#'  ATT^{simple} as discussed in Callaway and Sant'Anna (2021)
+#' @inheritParams twfe_weights
+#' @param w Optional external unit-specific weights
+#'
+#' @return a data.frame containing att_simple weights
+#' @export
+att_simple_weights <- function(attgt_res, w=rep(1,nrow(attgt_res$DIDparams$data))) {
+  
+  .gname <- attgt_res$DIDparams$gname
+  .tname <- attgt_res$DIDparams$tname
+  .data <- attgt_res$DIDparams$data
+  .tlist <- attgt_res$DIDparams$tlist
+  .glist <- c(0,attgt_res$DIDparams$glist)
+  .attgt <- c(rep(0, length(.tlist)), attgt_res$att)
+  .t <- c(.tlist, attgt_res$t)
+  .group <- c(rep(0, length(.tlist)), attgt_res$group)
+  
+  # overall attgt weights
+  .ever_treated <- which(.data[,.gname] != 0)
+  w <- w[.ever_treated]
+  pg <- sapply(.glist, function(g) weighted.mean(.data[.ever_treated,][,.gname]==g, w=w))
+  maxT <- max(.tlist)
+  wO <- function(g,t) {
+    1*(t >= g)*pg[.glist==g]
+  }
+  # add weights to results
+  wsimplegt <- sapply(1:length(.attgt),
+                 function(i) wO(.group[i],
+                                .t[i]))
+  # account for denominator just by normalizing weights to sum to 1
+  wsimplegt <- wsimplegt / sum(wsimplegt) 
+  
+  cbind.data.frame(G=.group, TP=.t, wsimplegt, attgt=.attgt)
+}

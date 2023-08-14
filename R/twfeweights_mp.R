@@ -143,6 +143,28 @@ twfe_weights_gt <- function(g,
   term_2 <- mean(weights_2 * this_comparison)
   
   alpha_weight <- combine_twfe_weights_gt(g,tp,gname,tname,data)
+
+  # make things negative if in pre-treatment period
+  if (tp < g) {
+    term_1 <- -term_1
+    term_2 <- -term_2
+  }
+
+  ## browser()
+  ## # some debugging code
+  ## w1 <- ddotDit[idx] - linear_pscore[idx]
+  ## w2 <- ddotDit[idx2] - linear_pscore[idx2]
+  ## m1<-mean(w1)
+  ## m2<-mean(w2)
+  ## m1*pg/pbarg
+  ## m2*pu
+  ## idx3 <- (G==0 | tp < G) & TP==tp
+  ## idx3_preg <- (G==0 | tp < G) & TP==preg
+  ## w3 <- ddotDit[idx3] - linear_pscore[idx3]
+  ## m3 <- mean(w3)
+  ## pdt0 <- mean(G==0 | tp < G)
+  ## m1
+  ## m2*(pdt0/(1-pdt0))
   
   out <- gt_weights(g=g,
                     tp=tp,
@@ -174,8 +196,10 @@ combine_twfe_weights_gt <- function(g,
   minT <- min(unique(TP))
   nT <- length(unique(TP))
   pbarg <- mean( G[G!=0] == g)
-  ntreatedperiods <- nT - local_g + 1#(nT-(g-minT+1)+1)
-  pbarg/ntreatedperiods
+  ntreatedperiods <- nT - local_g + 1
+  w_gt <- pbarg/ntreatedperiods
+  if (tp < g) w_gt <- -w_gt
+  w_gt
 }
 
 #' @title all_twfe_weights 
