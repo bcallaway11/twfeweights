@@ -3,8 +3,19 @@ output: github_document
 title: README
 ---
 
+# twfeweights
 
-Demonstration of computing TWFE weights and $ATT^O$ weights.
+`twfeweights` is an R package to compute implicit weights from using two-way fixed effects (TWFE) regressions in the context of causal inference with panel data. 
+
+The package currently includes functions to compute implicit weights for:
+
+* TWFE regressions with staggered treatment adoption
+
+* TWFE regressions with staggered treatment adoption that include covariates (in progress)
+
+* Weighted averages into overall average treatment effects and simple overall average treatment effects, as discussed in [@callaway-santanna-2021]
+
+## Installation
 
 ```{r}
 library(twfeweights)
