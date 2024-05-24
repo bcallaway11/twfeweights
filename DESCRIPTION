@@ -7,4 +7,11 @@ Description: The `twfeweights` package computes implicit weights on group-time a
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
+Imports:
+    BMisc,
+    fixest,
+    dplyr,
+    magrittr,
+    stats,
+    utils

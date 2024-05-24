@@ -1,3 +1,16 @@
+#--------------------------------------------------------------------------
+#
+# All code in this file is for the case with no covariates.  
+#
+# The TWFE are essentially those from de Chaisemartin and d'Haultfoeuille (2020)
+# though they emphasize decompositions in the sense that they do not rely 
+# on imposing parallel trends and (i) the results add up to be exactly equal 
+# to the TWFE regression coefficient (ii) violations of parallel trends 
+# in pre-treatment contribute to the reported results.
+#
+#--------------------------------------------------------------------------
+
+
 #' @title twfe_weights
 #' @description A function to compute TWFE regression weights on ATT(g,t)
 #'  in a staggered treatment adoption setting.

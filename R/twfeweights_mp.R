@@ -104,9 +104,9 @@ twfe_weights_gt <- function(g,
   nT <- length(unique(TP))
   
   # double demean variables in the model
-  ddotDit <- demean(Dit, data[,c(idname,tname)]) %>% as.numeric
-  ddotYit <- demean(Yit, data[,c(idname,tname)]) %>% as.numeric
-  ddotXit <- demean(Xit, data[,c(idname,tname)])
+  ddotDit <- fixest::demean(Dit, data[,c(idname,tname)]) %>% as.numeric
+  ddotYit <- fixest::demean(Yit, data[,c(idname,tname)]) %>% as.numeric
+  ddotXit <- fixest::demean(Xit, data[,c(idname,tname)])
   
   # weights depend on linear projection of treatment 
   # on covariates using all periods
