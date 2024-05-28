@@ -23,8 +23,11 @@
 #'  
 #' @export
 mp_weights_obj <- function(weights_df) {
-  class(weights_df) <- "mp_weights_obj"
-  weights_df
+  weights_df$post <- as.factor(1*(weights_df$time.period >= weights_df$group))
+  out <- list()
+  out$weights_df <- weights_df
+  class(out) <- "mp_weights_obj"
+  out
 }
 
 
@@ -123,7 +126,7 @@ attO_weights <- function(attgt_res, w=rep(1,nrow(attgt_res$DIDparams$data))) {
                  function(i) wO(.group[i],
                                 .t[i]))
   
-  cbind.data.frame(G=.group, TP=.t, wOgt, attgt=.attgt)
+  cbind.data.frame(group=.group, time.period=.t, weight=wOgt, attgt=.attgt)
 }
 
 
@@ -161,5 +164,23 @@ att_simple_weights <- function(attgt_res, w=rep(1,nrow(attgt_res$DIDparams$data)
   # account for denominator just by normalizing weights to sum to 1
   wsimplegt <- wsimplegt / sum(wsimplegt) 
   
-  cbind.data.frame(G=.group, TP=.t, wsimplegt, attgt=.attgt)
+  cbind.data.frame(group=.group, time.period=.t, weight=wsimplegt, attgt=.attgt)
+}
+
+#' @title ggtwfeweights.mp_weights_obj
+#' 
+#' @description A function to plot weights on group-time average treatment effects
+#' 
+#' @param x An object of class mp_weights_obj
+#' @param ... Additional arguments to be passed to ggplot
+#' 
+#' @export
+ggtwfeweights.mp_weights_obj <- function(x, ...) {
+  weights_df <- x$weights_df
+  ggplot(data=weights_df,
+         mapping=aes(x=weight, y=attgt, color=post)) +
+    geom_hline(yintercept=0, linewidth=1.5) +
+    geom_vline(xintercept=0, linewidth=1.5) + 
+    geom_point(size=6) +
+    theme_bw()
 }
