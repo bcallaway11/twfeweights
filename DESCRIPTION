@@ -12,6 +12,7 @@ Imports:
     BMisc,
     fixest,
     DRDID,
+    ggplot2,
     dplyr,
     magrittr,
     stats,

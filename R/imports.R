@@ -11,6 +11,7 @@
 #' @import fixest
 #' @import dplyr
 #' @import DRDID
+#' @import ggplot2
 #' @importFrom stats coef df lm model.matrix weighted.mean sd
 #' @importFrom utils tail
 #' @importFrom magrittr %>%

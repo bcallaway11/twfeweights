@@ -1,3 +1,13 @@
+#-------------------------------------------------------------------------------
+#
+# File contains functions to compute implicit weights for the setting with
+# two time periods.  The two cases covered are:
+#
+# * implicit TWFE regression weigthts
+# * implicit AIPW weights
+#
+#-------------------------------------------------------------------------------
+
 #' two_period_covs_obj
 #' 
 #' an object that holds the results of the `two_period_covs` function
@@ -187,7 +197,7 @@ two_period_reg_weights <- function(yname,
 #' @param ... additional arguments to pass to `ggplot2::geom_point`
 #' 
 #' @export
-ggtwfe.two_period_covs_obj <- function(two_period_covs_obj) {
+ggtwfeweights.two_period_covs_obj <- function(two_period_covs_obj) {
   cov_balance_df <- two_period_covs_obj$cov_balance_df
   cov_balance_df$covariate <- factor(cov_balance_df$covariate, levels = rev(unique(cov_balance_df$covariate)))
   ggplot(cov_balance_df, aes(y=covariate, x=abs(weighted_diff/sd))) + 
