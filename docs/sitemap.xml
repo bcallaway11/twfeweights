@@ -31,6 +31,9 @@
     <loc>/reference/combine_twfe_weights_gt.html</loc>
   </url>
   <url>
+    <loc>/reference/ggtwfe.two_period_covs_obj.html</loc>
+  </url>
+  <url>
     <loc>/reference/gt_weights.html</loc>
   </url>
   <url>
@@ -47,5 +50,14 @@
   </url>
   <url>
     <loc>/reference/twfeweights.html</loc>
+  </url>
+  <url>
+    <loc>/reference/two_period_aipw_weights.html</loc>
+  </url>
+  <url>
+    <loc>/reference/two_period_covs_obj.html</loc>
+  </url>
+  <url>
+    <loc>/reference/two_period_reg_weights.html</loc>
   </url>
 </urlset>

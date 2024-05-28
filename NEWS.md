@@ -5,6 +5,7 @@
 	  periods must still be equally spaced)
 	* calculate att^O weights
 	* calculate att^simple weights
+	* add results for AIPW for two period case
 
 # twfeweights 0.0.0.9000
 

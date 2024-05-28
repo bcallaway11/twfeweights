@@ -10,7 +10,8 @@
 #' @import BMisc
 #' @import fixest
 #' @import dplyr
-#' @importFrom stats coef df lm model.matrix weighted.mean
+#' @import DRDID
+#' @importFrom stats coef df lm model.matrix weighted.mean sd
 #' @importFrom utils tail
 #' @importFrom magrittr %>%
 NULL
