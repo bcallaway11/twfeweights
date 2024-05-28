@@ -14,6 +14,7 @@ Imports:
     DRDID,
     ggplot2,
     dplyr,
+    rlang,
     magrittr,
     stats,
     utils

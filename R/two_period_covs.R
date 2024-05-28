@@ -200,9 +200,9 @@ two_period_reg_weights <- function(yname,
 ggtwfeweights.two_period_covs_obj <- function(two_period_covs_obj) {
   cov_balance_df <- two_period_covs_obj$cov_balance_df
   cov_balance_df$covariate <- factor(cov_balance_df$covariate, levels = rev(unique(cov_balance_df$covariate)))
-  ggplot(cov_balance_df, aes(y=covariate, x=abs(weighted_diff/sd))) + 
+  ggplot(cov_balance_df, aes(y=.data$covariate, x=abs(.data$weighted_diff/.data$sd))) + 
     geom_point(color="steelblue", size=3, shape=16) +
-    geom_point(aes(x=abs(unweighted_diff/sd)), color="red", size=3, shape=1) +
+    geom_point(aes(x=abs(.data$unweighted_diff/.data$sd)), color="red", size=3, shape=1) +
     theme_bw()
 }
 
@@ -309,7 +309,7 @@ two_period_aipw_weights <- function(yname,
   if (!is.null(weightsname)) {
     sampling_weights <- data[ data[,tname]==maxT, weightsname ] / mean(data[ data[,tname]==maxT, weightsname ])
   } else {
-    sampling_weights <- rep(1, .n)
+    sampling_weights <- rep(1, n)
   }
   .df_wide$.sampling_weights <- sampling_weights
   p <- weighted.mean(D, w=sampling_weights)
@@ -332,7 +332,7 @@ two_period_aipw_weights <- function(yname,
   .df_wide$.odds_ratio <- pscore/(1-pscore)
   gamma0_tilde <- coef(lm(BMisc::toformula(".odds_ratio", BMisc::rhs.vars(reg_xformula)), 
                        data=.df_wide[D==0,],
-                       weights=.sampling_weights))
+                       weights=sampling_weights))
   X <- model.matrix(BMisc::toformula("", BMisc::rhs.vars(reg_xformula)), data=.df_wide)
   X0 <- X[D==0,]
   X1 <- X[D==1,]
@@ -374,7 +374,7 @@ two_period_aipw_weights <- function(yname,
   out_reg_formula <- BMisc::toformula(paste0(".d",yname), BMisc::rhs.vars(reg_xformula))
   out_reg <- lm(out_reg_formula, 
                 data=.df_wide[D==0,], 
-                weights=.sampling_weights)
+                weights=sampling_weights)
   L0 <- predict(out_reg, newdata=.df_wide)
   
   att <- DRDID::std_ipw_did_panel(dy-L0, rep(0,nrow(.df_wide)), D, 

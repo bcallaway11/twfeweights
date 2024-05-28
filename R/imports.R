@@ -12,7 +12,8 @@
 #' @import dplyr
 #' @import DRDID
 #' @import ggplot2
-#' @importFrom stats coef df lm model.matrix weighted.mean sd
+#' @import stats 
+#' @import rlang
 #' @importFrom utils tail
 #' @importFrom magrittr %>%
 NULL
