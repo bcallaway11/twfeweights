@@ -10,6 +10,23 @@
 #
 #--------------------------------------------------------------------------
 
+#' @title mp_weights_obj
+#' 
+#' @description A class to store weighted averages of group-time average 
+#'  treatment effects
+#'  
+#' @param weights_df A data.frame containing the following elements:
+#'  - group: group identifier
+#'  - time.period: time period identifier
+#'  - weight: weight for the group-time period
+#'  - attgt: average treatment effect for the group-time period
+#'  
+#' @export
+mp_weights_obj <- function(weights_df) {
+  class(weights_df) <- "mp_weights_obj"
+  weights_df
+}
+
 
 #' @title twfe_weights
 #' @description A function to compute TWFE regression weights on ATT(g,t)
@@ -71,8 +88,7 @@ twfe_weights <- function(attgt_res) {
   cond <- (.t >= .group & .group != 0)
   wTWFEgt <- wTWFEgt_num/sum(wTWFEgt_den[cond])
 
-  cbind.data.frame(G=.group, TP=.t, wTWFEgt, attgt=.attgt)
-  
+  out <- mp_weights_obj(cbind.data.frame(group=.group, time.period=.t, weight=wwTWFEgt, attgt=.attgt))
 }
 
 #' @title attO_weights
