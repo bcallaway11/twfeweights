@@ -23,7 +23,8 @@
 #'  
 #' @export
 mp_weights_obj <- function(weights_df) {
-  weights_df$post <- as.factor(1*(weights_df$time.period >= weights_df$group))
+  weights_df$post <- as.factor(1*((weights_df$time.period >= weights_df$group) & 
+                                    weights_df$group != 0))
   out <- list()
   out$weights_df <- weights_df
   class(out) <- "mp_weights_obj"
@@ -35,10 +36,11 @@ mp_weights_obj <- function(weights_df) {
 #' @description A function to compute TWFE regression weights on ATT(g,t)
 #'  in a staggered treatment adoption setting.
 #' @param attgt_res Results from did::att_gt function
+#' @param keep_untreated Logical.  If TRUE, keep untreated group in results
 #'
 #' @return a data.frame containing the TWFE weighs
 #' @export
-twfe_weights <- function(attgt_res) {
+twfe_weights <- function(attgt_res, keep_untreated=FALSE) {
 
   if (attgt_res$DIDparams$control_group != "nevertreated") {
     stop("only \"nevertreated\" control group is supported.")
@@ -90,8 +92,15 @@ twfe_weights <- function(attgt_res) {
 
   cond <- (.t >= .group & .group != 0)
   wTWFEgt <- wTWFEgt_num/sum(wTWFEgt_den[cond])
+  
+  if (!keep_untreated) {
+    wTWFEgt <- wTWFEgt[.group != 0]
+    .attgt <- .attgt[.group != 0]
+    .t <- .t[.group != 0]
+    .group <- .group[.group != 0]
+  }
 
-  out <- mp_weights_obj(cbind.data.frame(group=.group, time.period=.t, weight=wwTWFEgt, attgt=.attgt))
+  out <- mp_weights_obj(cbind.data.frame(group=.group, time.period=.t, weight=wTWFEgt, attgt=.attgt))
 }
 
 #' @title attO_weights
@@ -102,7 +111,9 @@ twfe_weights <- function(attgt_res) {
 #'
 #' @return a data.frame containing attO weights
 #' @export
-attO_weights <- function(attgt_res, w=rep(1,nrow(attgt_res$DIDparams$data))) {
+attO_weights <- function(attgt_res, 
+                         w=rep(1,nrow(attgt_res$DIDparams$data)),
+                         keep_untreated=FALSE) {
 
   .gname <- attgt_res$DIDparams$gname
   .tname <- attgt_res$DIDparams$tname
@@ -126,7 +137,14 @@ attO_weights <- function(attgt_res, w=rep(1,nrow(attgt_res$DIDparams$data))) {
                  function(i) wO(.group[i],
                                 .t[i]))
   
-  cbind.data.frame(group=.group, time.period=.t, weight=wOgt, attgt=.attgt)
+  if (!keep_untreated) {
+    wOgt <- wOgt[.group != 0]
+    .attgt <- .attgt[.group != 0]
+    .t <- .t[.group != 0]
+    .group <- .group[.group != 0]
+  }
+  
+  out <- mp_weights_obj(cbind.data.frame(group=.group, time.period=.t, weight=wOgt, attgt=.attgt))
 }
 
 
@@ -138,7 +156,8 @@ attO_weights <- function(attgt_res, w=rep(1,nrow(attgt_res$DIDparams$data))) {
 #'
 #' @return a data.frame containing att_simple weights
 #' @export
-att_simple_weights <- function(attgt_res, w=rep(1,nrow(attgt_res$DIDparams$data))) {
+att_simple_weights <- function(attgt_res, w=rep(1,nrow(attgt_res$DIDparams$data)),
+                               keep_untreated = FALSE) {
   
   .gname <- attgt_res$DIDparams$gname
   .tname <- attgt_res$DIDparams$tname
@@ -164,7 +183,14 @@ att_simple_weights <- function(attgt_res, w=rep(1,nrow(attgt_res$DIDparams$data)
   # account for denominator just by normalizing weights to sum to 1
   wsimplegt <- wsimplegt / sum(wsimplegt) 
   
-  cbind.data.frame(group=.group, time.period=.t, weight=wsimplegt, attgt=.attgt)
+  if (!keep_untreated) {
+    wsimplegt <- wsimplegt[.group != 0]
+    .attgt <- .attgt[.group != 0]
+    .t <- .t[.group != 0]
+    .group <- .group[.group != 0]
+  }
+  
+  out <- mp_weights_obj(cbind.data.frame(group=.group, time.period=.t, weight=wsimplegt, attgt=.attgt))
 }
 
 #' @title ggtwfeweights.mp_weights_obj
