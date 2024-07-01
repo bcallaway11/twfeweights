@@ -4,10 +4,12 @@
 \alias{twfe_weights}
 \title{twfe_weights}
 \usage{
-twfe_weights(attgt_res)
+twfe_weights(attgt_res, keep_untreated = FALSE)
 }
 \arguments{
 \item{attgt_res}{Results from did::att_gt function}
+
+\item{keep_untreated}{Logical.  If TRUE, keep untreated group in results}
 }
 \value{
 a data.frame containing the TWFE weighs

@@ -4,12 +4,18 @@
 \alias{att_simple_weights}
 \title{att_simple_weights}
 \usage{
-att_simple_weights(attgt_res, w = rep(1, nrow(attgt_res$DIDparams$data)))
+att_simple_weights(
+  attgt_res,
+  w = rep(1, nrow(attgt_res$DIDparams$data)),
+  keep_untreated = FALSE
+)
 }
 \arguments{
 \item{attgt_res}{Results from did::att_gt function}
 
 \item{w}{Optional external unit-specific weights}
+
+\item{keep_untreated}{Logical.  If TRUE, keep untreated group in results}
 }
 \value{
 a data.frame containing att_simple weights

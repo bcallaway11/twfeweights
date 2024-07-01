@@ -4,7 +4,7 @@
 \alias{combine_twfe_weights_gt}
 \title{combine_twfe_weights_gt}
 \usage{
-combine_twfe_weights_gt(g, tp, gname, tname, data)
+combine_twfe_weights_gt(g, tp, gname, tname, xformula, idname, data)
 }
 \arguments{
 \item{g}{the current group for which the weights will be computed}
@@ -18,6 +18,11 @@ It defines which "group" a unit belongs to.  It should be 0 for units
 in the untreated group.}
 
 \item{tname}{The name of the column containing the time periods}
+
+\item{xformula}{formula for covariates that are included in the
+TWFE regression.}
+
+\item{idname}{The individual (cross-sectional unit) id name}
 
 \item{data}{The name of the data.frame that contains the data}
 }

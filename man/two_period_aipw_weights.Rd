@@ -15,6 +15,7 @@ two_period_aipw_weights(
   pscore_d_covs_formula = d_covs_formula,
   extra_balance_vars_formula = NULL,
   extra_balance_d_vars_formula = NULL,
+  balance_d_vars_post = TRUE,
   data,
   weightsname = NULL,
   ...
@@ -33,6 +34,11 @@ positive number though all treated units should have the same value of
 group.}
 
 \item{xformula}{a formula for the covariates to include in the model}
+
+\item{balance_d_vars_post}{For covariates whose values change over time,
+whether to report balance for their levels in post-treatment periods or
+to report balance in the change in the covariates over time.  The first option
+is selected when this argument is set to be TRUE, which is the default.}
 
 \item{data}{the data frame}
 

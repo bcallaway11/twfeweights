@@ -142,7 +142,9 @@ two_period_reg_weights <- function(yname,
   # if requested, additional covariates from first period
   if ( !is.null(additional_covariates_formula) ) {
     # try to account for factors here
-    .df_wide_temp2 <- model.matrix(additional_covariates_formula, data[ data[,tname]==minT, ])[,-1,drop=FALSE]
+    # drop intercept, this also helps with including all factors which is typically desirable here
+    additional_covariates_formula <- BMisc::addCovToFormla("-1", additional_covariates_formula) 
+    .df_wide_temp2 <- model.matrix(additional_covariates_formula, data[ data[,tname]==minT, ])[,,drop=FALSE]
     #.df_wide_temp2 <- data[ data[,tname]==minT, BMisc::rhs.vars(additional_covariates_formula), drop=FALSE]
     colnames(.df_wide_temp2) <- paste0(colnames(.df_wide_temp2), "_", minT)
     .df_wide_temp <- cbind.data.frame(.df_wide_temp, .df_wide_temp2)
@@ -183,9 +185,9 @@ two_period_reg_weights <- function(yname,
   
   
   # re-normalize the weights to be in line with other functions
-  .regression_weights[.D==1] <- .regression_weights[.D==1]*.sampling_weights[D==1]
+  .regression_weights[.D==1] <- .regression_weights[.D==1]*.sampling_weights[.D==1]
   .regression_weights[.D==1] <- .regression_weights[.D==1]/mean(.regression_weights[.D==1])
-  .regression_weights[.D==0] <- .regression_weights[.D==0]*.sampling_weights[D==0]
+  .regression_weights[.D==0] <- .regression_weights[.D==0]*.sampling_weights[.D==0]
   .regression_weights[.D==0] <- .regression_weights[.D==0]/mean(.regression_weights[.D==0])
   out <- two_period_covs_obj(twfe_alp, .regression_weights, cov_balance_df)
   out
@@ -213,6 +215,10 @@ ggtwfeweights.two_period_covs_obj <- function(two_period_covs_obj) {
 #'  of ATT with two periods.
 #'  
 #' @inheritParams two_period_reg_weights
+#' @param balance_d_vars_post For covariates whose values change over time, 
+#'  whether to report balance for their levels in post-treatment periods or
+#'  to report balance in the change in the covariates over time.  The first option
+#'  is selected when this argument is set to be TRUE, which is the default.
 #' @export
 two_period_aipw_weights <- function(yname,
                                     tname,
@@ -224,6 +230,7 @@ two_period_aipw_weights <- function(yname,
                                     pscore_d_covs_formula=d_covs_formula,
                                     extra_balance_vars_formula=NULL,
                                     extra_balance_d_vars_formula=NULL,
+                                    balance_d_vars_post=TRUE,
                                     data,
                                     weightsname=NULL,
                                     ...) {
@@ -332,7 +339,7 @@ two_period_aipw_weights <- function(yname,
   .df_wide$.odds_ratio <- pscore/(1-pscore)
   gamma0_tilde <- coef(lm(BMisc::toformula(".odds_ratio", BMisc::rhs.vars(reg_xformula)), 
                        data=.df_wide[D==0,],
-                       weights=sampling_weights))
+                       weights=.sampling_weights))
   X <- model.matrix(BMisc::toformula("", BMisc::rhs.vars(reg_xformula)), data=.df_wide)
   X0 <- X[D==0,]
   X1 <- X[D==1,]
@@ -374,7 +381,7 @@ two_period_aipw_weights <- function(yname,
   out_reg_formula <- BMisc::toformula(paste0(".d",yname), BMisc::rhs.vars(reg_xformula))
   out_reg <- lm(out_reg_formula, 
                 data=.df_wide[D==0,], 
-                weights=sampling_weights)
+                weights=.sampling_weights)
   L0 <- predict(out_reg, newdata=.df_wide)
   
   att <- DRDID::std_ipw_did_panel(dy-L0, rep(0,nrow(.df_wide)), D, 
@@ -408,9 +415,16 @@ two_period_aipw_weights <- function(yname,
   }
   # if requested, the change in additional covariates over time
   if ( !is.null(extra_balance_d_vars_formula) ) {
+    # in first case: report balance for levels in post-treatment periods
+    # in second case: report balance in the change in the covariates over time
+    if (balance_d_vars_post) {
+      .df_wide_temp3 <- data[ data[,tname]==maxT, BMisc::rhs.vars(extra_balance_d_vars_formula), drop=FALSE]
+      colnames(.df_wide_temp3) <- paste0(BMisc::rhs.vars(extra_balance_d_vars_formula), "_", maxT)
+    } else {
     .df_wide_temp3 <- data[ data[,tname]==maxT, BMisc::rhs.vars(extra_balance_d_vars_formula), drop=FALSE] - 
       data[ data[,tname]==minT, BMisc::rhs.vars(extra_balance_d_vars_formula), drop=FALSE]
     colnames(.df_wide_temp3) <- paste0("d",BMisc::rhs.vars(extra_balance_d_vars_formula))
+    }
     .df_wide <- cbind.data.frame(.df_wide, .df_wide_temp3)
   }
   
