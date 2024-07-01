@@ -44,6 +44,17 @@ after applying weights_comparison to it}
 the treated and comparison groups after applying weights to them}
 
 \item{alpha_weight}{the contribution of this term to the estimate of alpha}
+
+\item{base_period}{options are "first_period" or "gmin1".  If "first_period",
+the outcome for the treated group is subtracted by the outcome in the first
+period.  If "gmin1", the outcome for the treated group is subtracted by the
+outcome in the period right before treatment for group g.  The default
+is "first_period".}
+
+\item{remainder}{when \code{base_period} is "gmin1", then the decompostion
+doesn't exactly add up to alpha from the TWFE regression.  This term
+contains the leftover part of the decomposition.  Typically, this is
+very small.}
 }
 \description{
 a class for holding and working with group-time weights

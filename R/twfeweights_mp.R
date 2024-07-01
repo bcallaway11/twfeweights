@@ -8,6 +8,11 @@
 #'  and period tp
 #' @param comparison a vector of units that make up the effective comparison 
 #'  group for group g and period tp
+#' @param base_period options are "first_period" or "gmin1".  If "first_period", 
+#'  the outcome for the treated group is subtracted by the outcome in the first 
+#'  period.  If "gmin1", the outcome for the treated group is subtracted by the
+#'  outcome in the period right before treatment for group g.  The default 
+#'  is "first_period".
 #' @param weights_treated a vector of weights for the treated group g in time 
 #'  period tp
 #' @param weights_comparison a vector of weights for the comparison group for 
@@ -18,6 +23,10 @@
 #'  after applying weights_comparison to it
 #' @param weighted_outcome_diff the difference between the mean outcomes for 
 #'  the treated and comparison groups after applying weights to them
+#' @param remainder when `base_period` is "gmin1", then the decompostion 
+#'  doesn't exactly add up to alpha from the TWFE regression.  This term 
+#'  contains the leftover part of the decomposition.  Typically, this is 
+#'  very small.  
 #' @param alpha_weight the contribution of this term to the estimate of alpha
 #' @export
 gt_weights <- function(g,
@@ -84,12 +93,14 @@ implicit_twfe_weights_gt <- function(g,
                             tname,
                             idname,
                             gname,
+                            base_period,
                             xformula=NULL,
                             xname=NULL,
                             data) {
   
-  TP <- data[,tname]
-  G <- data[,gname][TP==tp]
+  TP <- data[,tname] # a vector of the same length as the full panel data, nT
+  G <- data[,gname]  # a vector of the same length as the full panel data, nT
+  thisG <- G[TP==tp] # a group vector of length n (# cross-sectional units)
   minT <- min(unique(TP))
   maxT <- max(unique(TP))
   nT <- length(unique(TP))
@@ -115,38 +126,51 @@ implicit_twfe_weights_gt <- function(g,
   gam <- as.matrix(coef(lp_treat))
   
   idx <- G==g & TP==tp
-  Yit <- get_Yit(data, tp, idname, yname, tname)
+  Yit <- get_Yit(data, tp, idname, yname, tname)[TP==tp]
   outcomeit <- Yit
   
   # this gets Y_it - Y_ig-1 for the g being considered here (if we want it)
-  # Yit - get_Yit(df, min(df$year) + g-2, "state", "lhomicide_c", "year") 
+  # note to self: TP==tp does nothing except get the length right
+  Yigmin1 <- get_Yit(data, g-1, idname, yname, tname)[TP==tp] 
   
   # if you want to subtract off the Yi1, it will give you the same thing
-  Yi1 <- get_Yi1(data, idname, yname, tname, gname)
-  outcomeit <- Yit - Yi1
+  Yi1 <- get_Yi1(data, idname, yname, tname, gname)[TP==1]
+  
+  if (base_period == "first_period") {
+    outcomeit <- Yit - Yi1
+  } else if (base_period == "gmin1") {
+    outcomeit <- Yit - Yigmin1
+  } 
   
   gpart_w_inner <- (ddotDit - mv_mult(ddotXit, gam))[idx]
   gpart_w <- gpart_w_inner / mean(gpart_w_inner)
-  gpart <- mean( gpart_w * outcomeit[G==g] )
+  gpart <- mean( gpart_w * outcomeit[thisG==g] )
   
   idxU <- G==0 & TP==tp
   upart_w_inner <- (ddotDit - mv_mult(ddotXit, gam))[idxU]
   upart_w <- upart_w_inner / mean(upart_w_inner)
-  upart <- mean( upart_w * outcomeit[G==0] )
+  upart <- mean( upart_w * outcomeit[thisG==0] )
   
   reg_attgt <- gpart - upart
   
   alpha_weight <- combine_twfe_weights_gt(g,tp,gname,tname,xformula,idname,data)
+  
+  remainder <- 0
+  if (base_period == "gmin1") {
+    remainder <- mean( gpart_w * (Yigmin1-Yi1)[thisG==g] ) - mean( upart_w * (Yigmin1-Yi1)[thisG==0] )
+  }
     
   out <- gt_weights(g=g,
                     tp=tp,
-                    treated=outcomeit[G==g],
-                    comparison=outcomeit[G==0],
+                    treated=outcomeit[thisG==g],
+                    comparison=outcomeit[thisG==0],
+                    base_period=base_period,
                     weights_treated=gpart_w,
                     weights_comparison=upart_w,
                     weighted_outcome_treated=gpart,
                     weighted_outcome_comparison=upart,
                     weighted_outcome_diff=reg_attgt,
+                    remainder=remainder,
                     alpha_weight=alpha_weight)
   out
 }
@@ -217,6 +241,7 @@ implicit_twfe_weights <- function(yname,
                              tname,
                              idname,
                              gname,
+                             base_period="first_period",
                              xformula=NULL,
                              xname=NULL,
                              data) {
@@ -249,6 +274,7 @@ implicit_twfe_weights <- function(yname,
                              tname=".TP",
                              idname=idname,
                              gname=".G",
+                             base_period=base_period,
                              xformula=xformula,
                              xname=xname,
                              data=data)
