@@ -14,6 +14,8 @@ gt_weights(
   weighted_outcome_treated = NULL,
   weighted_outcome_comparison = NULL,
   weighted_outcome_diff = NULL,
+  base_period = NULL,
+  remainder = NULL,
   alpha_weight
 )
 }
@@ -43,8 +45,6 @@ after applying weights_comparison to it}
 \item{weighted_outcome_diff}{the difference between the mean outcomes for
 the treated and comparison groups after applying weights to them}
 
-\item{alpha_weight}{the contribution of this term to the estimate of alpha}
-
 \item{base_period}{options are "first_period" or "gmin1".  If "first_period",
 the outcome for the treated group is subtracted by the outcome in the first
 period.  If "gmin1", the outcome for the treated group is subtracted by the
@@ -55,6 +55,8 @@ is "first_period".}
 doesn't exactly add up to alpha from the TWFE regression.  This term
 contains the leftover part of the decomposition.  Typically, this is
 very small.}
+
+\item{alpha_weight}{the contribution of this term to the estimate of alpha}
 }
 \description{
 a class for holding and working with group-time weights

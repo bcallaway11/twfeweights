@@ -4,7 +4,16 @@
 \alias{combine_twfe_weights_gt}
 \title{combine_twfe_weights_gt}
 \usage{
-combine_twfe_weights_gt(g, tp, gname, tname, xformula, idname, data)
+combine_twfe_weights_gt(
+  g,
+  tp,
+  gname,
+  tname,
+  xformula,
+  idname,
+  data,
+  weightsname = NULL
+)
 }
 \arguments{
 \item{g}{the current group for which the weights will be computed}
@@ -25,6 +34,9 @@ TWFE regression.}
 \item{idname}{The individual (cross-sectional unit) id name}
 
 \item{data}{The name of the data.frame that contains the data}
+
+\item{weightsname}{The name of the column containing the sampling weights.
+If not set, all observations have same weight.}
 }
 \description{
 a function that recovers the weights on each implicit

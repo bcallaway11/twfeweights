@@ -12,7 +12,8 @@ implicit_twfe_weights(
   base_period = "first_period",
   xformula = NULL,
   xname = NULL,
-  data
+  data,
+  weightsname = NULL
 )
 }
 \arguments{
@@ -74,6 +75,9 @@ is to violations of linearity.
 @export}
 
 \item{data}{The name of the data.frame that contains the data}
+
+\item{weightsname}{The name of the column containing the sampling weights.
+If not set, all observations have same weight.}
 }
 \value{
 a \code{decomposed_twfe} object

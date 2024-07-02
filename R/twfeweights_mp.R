@@ -38,6 +38,8 @@ gt_weights <- function(g,
                        weighted_outcome_treated=NULL,
                        weighted_outcome_comparison=NULL,
                        weighted_outcome_diff=NULL,
+                       base_period=NULL,
+                       remainder=NULL,
                        alpha_weight) {
   
   ret_gt_weights <- list(g=g,
@@ -49,6 +51,8 @@ gt_weights <- function(g,
                          weighted_outcome_treated=weighted_outcome_treated,
                          weighted_outcome_comparison=weighted_outcome_comparison,
                          weighted_outcome_diff=weighted_outcome_diff,
+                         base_period=base_period,
+                         remainder=remainder,
                          alpha_weight=alpha_weight)
   class(ret_gt_weights) <- "gt_weights"
   ret_gt_weights
@@ -96,7 +100,8 @@ implicit_twfe_weights_gt <- function(g,
                             base_period,
                             xformula=NULL,
                             xname=NULL,
-                            data) {
+                            data,
+                            weightsname) {
   
   TP <- data[,tname] # a vector of the same length as the full panel data, nT
   G <- data[,gname]  # a vector of the same length as the full panel data, nT
@@ -104,6 +109,11 @@ implicit_twfe_weights_gt <- function(g,
   minT <- min(unique(TP))
   maxT <- max(unique(TP))
   nT <- length(unique(TP))
+  if (!is.null(weightsname)) {
+    sampling_weights <- data[,weightsname]
+  } else {
+    sampling_weights <- rep(1, nrow(data))
+  }
   
   if (g==0 | g==(maxT+1)) {
     stop("not computng this for untreated group")
@@ -116,13 +126,13 @@ implicit_twfe_weights_gt <- function(g,
   if (!is.null(xname)) Xi <- data[,xname]
 
   # double demean variables in the model
-  ddotDit <- fixest::demean(Dit, data[,c(idname,tname)]) %>% as.numeric
-  ddotYit <- fixest::demean(Yit, data[,c(idname,tname)]) %>% as.numeric
-  ddotXit <- fixest::demean(Xit, data[,c(idname,tname)])
+  ddotDit <- fixest::demean(Dit, data[,c(idname,tname)], weights=sampling_weights) %>% as.numeric
+  ddotYit <- fixest::demean(Yit, data[,c(idname,tname)], weights=sampling_weights) %>% as.numeric
+  ddotXit <- fixest::demean(Xit, data[,c(idname,tname)], weights=sampling_weights)
 
   # weights depend on linear projection of treatment
   # on covariates using all periods
-  lp_treat <- lm(ddotDit ~ -1 + ddotXit)
+  lp_treat <- lm(ddotDit ~ -1 + ddotXit, weights=sampling_weights)
   gam <- as.matrix(coef(lp_treat))
   
   idx <- G==g & TP==tp
@@ -143,21 +153,25 @@ implicit_twfe_weights_gt <- function(g,
   } 
   
   gpart_w_inner <- (ddotDit - mv_mult(ddotXit, gam))[idx]
-  gpart_w <- gpart_w_inner / mean(gpart_w_inner)
-  gpart <- mean( gpart_w * outcomeit[thisG==g] )
+  gpart_w <- gpart_w_inner / weighted.mean(gpart_w_inner, w=sampling_weights[idx])
+  gpart <- weighted.mean( gpart_w * outcomeit[thisG==g], w=sampling_weights[idx] )
   
   idxU <- G==0 & TP==tp
   upart_w_inner <- (ddotDit - mv_mult(ddotXit, gam))[idxU]
-  upart_w <- upart_w_inner / mean(upart_w_inner)
-  upart <- mean( upart_w * outcomeit[thisG==0] )
+  upart_w <- upart_w_inner / weighted.mean(upart_w_inner, w=sampling_weights[idxU])
+  upart <- weighted.mean( upart_w * outcomeit[thisG==0] , w=sampling_weights[idxU])
   
   reg_attgt <- gpart - upart
   
-  alpha_weight <- combine_twfe_weights_gt(g,tp,gname,tname,xformula,idname,data)
+  alpha_weight <- combine_twfe_weights_gt(g,tp,gname,tname,xformula,idname,data,weightsname)
   
   remainder <- 0
   if (base_period == "gmin1") {
-    remainder <- mean( gpart_w * (Yigmin1-Yi1)[thisG==g] ) - mean( upart_w * (Yigmin1-Yi1)[thisG==0] )
+    # works but try to simplify
+    # remainder <- mean( gpart_w * (Yigmin1-Yi1)[thisG==g] ) - mean( upart_w * (Yigmin1-Yi1)[thisG==0] )
+    # also works but try to simplify more
+    # remainder <- - mean( upart_w * (Yigmin1-Yi1)[thisG==0] )
+    remainder <- - weighted.mean( upart_w * Yigmin1[thisG==0], w=sampling_weights[idxU])
   }
     
   out <- gt_weights(g=g,
@@ -186,23 +200,29 @@ combine_twfe_weights_gt <- function(g,
                                     tname,
                                     xformula,
                                     idname,
-                                    data) {
+                                    data,
+                                    weightsname=NULL) {
   
   G <- data[,gname]
   TP <- data[,tname]
   maxT <- max(TP)
+  if (!is.null(weightsname)) {
+    sampling_weights <- data[,weightsname]
+  } else {
+    sampling_weights <- rep(1, nrow(data))
+  }
   
   xformula <- BMisc::addCovToFormla("-1", xformula)
   Xit <- model.matrix(xformula, data=data)
   Dit <- 1*( (data[,tname] >= data[,gname]) & (data[,gname] != 0) )
 
   # double demean variables in the model
-  ddotDit <- fixest::demean(Dit, data[,c(idname,tname)]) %>% as.numeric()
-  ddotXit <- fixest::demean(Xit, data[,c(idname,tname)])
+  ddotDit <- fixest::demean(Dit, data[,c(idname,tname)], weights=sampling_weights) %>% as.numeric()
+  ddotXit <- fixest::demean(Xit, data[,c(idname,tname)], weights=sampling_weights)
   
   # weights depend on linear projection of treatment
   # on covariates using all periods
-  lp_treat <- lm(ddotDit ~ -1 + ddotXit)
+  lp_treat <- lm(ddotDit ~ -1 + ddotXit, weights=sampling_weights)
   gam <- as.matrix(coef(lp_treat))
   
   if (g==(maxT+1)) {
@@ -210,10 +230,10 @@ combine_twfe_weights_gt <- function(g,
   }
   
   idx <- G==g & TP==tp
-  pg <- mean(G==g)
+  pg <- weighted.mean(G==g, w=sampling_weights)
   
-  alp_den <- mean((ddotDit - mv_mult(ddotXit,gam))*(ddotDit))
-  mean( ( ddotDit - mv_mult(ddotXit, gam) )[idx] ) * pg / (alp_den*maxT)
+  alp_den <- weighted.mean((ddotDit - mv_mult(ddotXit,gam))*(ddotDit), w=sampling_weights)
+  weighted.mean( ( ddotDit - mv_mult(ddotXit, gam) )[idx] , w=sampling_weights[idx]) * pg / (alp_den*maxT)
   
   # 
   # 
@@ -244,7 +264,8 @@ implicit_twfe_weights <- function(yname,
                              base_period="first_period",
                              xformula=NULL,
                              xname=NULL,
-                             data) {
+                             data,
+                             weightsname=NULL) {
   
   # confirm balanced panel and sort data
   norig <- nrow(data) 
@@ -277,7 +298,8 @@ implicit_twfe_weights <- function(yname,
                              base_period=base_period,
                              xformula=xformula,
                              xname=xname,
-                             data=data)
+                             data=data,
+                             weightsname=weightsname)
   })  
   
   class(twfe_gt) <- "decomposed_twfe"

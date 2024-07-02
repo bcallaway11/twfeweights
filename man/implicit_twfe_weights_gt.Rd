@@ -14,7 +14,8 @@ implicit_twfe_weights_gt(
   base_period,
   xformula = NULL,
   xname = NULL,
-  data
+  data,
+  weightsname
 )
 }
 \arguments{
@@ -80,6 +81,9 @@ is to violations of linearity.
 @export}
 
 \item{data}{The name of the data.frame that contains the data}
+
+\item{weightsname}{The name of the column containing the sampling weights.
+If not set, all observations have same weight.}
 }
 \description{
 Compute TWFE weights for a particular group
