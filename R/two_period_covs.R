@@ -3,7 +3,7 @@
 # File contains functions to compute implicit weights for the setting with
 # two time periods.  The two cases covered are:
 #
-# * implicit TWFE regression weigthts
+# * implicit TWFE regression weights
 # * implicit AIPW weights
 #
 #-------------------------------------------------------------------------------

@@ -40,6 +40,7 @@ gt_weights <- function(g,
                        weighted_outcome_diff=NULL,
                        base_period=NULL,
                        remainder=NULL,
+                       cov_bal_df=NULL,
                        alpha_weight) {
   
   ret_gt_weights <- list(g=g,
@@ -53,6 +54,7 @@ gt_weights <- function(g,
                          weighted_outcome_diff=weighted_outcome_diff,
                          base_period=base_period,
                          remainder=remainder,
+                         cov_bal_df=cov_bal_df,
                          alpha_weight=alpha_weight)
   class(ret_gt_weights) <- "gt_weights"
   ret_gt_weights
@@ -99,7 +101,6 @@ implicit_twfe_weights_gt <- function(g,
                             gname,
                             base_period,
                             xformula=NULL,
-                            xname=NULL,
                             data,
                             weightsname) {
   
@@ -123,7 +124,6 @@ implicit_twfe_weights_gt <- function(g,
   xformula <- BMisc::addCovToFormla("-1", xformula)
   Xit <- model.matrix(xformula, data=data)
   Dit <- 1*( (data[,tname] >= data[,gname]) & (data[,gname] != 0) )
-  if (!is.null(xname)) Xi <- data[,xname]
 
   # double demean variables in the model
   ddotDit <- fixest::demean(Dit, data[,c(idname,tname)], weights=sampling_weights) %>% as.numeric
@@ -258,14 +258,14 @@ combine_twfe_weights_gt <- function(g,
 #' @return a `decomposed_twfe` object
 #' @export
 implicit_twfe_weights <- function(yname,
-                             tname,
-                             idname,
-                             gname,
-                             base_period="first_period",
-                             xformula=NULL,
-                             xname=NULL,
-                             data,
-                             weightsname=NULL) {
+                                  tname,
+                                  idname,
+                                  gname,
+                                  base_period="first_period",
+                                  xformula=NULL,
+                                  extra_balance_vars_formula=NULL,
+                                  data,
+                                  weightsname=NULL) {
   
   # confirm balanced panel and sort data
   norig <- nrow(data) 
@@ -297,7 +297,6 @@ implicit_twfe_weights <- function(yname,
                              gname=".G",
                              base_period=base_period,
                              xformula=xformula,
-                             xname=xname,
                              data=data,
                              weightsname=weightsname)
   })  
@@ -322,135 +321,151 @@ summary.decomposed_twfe <- function(object, ...) {
   print_df <- cbind.data.frame(group, time.period, post, twfe_att_gt, alpha_weight)
   alpha <- sum(alpha_weight*twfe_att_gt)
   pt_violations_bias <- sum(alpha_weight[post==0]*twfe_att_gt[post==0])
+  remainders <- unlist(BMisc::getListElement(object, "remainder"))
+  rem <- sum(remainders*alpha_weight)
   cat("alpha twfe:          ", round(alpha,4), "\n")
   cat("pta violations bias: ", round(pt_violations_bias,4),"\n")
-  print_df
+  cat("remainders:          " , round(rem,4), "\n")
+  cat("\n")
+  # this is basically just a check to see if the balance statistics have been computed
+  # if not, we'll print the summary of the decomposition with respect 
+  # to the actual outcome.  Otherwiser, we will summarize the covariate balance
+  if (is.null(object[[1]]$cov_bal_df)) {
+    cat("summary of twfe decomposition\n")
+    print_df
+  } else {
+    cat("summary of twfe covariate balance:\n")
+    cov_balance_summary_df <- mp_covariate_bal_summary_helper(object)
+    cov_balance_summary_df
+  }
 }
 
+#' @export;
+twfe_cov_bal <- function(decomposed_twfe, extra_balance_vars_formula, 
+                         idname, tname, gname, data, weightsname=NULL) {
+  # convert groups and time periods to scale like 1,2,3,4,5,etc.
+  tlist <- sort(unique(data[,tname]))
+  glist <- sort(unique(data[,gname]))
+  data$.TP <- orig2t(data[,tname], tlist)
+  data$.G <- orig2t(data[,gname], tlist)
+  tlist <- sort(unique(data$.TP))
+  glist <- sort(unique(data$.G))
+  
+  # construct a data.frame that has the mean of each extra balance variable
+  extra_vars_frame <- as.data.frame(model.matrix(BMisc::addCovToFormla("-1", extra_balance_vars_formula), data=data))
+  mean_extra_var_list <- lapply(1:ncol(extra_vars_frame), function(j) {
+    this_colname <- colnames(extra_vars_frame)[j]
+    this_frame <- cbind.data.frame(extra_vars_frame[,j], data[,c(idname,tname,gname)])
+    colnames(this_frame)[1] <- this_colname
+    BMisc::get_Yibar(this_frame, idname=idname, yname=this_colname)
+  })  
+  mean_extra_vars <- do.call(cbind.data.frame, mean_extra_var_list)
+  colnames(mean_extra_vars) <- paste0("mean_", colnames(extra_vars_frame))
+  
+  # compute balance statistics for each extra balance variable
+  groups <- BMisc::getListElement(decomposed_twfe, "g")
+  time_periods <- BMisc::getListElement(decomposed_twfe, "tp")
+  gt_mat <- cbind(groups, time_periods)
+  
+  for (i in 1:nrow(gt_mat)) {
+    this_balance_df <- twfe_cov_bal_gt(g = gt_mat[i, 1],
+                                       tp = gt_mat[i, 2],
+                                       decomposed_twfe = decomposed_twfe,
+                                       X = mean_extra_vars,
+                                       idname = idname, 
+                                       tname = tname, 
+                                       gname = gname,
+                                       data = data,
+                                       weightsname = weightsname)
+    decomposed_twfe[[i]]$cov_bal_df <- this_balance_df
+  }
+  
+  # return the decomposed_twfe object with the balance statistics added
+  decomposed_twfe
+}
 
+#' @export
+twfe_cov_bal_gt <- function(g, tp, decomposed_twfe, X, idname, tname, gname, weightsname, data) {
+  groups <- unlist(BMisc::getListElement(decomposed_twfe, "g"))
+  time_periods <- unlist(BMisc::getListElement(decomposed_twfe, "tp"))
+  this_gt_idx <- which(groups==g & time_periods==tp)
+  this_decomposed_twfe <- decomposed_twfe[[this_gt_idx]]
+  weights_treated <- this_decomposed_twfe$weights_treated
+  weights_comparison <- this_decomposed_twfe$weights_comparison
+  treated_idx <- data$.G==g & data$.TP==tp
+  comparison_idx <- data$.G==0 & data$.TP==tp
+  if(!is.null(weightsname)) {
+    sampling_weights <- data[,weightsname]
+  } else {
+    sampling_weights <- rep(1, nrow(data))
+  }
+  
+  unweighted_covs_treated <- apply(X[treated_idx, , drop=FALSE], 2, function(x) {
+    weighted.mean(x, w=sampling_weights[treated_idx])
+  })
+  unweighted_covs_comparison <- apply(X[comparison_idx, , drop=FALSE], 2, function(x) {
+    weighted.mean(x, w=sampling_weights[comparison_idx])
+  })
+  unweighted_diff <- unweighted_covs_treated - unweighted_covs_comparison
+  
+  weighted_covs_treated <- apply(X[treated_idx, , drop=FALSE], 2, function(x) {
+    weighted.mean(x*weights_treated, w=sampling_weights[treated_idx])
+  })
+  weighted_covs_comparison <- apply(X[comparison_idx, , drop=FALSE], 2, function(x) {
+    weighted.mean(x*weights_comparison, w=sampling_weights[comparison_idx])
+  })
+  weighted_diff <- weighted_covs_treated - weighted_covs_comparison
+  
+  both_idx <- treated_idx | comparison_idx
+  sd <- apply(X, 2, function(x) {
+    sqrt(weighted.mean((x[both_idx] - weighted.mean(x[both_idx], w=sampling_weights[both_idx]))^2, w=sampling_weights[both_idx]))
+  })  
+  
+  # return data frame that contains the weighted covariates for the treated and comparison groups
+  cbind.data.frame(unweighted_covs_treated,
+                   unweighted_covs_comparison,
+                   unweighted_diff,
+                   weighted_covs_treated, 
+                   weighted_covs_comparison,
+                   weighted_diff,
+                   sd)
+}
 
-# ------------------------------------------------------------------------------
-# old, delete at final version
-# the code below if for the case where we use the same outside weights as for 
-# ATT^o, but the drawback is that the inside weights do not have mean 1
-# ------------------------------------------------------------------------------
-# 
-# twfe_weights_gt <- function(g,
-#                             tp,
-#                             yname,
-#                             tname,
-#                             idname,
-#                             gname,
-#                             xformula=NULL,
-#                             xname=NULL,
-#                             data) {
-#   
-#   # sort data
-#   data <- dplyr::arrange(data, idname, tname)
-#   
-#   # setup 
-#   G <- data[,gname]
-#   TP <- data[,tname]
-#   tlist <- sort(unique(TP))
-#   preg <- tlist[tail(which(tlist < g),1)] # universal base period
-#   Yit <- data[,yname]
-#   xformula <- BMisc::addCovToFormla("-1", xformula)
-#   Xit <- model.matrix(xformula, data=data)
-#   Dit <- 1*( (data[,tname] >= data[,gname]) & (data[,gname] != 0) )
-#   if (!is.null(xname)) Xi <- data[,xname]
-#   minT <- min(unique(TP))
-#   nT <- length(unique(TP))
-#   
-#   # double demean variables in the model
-#   ddotDit <- fixest::demean(Dit, data[,c(idname,tname)]) %>% as.numeric
-#   ddotYit <- fixest::demean(Yit, data[,c(idname,tname)]) %>% as.numeric
-#   ddotXit <- fixest::demean(Xit, data[,c(idname,tname)])
-#   
-#   # weights depend on linear projection of treatment 
-#   # on covariates using all periods
-#   lp_treat <- lm(ddotDit ~ -1 + ddotXit)
-#   gam <- as.matrix(coef(lp_treat))
-#   
-#   # pick the right periods and compute the weights
-#   idx <- G==g & TP==tp
-#   idx_preg <- G==g & TP==preg
-#   pg <- mean(G==g)
-#   pbarg <- mean( G[G!=0] == g)
-#   pu <- mean(G==0)
-#   local_g <- which(tlist == g)
-#   time_weight <- (nT-local_g+1)/nT
-#   pg_weight <- pg/pbarg
-#   linear_pscore <- as.numeric(ddotXit%*%gam)
-#   alp_den <- mean((ddotDit - linear_pscore)*(ddotDit))
-#   weights_1 <- (ddotDit[idx] - linear_pscore[idx])*time_weight*pg_weight/alp_den
-#   if (is.null(xname)) {
-#     this_treated <- Yit[idx] - Yit[idx_preg]
-#   } else {
-#     this_treated <- Xi[idx]
-#   }
-#   term_1 <- mean( weights_1 * this_treated)
-#   
-#   idx2 <- G==0 & TP==tp
-#   idx2_preg <- G==0 & TP==preg
-#   weights_2 <- (ddotDit[idx2] - linear_pscore[idx2])*time_weight*pu/alp_den
-#   if (is.null(xname)) {
-#     this_comparison <- Yit[idx2] - Yit[idx2_preg]
-#   } else {
-#     this_comparison <- Xi[idx2]
-#   }
-#   term_2 <- mean(weights_2 * this_comparison)
-#   
-#   alpha_weight <- combine_twfe_weights_gt(g,tp,gname,tname,data)
-#   
-#   # make things negative if in pre-treatment period
-#   if (tp < g) {
-#     term_1 <- -term_1
-#     term_2 <- -term_2
-#   }
-#   
-#   ## browser()
-#   ## # some debugging code
-#   ## w1 <- ddotDit[idx] - linear_pscore[idx]
-#   ## w2 <- ddotDit[idx2] - linear_pscore[idx2]
-#   ## m1<-mean(w1)
-#   ## m2<-mean(w2)
-#   ## m1*pg/pbarg
-#   ## m2*pu
-#   ## idx3 <- (G==0 | tp < G) & TP==tp
-#   ## idx3_preg <- (G==0 | tp < G) & TP==preg
-#   ## w3 <- ddotDit[idx3] - linear_pscore[idx3]
-#   ## m3 <- mean(w3)
-#   ## pdt0 <- mean(G==0 | tp < G)
-#   ## m1
-#   ## m2*(pdt0/(1-pdt0))
-#   
-#   out <- gt_weights(g=g,
-#                     tp=tp,
-#                     treated=this_treated,
-#                     comparison=this_comparison,
-#                     weights_treated=weights_1,
-#                     weights_comparison=-weights_2,
-#                     weighted_outcome_treated=term_1,
-#                     weighted_outcome_comparison=term_2,
-#                     weighted_outcome_diff=(term_1 + term_2),
-#                     alpha_weight=alpha_weight)
-#   out
-# }
+#' @export
+mp_covariate_bal_summary_helper <- function(decomposed_twfe_obj) {
+  group <- unlist(BMisc::getListElement(decomposed_twfe_obj, "g"))
+  time.period <- unlist(BMisc::getListElement(decomposed_twfe_obj, "tp"))
+  alpha_weight <- unlist(BMisc::getListElement(decomposed_twfe_obj, "alpha_weight"))
+  post <- 1*(time.period >= group)
+  ncovs <- nrow(decomposed_twfe_obj[[1]]$cov_bal_df)
+  covnames <- rownames(decomposed_twfe_obj[[1]]$cov_bal_df)
+  cov_bal_df_list <- BMisc::getListElement(decomposed_twfe_obj, "cov_bal_df") 
+  cov_bal_list <- lapply(1:ncovs, function(i) {
+    do.call(rbind.data.frame, lapply(cov_bal_df_list, function(this_df) this_df[i, , drop=FALSE]))
+  })
+  unweighted_diffs <- unlist(lapply(cov_bal_list, function(x) sum(post*alpha_weight*x$unweighted_diff/x$sd)))
+  weighted_diffs <- unlist(lapply(cov_bal_list, function(x) sum(post*alpha_weight*x$weighted_diff/x$sd)))
+  # sanity check: should balance across all periods, b/c time-invariant - ok
+  #lapply(cov_bal_list, function(x) sum(alpha_weight*x$weighted_diff))
+  
+  cov_balance_summary_df <- cbind.data.frame(unweighted=unweighted_diffs, weighted=weighted_diffs)
+  rownames(cov_balance_summary_df) <- covnames
+  cov_balance_summary_df
+}
 
-# combine_twfe_weights_gt <- function(g,
-#                                     tp,
-#                                     gname,
-#                                     tname,
-#                                     data) {
-#   G <- data[,gname]
-#   TP <- data[,tname]
-#   tlist <- sort(unique(TP))
-#   local_g <- which(tlist == g) # the group in terms of t=1,2,3,...,T
-#   minT <- min(unique(TP))
-#   nT <- length(unique(TP))
-#   pbarg <- mean( G[G!=0] == g)
-#   ntreatedperiods <- nT - local_g + 1
-#   w_gt <- pbarg/ntreatedperiods
-#   if (tp < g) w_gt <- -w_gt
-#   w_gt
-# }
+# TODO: possibly add the outcome to the plot, to make it the same as for the two period 
+# case, though it is not 100% obvious what the easiest way to do this is
+#' @export
+ggtwfeweights.decomposed_twfe <- function(decomposed_twfe_obj) {
+  cov_balance_summary_df <- mp_covariate_bal_summary_helper(decomposed_twfe_obj)
+  browser()
+  
+  
+  
+  cov_balance_df <- two_period_covs_obj$cov_balance_df
+  cov_balance_df$covariate <- factor(cov_balance_df$covariate, levels = rev(unique(cov_balance_df$covariate)))
+  ggplot(cov_balance_df, aes(y=.data$covariate, x=abs(.data$weighted_diff/.data$sd))) + 
+    geom_point(color="steelblue", size=3, shape=16) +
+    geom_point(aes(x=abs(.data$unweighted_diff/.data$sd)), color="red", size=3, shape=1) +
+    theme_bw()
+}

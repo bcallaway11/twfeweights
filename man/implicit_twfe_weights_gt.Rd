@@ -13,7 +13,6 @@ implicit_twfe_weights_gt(
   gname,
   base_period,
   xformula = NULL,
-  xname = NULL,
   data,
   weightsname
 )
@@ -63,6 +62,11 @@ extra estimate in an earlier period.}
 \item{xformula}{formula for covariates that are included in the
 TWFE regression.}
 
+\item{data}{The name of the data.frame that contains the data}
+
+\item{weightsname}{The name of the column containing the sampling weights.
+If not set, all observations have same weight.}
+
 \item{xname}{by default, \code{implicit_twfe_weights_gt} applies the
 implicit TWFE regression weights to the outcome.  In
 cases where the researcher would like to apply the
@@ -79,11 +83,6 @@ is to violations of linearity.
 
 @return a gt_weights object
 @export}
-
-\item{data}{The name of the data.frame that contains the data}
-
-\item{weightsname}{The name of the column containing the sampling weights.
-If not set, all observations have same weight.}
 }
 \description{
 Compute TWFE weights for a particular group

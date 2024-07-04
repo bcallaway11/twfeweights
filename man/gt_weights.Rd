@@ -16,6 +16,7 @@ gt_weights(
   weighted_outcome_diff = NULL,
   base_period = NULL,
   remainder = NULL,
+  cov_bal_df = NULL,
   alpha_weight
 )
 }
