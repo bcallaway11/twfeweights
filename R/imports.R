@@ -9,7 +9,7 @@
 #' 
 #' @import BMisc
 #' @import fixest
-#' @import dplyr
+#' @importFrom dplyr arrange
 #' @import DRDID
 #' @import ggplot2
 #' @import stats 

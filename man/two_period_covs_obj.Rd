@@ -10,7 +10,7 @@ A list with the following components:
 \item{cov_balance_df}{a data frame with the balance statistics for the covariates}
 }
 \usage{
-two_period_covs_obj(est, weights, cov_balance_df)
+two_period_covs_obj(est, weights, dy, D, cov_balance_df)
 }
 \description{
 an object that holds the results of the \code{two_period_covs} function

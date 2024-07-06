@@ -18,10 +18,12 @@
 #' \item{cov_balance_df}{a data frame with the balance statistics for the covariates}
 #' 
 #' @export
-two_period_covs_obj <- function(est, weights, cov_balance_df) {
+two_period_covs_obj <- function(est, weights, dy, D, cov_balance_df) {
   out <- list(
     est=est,
     weights=weights,
+    dy=dy,
+    D=D,
     cov_balance_df=cov_balance_df
   )
   class(out) <- "two_period_covs_obj"
@@ -274,12 +276,14 @@ two_period_aipw_weights <- function(yname,
   # add treatment
   .df_wide$.D <- ifelse(data[ data[,tname]==maxT, gname ]==0, 0, 1)
   # add the time invariant variables
-  if (!is.null(xformula)) {
+  if (!is.null(xformula) & xformula!=~1) {
     # try to account for factors here
     .df_wide_temp <- model.matrix(xformula, data[ data[,tname]==minT, ])[,-1, drop=FALSE]
     colnames(.df_wide_temp) <- paste0(colnames(.df_wide_temp), "_", minT)
     .df_wide <- cbind.data.frame(.df_wide, .df_wide_temp)
     reg_xformula <- BMisc::toformula("", colnames(.df_wide_temp))
+  } else {
+    reg_xformula <- ~1
   }
   # add the variables that change over time
   if (!is.null(d_covs_formula)) {
@@ -341,8 +345,8 @@ two_period_aipw_weights <- function(yname,
                        data=.df_wide[D==0,],
                        weights=.sampling_weights))
   X <- model.matrix(BMisc::toformula("", BMisc::rhs.vars(reg_xformula)), data=.df_wide)
-  X0 <- X[D==0,]
-  X1 <- X[D==1,]
+  X0 <- X[D==0, , drop=FALSE]
+  X1 <- X[D==1, , drop=FALSE]
   Qxx <- t(sampling_weights[D==0]*X0)%*%X0/sum(D==0)
   gamma0 <- solve(Qxx)%*%colMeans(sampling_weights[D==1]*X1)/mean(sampling_weights[D==1])*p/(1-p)
   aipw_extra_weights0 <- (1-p)/p * X0 %*% (gamma0 - gamma0_tilde)
@@ -385,12 +389,17 @@ two_period_aipw_weights <- function(yname,
   L0 <- predict(out_reg, newdata=.df_wide)
   
   att <- DRDID::std_ipw_did_panel(dy-L0, rep(0,nrow(.df_wide)), D, 
-                                  covariates=model.matrix(BMisc::toformula("", BMisc::rhs.vars(reg_xformula)), data=.df_wide), 
+                                  covariates=model.matrix(BMisc::toformula("", BMisc::rhs.vars(pscore_xformula)), data=.df_wide), 
                                   i.weights=sampling_weights)$ATT
   
   # DRDID::drdid_panel(dy, rep(0,nrow(.df_wide)), D, 
   #                   covariates=model.matrix(BMisc::toformula("", BMisc::rhs.vars(reg_xformula)), data=.df_wide), 
   #                   i.weights=sampling_weights)$ATT
+  
+  # did::att_gt(yname=yname, tname=tname, idname="sid", gname=gname,
+  #             xformla=xformula, data=data,
+  #             weightsname=weightsname,
+  #             est_method="dr")
   
   if (abs(aipw_weights_att - att) > 1e-6) {
     warning("Looks like something has gone wrong...")
@@ -458,6 +467,6 @@ two_period_aipw_weights <- function(yname,
   })
   cov_balance_df <- do.call(rbind.data.frame, cov_balance)
   
-  out <- two_period_covs_obj(att, aipw_weights, cov_balance_df)
+  out <- two_period_covs_obj(att, aipw_weights, dy, D, cov_balance_df)
   out
 }
