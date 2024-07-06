@@ -11,6 +11,9 @@
 
 \item{...}{extra arguments, not used here}
 }
+\value{
+a summary of the decomposition
+}
 \description{
 summarizes a two-way fixed effects regression
 decomposition

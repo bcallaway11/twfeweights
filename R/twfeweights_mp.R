@@ -313,13 +313,13 @@ implicit_twfe_weights <- function(yname,
   out
 }
 
-#'@title summary.decomposed_twfe
-#'@description summarizes a two-way fixed effects regression 
-#' decomposition
-#'@param object a decomposed_twfe object
-#'@param ... extra arguments, not used here
-#'
-#'@export
+#' @title summary.decomposed_twfe
+#' @description summarizes a two-way fixed effects regression 
+#'  decomposition
+#' @param object a decomposed_twfe object
+#' @param ... extra arguments, not used here
+#' @return a summary of the decomposition
+#' @export
 summary.decomposed_twfe <- function(object, ...) {
   object <- object$twfe_gt
   twfe_att_gt <- unlist(BMisc::getListElement(object, "weighted_outcome_diff"))
@@ -351,6 +351,26 @@ summary.decomposed_twfe <- function(object, ...) {
   }
 }
 
+#' @title twfe_cov_balance
+#' @description A function to compute balance statistics inherited from 
+#'  running a TWFE regression in a staggered treatment adoption setting.
+#'  
+#'  The function should be called after running `implicit_twfe_weights`, and 
+#'  the it computes balance statistics for the average of each variable 
+#'  passed in through the `extra_balance_vars_formula` argument across 
+#'  all post-treatment periods.
+#' @param decomposed_twfe a `decomposed_twfe` object that comes from
+#'  running `implicit_twfe_weights` in a previous step.
+#' @param extra_balance_vars_formula a formula that includes the variables 
+#'  that you would like to compute balance statistics for.  The formula 
+#'  should be in the form of `~var1 + var2 + var3 + ...` where `var1`,
+#'  `var2`, and `var3` can be covariates whose values change over time.  
+#'   `twfe_cov_bal` will average these covariates across all time periods, 
+#'   and then compute balance statistics for each covariate where the 
+#'   balance statistics come from the implicit weights inherited from the 
+#'   TWFE regression.
+#' @return a `decomposed_twfe` object with the balance statistics added
+#'  to the `twfe_gt` list element.
 #' @export
 twfe_cov_bal <- function(decomposed_twfe, extra_balance_vars_formula) {
   idname <- decomposed_twfe$idname
@@ -394,6 +414,20 @@ twfe_cov_bal <- function(decomposed_twfe, extra_balance_vars_formula) {
   decomposed_twfe
 }
 
+#' @title twfe_cov_bal_gt
+#' @description a (mainly internal) function to compute balance statistics 
+#'  using the implicit weights from a TWFE regression for a particular 
+#'  group `g` and time period `tp`.  This function is called internally 
+#'  by `twfe_cov_bal`.
+#' @param g the group for which the balance statistics will be computed
+#' @param tp the time period for which the balance statistics will be computed
+#' @param decomposed_twfe a `decomposed_twfe` object that comes from 
+#'  running `implicit_twfe_weights` in a previous step.
+#' @param X a data frame that contains the mean of each extra balance variable
+#'  that was passed into the function `twfe_cov_bal`.
+#' @return a data frame that contains the balance statistics for each 
+#'  covariate that was passed into the `extra_balance_vars_formula` argument
+#'  in `twfe_cov_bal`.
 #' @export
 twfe_cov_bal_gt <- function(g, tp, decomposed_twfe, X) {
   idname <- decomposed_twfe$idname
@@ -446,6 +480,16 @@ twfe_cov_bal_gt <- function(g, tp, decomposed_twfe, X) {
                    sd)
 }
 
+#' @title mp_covariate_bal_summary_helper
+#' @description a helper function to summarize the balance statistics mainly 
+#'  to handle some repetitive calculations used across functions.
+#' @param decomposed_twfe_obj a `decomposed_twfe` object that comes from 
+#'  running `implicit_twfe_weights` in a previous step.  The function 
+#'  can also work when this argument is a `decomposed_aipw` coming from 
+#'  running `implicit_aipw_weights`.  
+#' @return a data frame that contains the balance statistics for each
+#'  covariate that was passed into the `extra_balance_vars_formula` argument 
+#'  in either `twfe_cov_bal` or `aipw_cov_bal`.
 #' @export
 mp_covariate_bal_summary_helper <- function(decomposed_twfe_obj) {
   
@@ -480,6 +524,23 @@ mp_covariate_bal_summary_helper <- function(decomposed_twfe_obj) {
 
 # TODO: possibly add the outcome to the plot, to make it the same as for the two period 
 # case, though it is not 100% obvious what the easiest way to do this is
+#' @title ggtwfeweights.decomposed_twfe
+#' @description a function to plot the balance statistics for the covariates 
+#'  that were passed into the `extra_balance_vars_formula` argument in either 
+#'  `twfe_cov_bal` or `aipw_cov_bal`.
+#' @param decomposed_twfe_obj a `decomposed_twfe` object that comes from a 
+#'  previous step of running either `twfe_cov_bal` or `aipw_cov_bal`.
+#' @param standardize a logical argument that determines whether the balance 
+#'  statistics should be standardized by the weighted average of the 
+#'  standard deviation of each covariate across post-treatment periods.  
+#'  The default is `TRUE`.
+#'  
+#'  Because the (implicit) weights that combine estimates across groups and 
+#'  time periods are different for TWFE and the overall average treatment 
+#'  effect on the treated (as computed by `did::att_gt` or `implicit_aipw_weights`), 
+#'  the "unweighted" covariate balance statistics can be different across 
+#'  the two methods; however, these differences are typically relatively small.
+#' @return a ggplot object
 #' @export
 ggtwfeweights.decomposed_twfe <- function(decomposed_twfe_obj, standardize=TRUE) {
   
@@ -507,6 +568,57 @@ ggtwfeweights.decomposed_twfe <- function(decomposed_twfe_obj, standardize=TRUE)
     theme_bw()
 }
 
+#' @title implicit_aipw_weights
+#' @description a function to compute implicit AIPW weights in a setting with 
+#'  staggered treatment adoption.  
+#' @param yname the name of the outcome variable
+#' @param tname the name of the time period variable
+#' @param idname the name of the id variable
+#' @param gname the name of the group variable
+#' @param xformula a formula that includes the covariates that you would like 
+#'  to include in the AIPW regression.  Time-varying covariates provided in this 
+#'  argument will be included by taking their level in "base period" 
+#'  (which in this case is the period right before a particular group 
+#'  become treated).  Time-invariant covariates can also be included in this 
+#'  argument.  This is the same way that covariates are included 
+#'  in `did::att_gt`.
+#' @param d_covs_formula a formula that includes time-varying covariates to 
+#'  be included in the form $X_t - X_{g-1}$, i.e., their change from the 
+#'  "base period" to the current period.  By default, covariates are not 
+#'  included in this way which is the same as in `did::att_gt`, but you can 
+#'  include them by passing a formula here.
+#' @param pscore_formula a formula that includes the covariates that you would 
+#'  like to include in the propensity score model.  By default, these covariates 
+#'  are the same as for the outcome regression which are provided in the earlier 
+#'  argument `xformula`.  This is a natural choice, but this argument allows 
+#'  these covariates to be different, if desired.  
+#'  
+#'  Setting `pscore_formula` and `xformula` to be different allows for some 
+#'  important special cases to be handled by this function.  For one, providing 
+#'  covariates in `xformula` while setting `pscore_formula=~1` will deliver 
+#'  deliver "regression adjustment" estimates and decompositions.  For another, 
+#'  setting `pscore_formula` to include covariates while setting `xformula=~1` 
+#'  will deliver "inverse probability weighting" estimates and decompositions.
+#' @param pscore_d_covs_formula a formula that includes time-varying covariates 
+#'  to include as $X_t - X_{g-1}$ in the propensity score model.  The default 
+#'  is to set these to be the same as the covariates in `d_covs_formula`.
+#' @param extra_balance_vars_formula is currently ignored.  This argument 
+#'  makes the arguments the same as for `two_period_aipw_weights`, but currently 
+#'  covariate balance checking is done in a different way in the multiple 
+#'  period case by calling `aipw_cov_bal` after running this function.
+#' @param extra_balance_d_vars_formula is currently ignored for the same 
+#'  reason as `extra_balance_vars_formula`.
+#' @param balance_d_vars_post is currently ignored for the same reason as 
+#'  `extra_balance_vars_formula`.
+#' @param data a panel data set.  This function is currently only guaranteed 
+#'  to work with balanced and sorted panel data.  The function tries to 
+#'  balance and sort, but it is recommended to do this before calling the 
+#'  function.
+#' @param weightsname the name of the variable in the data set that contains
+#'  the sampling weights.  The default is `NULL` which means that all 
+#'  observations are given equal weight.
+#' @param ... extra arguments, not used here
+#' @return a `decomposed_aipw` object
 #' @export
 implicit_aipw_weights <- function(yname,
                                   tname,
@@ -586,7 +698,17 @@ implicit_aipw_weights <- function(yname,
   out
 }
 
-
+#' @title aipw_cov_bal
+#' @description A function to compute balance statistics inherited from 
+#'  from estimating the overall average treatment effect on the treated 
+#'  using augmented inverse probability weighting (AIPW) in a staggered 
+#'  treatment adoption setting.
+#' @param decomposed_aipw a `decomposed_aipw` object that comes from 
+#'  running `implicit_aipw_weights` in a previous step.
+#' @inheritParams twfe_cov_bal
+#' @return a `decomposed_aipw` object with the balance statistics added 
+#'  to the `aipw_gt` list element.
+#' @export
 aipw_cov_bal <- function(decomposed_aipw, extra_balance_vars_formula) {
   idname <- decomposed_aipw$idname
   tname <- decomposed_aipw$tname
@@ -629,6 +751,17 @@ aipw_cov_bal <- function(decomposed_aipw, extra_balance_vars_formula) {
   decomposed_aipw
 }
 
+#' @title aipw_cov_bal_gt
+#' @description a (mainly internal) function to compute balance statistics 
+#'  using the implicit weights from an AIPW regression for a particular 
+#'  group `g` and time period `tp`.  This function is called internally 
+#'  by `aipw_cov_bal`.
+#' @inheritParams twfe_cov_bal_gt
+#' @param decomposed_aipw a `decomposed_aipw` object that comes from 
+#'  running `implicit_aipw_weights` in a previous step.
+#' @return a data frame that contains the balance statistics for each 
+#'  covariate that was passed into the `extra_balance_vars_formula` argument 
+#'  in `aipw_cov_bal`.
 #' @export
 aipw_cov_bal_gt <- function(g, tp, decomposed_aipw, X) {
   idname <- decomposed_aipw$idname
@@ -690,7 +823,13 @@ aipw_cov_bal_gt <- function(g, tp, decomposed_aipw, X) {
 }
 
 
-#'@export
+#' @title summary.decomposed_aipw
+#' @description a function to summarize the results of running `implicit_aipw_weights`.
+#' @param object a `decomposed_aipw` object that comes from running 
+#'  `implicit_aipw_weights` or `aipw_cov_bal`.
+#' @param ... extra arguments, not used here
+#' @return a summary of the decomposition
+#' @export
 summary.decomposed_aipw <- function(object, ...) {
   object <- object$aipw_gt
   aipw_att_gt <- unlist(BMisc::getListElement(object, "est"))
@@ -715,8 +854,16 @@ summary.decomposed_aipw <- function(object, ...) {
   }
 }
 
+#' @title ggtwfeweights.decomposed_aipw
+#' @description a function to plot the balance statistics for the covariates 
+#'  that were passed into the `extra_balance_vars_formula` argument in 
+#'  `aipw_cov_bal`.
+#' @param decomposed_aipw_obj a `decomposed_aipw` object that comes from 
+#'  running `aipw_cov_bal` in a previous step.
+#' @inheritParams ggtwfeweights.decomposed_twfe
+#' @return a ggplot object
 #' @export
-ggtwfeweights.decomposed_aipw <- function(decomposed_aipw_obj) {
+ggtwfeweights.decomposed_aipw <- function(decomposed_aipw_obj, standardize=TRUE) {
   # should work to just call the plot for twfe at this point
-  ggtwfeweights.decomposed_twfe(decomposed_aipw_obj)
+  ggtwfeweights.decomposed_twfe(decomposed_aipw_obj, standardize=standardize)
 }
