@@ -11,8 +11,9 @@ two_period_reg_weights(
   gname,
   xformula = ~1,
   time_invariant_x_formula = NULL,
-  additional_covariates_formula = NULL,
-  additional_dcovariates_formula = NULL,
+  extra_balance_vars_formula = NULL,
+  extra_balance_d_vars_formula = NULL,
+  balance_d_vars_post = TRUE,
   data,
   weightsname = NULL,
   ...
@@ -30,7 +31,26 @@ should have this coded to be 0.  For treated units, this can be any
 positive number though all treated units should have the same value of
 group.}
 
-\item{xformula}{a formula for the covariates to include in the model}
+\item{xformula}{a formula for the covariates to include in the model.
+This formula should include time-varying covariates only.  Time-invariant
+covariates should be included in the \code{time_invariant_x_formula} argument.}
+
+\item{time_invariant_x_formula}{a formula for the time-invariant covariates
+to include in the TWFE regression.  These will effectively have a
+time-varying coefficient so that they do not drop out of the model.}
+
+\item{extra_balance_vars_formula}{additional covariates to include in the balance statistics
+that are not included in the TWFE regression.  For time-varying covariates,
+the function uses their value in the first first time period.}
+
+\item{extra_balance_d_vars_formula}{additional time-varying covariates
+to include in the balance statistics by including their change over time.}
+
+\item{balance_d_vars_post}{For time-varying covariates passed in through
+\code{extra_balance_d_vars_formula}, whether to report balance for their levels
+in post-treatment periods or to report balance in the change in the covariates
+over time.  The first option is selected when this argument is set to be TRUE,
+which is the default.}
 
 \item{data}{the data frame}
 

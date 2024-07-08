@@ -39,7 +39,7 @@ argument.  This is the same way that covariates are included
 in \code{did::att_gt}.}
 
 \item{d_covs_formula}{a formula that includes time-varying covariates to
-be included in the form $X_t - X_{g-1}$, i.e., their change from the
+be included in the form \eqn{X_t - X_{g-1}}, i.e., their change from the
 "base period" to the current period.  By default, covariates are not
 included in this way which is the same as in \code{did::att_gt}, but you can
 include them by passing a formula here.}
@@ -58,7 +58,7 @@ setting \code{pscore_formula} to include covariates while setting \code{xformula
 will deliver "inverse probability weighting" estimates and decompositions.}
 
 \item{pscore_d_covs_formula}{a formula that includes time-varying covariates
-to include as $X_t - X_{g-1}$ in the propensity score model.  The default
+to include as \eqn{X_t - X_{g-1}} in the propensity score model.  The default
 is to set these to be the same as the covariates in \code{d_covs_formula}.}
 
 \item{extra_balance_vars_formula}{is currently ignored.  This argument

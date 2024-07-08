@@ -3,15 +3,31 @@
 \name{two_period_covs_obj}
 \alias{two_period_covs_obj}
 \title{two_period_covs_obj}
-\format{
-A list with the following components:
-\item{est}{the two period overall estimate, e.g., the alpha coefficient from the two period TWFE regression}
+\usage{
+two_period_covs_obj(
+  est,
+  weights = NULL,
+  dy = NULL,
+  D = NULL,
+  cov_balance_df = NULL
+)
+}
+\arguments{
+\item{est}{the overall estimate, e.g., the alpha coefficient from the two period TWFE regression}
+
 \item{weights}{the implicit weights}
+
+\item{dy}{the outcome variable}
+
+\item{D}{the treatment indicator}
+
 \item{cov_balance_df}{a data frame with the balance statistics for the covariates}
 }
-\usage{
-two_period_covs_obj(est, weights, dy, D, cov_balance_df)
+\value{
+a \code{two_period_covs_obj} object that contains the elements
+passed to the function
 }
 \description{
-an object that holds the results of the \code{two_period_covs} function
+an object that holds the results of the \code{two_period_reg_weights}
+function
 }

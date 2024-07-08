@@ -33,11 +33,43 @@ should have this coded to be 0.  For treated units, this can be any
 positive number though all treated units should have the same value of
 group.}
 
-\item{xformula}{a formula for the covariates to include in the model}
+\item{xformula}{a formula for the covariates to include in the model.
+This formula should include time-varying covariates only.  Time-invariant
+covariates should be included in the \code{time_invariant_x_formula} argument.}
 
-\item{balance_d_vars_post}{For covariates whose values change over time,
-whether to report balance for their levels in post-treatment periods or
-to report balance in the change in the covariates over time.  The first option
+\item{d_covs_formula}{a formula that includes time-varying covariates to
+be included in the form \eqn{X_t - X_{g-1}}, i.e., their change from the
+"base period" to the current period.  By default, covariates are not
+included in this way which is the same as in \code{did::att_gt}, but you can
+include them by passing a formula here.}
+
+\item{pscore_formula}{a formula that includes the covariates that you would
+like to include in the propensity score model.  By default, these covariates
+are the same as for the outcome regression which are provided in the earlier
+argument \code{xformula}.  This is a natural choice, but this argument allows
+these covariates to be different, if desired.
+
+Setting \code{pscore_formula} and \code{xformula} to be different allows for some
+important special cases to be handled by this function.  For one, providing
+covariates in \code{xformula} while setting \code{pscore_formula=~1} will deliver
+deliver "regression adjustment" estimates and decompositions.  For another,
+setting \code{pscore_formula} to include covariates while setting \code{xformula=~1}
+will deliver "inverse probability weighting" estimates and decompositions.}
+
+\item{pscore_d_covs_formula}{a formula that includes time-varying covariates
+to include as \eqn{X_t - X_{g-1}} in the propensity score model.  The default
+is to set these to be the same as the covariates in \code{d_covs_formula}.}
+
+\item{extra_balance_vars_formula}{additional covariates to include in the balance statistics
+that are not included in estimating the ATT.  For time-varying covariates,
+these are included in the balance statistics for the first period.}
+
+\item{extra_balance_d_vars_formula}{additional covariates to include in the balance statistics
+by including their change over time.}
+
+\item{balance_d_vars_post}{For covariates passed in through
+\code{extra_balance_d_vars_formula}, whether to report balance for their levels in post-treatment
+period or to report balance in the change in the covariates over time.  The first option
 is selected when this argument is set to be TRUE, which is the default.}
 
 \item{data}{the data frame}
@@ -46,6 +78,10 @@ is selected when this argument is set to be TRUE, which is the default.}
 
 \item{...}{additional arguments, currently unused but allows same arguments
 as would be used in \code{did::att_gt}}
+}
+\value{
+a \code{two_period_covs_obj} object that contains the aipw estimate
+of the ATT and the implicit weights.
 }
 \description{
 Computes implicit weights coming from AIPW estimation

@@ -105,7 +105,7 @@ twfe_weights <- function(attgt_res, keep_untreated=FALSE) {
 
 #' @title attO_weights
 #' @description A function to compute weights on ATT(g,t) to deliver
-#'  ATT^O as discussed in Callaway and Sant'Anna (2021)
+#'  \eqn{ATT^O} as discussed in Callaway and Sant'Anna (2021)
 #' @inheritParams twfe_weights
 #' @param w Optional external unit-specific weights
 #'
@@ -150,7 +150,7 @@ attO_weights <- function(attgt_res,
 
 #' @title att_simple_weights
 #' @description A function to compute weights on ATT(g,t) to deliver
-#'  ATT^{simple} as discussed in Callaway and Sant'Anna (2021)
+#'  \eqn{ATT^{simple}} as discussed in Callaway and Sant'Anna (2021)
 #' @inheritParams twfe_weights
 #' @param w Optional external unit-specific weights
 #'
@@ -204,7 +204,7 @@ att_simple_weights <- function(attgt_res, w=rep(1,nrow(attgt_res$DIDparams$data)
 ggtwfeweights.mp_weights_obj <- function(x, ...) {
   weights_df <- x$weights_df
   ggplot(data=weights_df,
-         mapping=aes(x=weight, y=attgt, color=post)) +
+         mapping=aes(x=.data$weight, y=.data$attgt, color=.data$post)) +
     geom_hline(yintercept=0, linewidth=1.5) +
     geom_vline(xintercept=0, linewidth=1.5) + 
     geom_point(size=6) +

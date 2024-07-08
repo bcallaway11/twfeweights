@@ -4,10 +4,10 @@
 \alias{ggtwfeweights.decomposed_twfe}
 \title{ggtwfeweights.decomposed_twfe}
 \usage{
-\method{ggtwfeweights}{decomposed_twfe}(decomposed_twfe_obj, standardize = TRUE)
+\method{ggtwfeweights}{decomposed_twfe}(x, standardize = TRUE, ...)
 }
 \arguments{
-\item{decomposed_twfe_obj}{a \code{decomposed_twfe} object that comes from a
+\item{x}{a \code{decomposed_twfe} object that comes from a
 previous step of running either \code{twfe_cov_bal} or \code{aipw_cov_bal}.}
 
 \item{standardize}{a logical argument that determines whether the balance
@@ -20,6 +20,8 @@ time periods are different for TWFE and the overall average treatment
 effect on the treated (as computed by \code{did::att_gt} or \code{implicit_aipw_weights}),
 the "unweighted" covariate balance statistics can be different across
 the two methods; however, these differences are typically relatively small.}
+
+\item{...}{extra arguments, not used here}
 }
 \value{
 a ggplot object

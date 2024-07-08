@@ -22,5 +22,5 @@ a data.frame containing attO weights
 }
 \description{
 A function to compute weights on ATT(g,t) to deliver
-ATT^O as discussed in Callaway and Sant'Anna (2021)
+\eqn{ATT^O} as discussed in Callaway and Sant'Anna (2021)
 }

@@ -29,7 +29,10 @@ in the untreated group.}
 \item{tname}{The name of the column containing the time periods}
 
 \item{xformula}{formula for covariates that are included in the
-TWFE regression.}
+TWFE regression.
+
+@return a gt_weights object
+@export}
 
 \item{idname}{The individual (cross-sectional unit) id name}
 

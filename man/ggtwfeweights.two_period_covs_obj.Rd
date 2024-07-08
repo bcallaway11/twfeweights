@@ -2,14 +2,17 @@
 % Please edit documentation in R/two_period_covs.R
 \name{ggtwfeweights.two_period_covs_obj}
 \alias{ggtwfeweights.two_period_covs_obj}
-\title{a function to plot the balance statistics from the \code{two_period_covs} function}
+\title{ggtwfeweights.two_period_covs_obj}
 \usage{
-\method{ggtwfeweights}{two_period_covs_obj}(two_period_covs_obj)
+\method{ggtwfeweights}{two_period_covs_obj}(x, ...)
 }
 \arguments{
-\item{two_period_covs_obj}{the object returned from the \code{two_period_covs} function}
+\item{x}{the object returned from the \code{two_period_covs} function}
 
-\item{...}{additional arguments to pass to \code{ggplot2::geom_point}}
+\item{...}{additional arguments, not used here}
+}
+\value{
+a ggplot object
 }
 \description{
 a function to plot the balance statistics from the \code{two_period_covs} function

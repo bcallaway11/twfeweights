@@ -11,7 +11,6 @@ implicit_twfe_weights(
   gname,
   base_period = "first_period",
   xformula = NULL,
-  extra_balance_vars_formula = NULL,
   data,
   weightsname = NULL
 )
@@ -55,7 +54,10 @@ the user allows for anticipation) to be equal to 0, but one
 extra estimate in an earlier period.}
 
 \item{xformula}{formula for covariates that are included in the
-TWFE regression.}
+TWFE regression.
+
+@return a gt_weights object
+@export}
 
 \item{data}{The name of the data.frame that contains the data}
 

@@ -60,29 +60,15 @@ the user allows for anticipation) to be equal to 0, but one
 extra estimate in an earlier period.}
 
 \item{xformula}{formula for covariates that are included in the
-TWFE regression.}
+TWFE regression.
+
+@return a gt_weights object
+@export}
 
 \item{data}{The name of the data.frame that contains the data}
 
 \item{weightsname}{The name of the column containing the sampling weights.
 If not set, all observations have same weight.}
-
-\item{xname}{by default, \code{implicit_twfe_weights_gt} applies the
-implicit TWFE regression weights to the outcome.  In
-cases where the researcher would like to apply the
-implicit regression weights to some other variable, the
-name of this variable can be passed in through this
-argument.
-
-This is typically used as a way to check how well
-the TWFE regression balances levels of time-varying
-covariates, time-invariant covariates, or other variables
-not included in the model.  This is often useful
-as a diagnostic to assess how sensitive the TWFE regression
-is to violations of linearity.
-
-@return a gt_weights object
-@export}
 }
 \description{
 Compute TWFE weights for a particular group

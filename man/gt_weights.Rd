@@ -57,6 +57,10 @@ doesn't exactly add up to alpha from the TWFE regression.  This term
 contains the leftover part of the decomposition.  Typically, this is
 very small.}
 
+\item{cov_bal_df}{a data.frame containing balance statistics.  This argument
+is typically set by the \code{twfe_cov_bal} function, called subsequent to
+\code{implicit_twfe_weights}.}
+
 \item{alpha_weight}{the contribution of this term to the estimate of alpha}
 }
 \description{

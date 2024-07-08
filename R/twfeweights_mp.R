@@ -27,6 +27,9 @@
 #'  doesn't exactly add up to alpha from the TWFE regression.  This term 
 #'  contains the leftover part of the decomposition.  Typically, this is 
 #'  very small.  
+#' @param cov_bal_df a data.frame containing balance statistics.  This argument 
+#'  is typically set by the `twfe_cov_bal` function, called subsequent to 
+#'  `implicit_twfe_weights`.
 #' @param alpha_weight the contribution of this term to the estimate of alpha
 #' @export
 gt_weights <- function(g,
@@ -78,19 +81,6 @@ gt_weights <- function(g,
 #' @inheritParams did::att_gt
 #' @param xformula formula for covariates that are included in the 
 #'  TWFE regression.
-#' @param xname by default, `implicit_twfe_weights_gt` applies the 
-#'  implicit TWFE regression weights to the outcome.  In 
-#'  cases where the researcher would like to apply the 
-#'  implicit regression weights to some other variable, the 
-#'  name of this variable can be passed in through this 
-#'  argument. 
-#'  
-#'  This is typically used as a way to check how well 
-#'  the TWFE regression balances levels of time-varying 
-#'  covariates, time-invariant covariates, or other variables
-#'  not included in the model.  This is often useful 
-#'  as a diagnostic to assess how sensitive the TWFE regression 
-#'  is to violations of linearity.
 #'  
 #'  @return a gt_weights object
 #'  @export
@@ -137,15 +127,15 @@ implicit_twfe_weights_gt <- function(g,
   gam <- as.matrix(coef(lp_treat))
   
   idx <- G==g & TP==tp
-  Yit <- get_Yit(data, tp, idname, yname, tname)[TP==tp]
+  Yit <- BMisc::get_Yit(data, tp, idname, yname, tname)[TP==tp]
   outcomeit <- Yit
   
   # this gets Y_it - Y_ig-1 for the g being considered here (if we want it)
   # note to self: TP==tp does nothing except get the length right
-  Yigmin1 <- get_Yit(data, g-1, idname, yname, tname)[TP==tp] 
+  Yigmin1 <- BMisc::get_Yit(data, g-1, idname, yname, tname)[TP==tp] 
   
   # if you want to subtract off the Yi1, it will give you the same thing
-  Yi1 <- get_Yi1(data, idname, yname, tname, gname)[TP==1]
+  Yi1 <- BMisc::get_Yi1(data, idname, yname, tname, gname)[TP==1]
   
   if (base_period == "first_period") {
     outcomeit <- Yit - Yi1
@@ -264,7 +254,6 @@ implicit_twfe_weights <- function(yname,
                                   gname,
                                   base_period="first_period",
                                   xformula=NULL,
-                                  extra_balance_vars_formula=NULL,
                                   data,
                                   weightsname=NULL) {
   
@@ -392,7 +381,7 @@ twfe_cov_bal <- function(decomposed_twfe, extra_balance_vars_formula) {
     this_colname <- colnames(extra_vars_frame)[j]
     this_frame <- cbind.data.frame(extra_vars_frame[,j], data[,c(idname,tname,gname)])
     colnames(this_frame)[1] <- this_colname
-    BMisc::get_Yibar(this_frame, idname=idname, yname=this_colname)
+    BMisc::BMisc::get_Yibar(this_frame, idname=idname, yname=this_colname)
   })  
   mean_extra_vars <- do.call(cbind.data.frame, mean_extra_var_list)
   colnames(mean_extra_vars) <- paste0("mean_", colnames(extra_vars_frame))
@@ -528,7 +517,7 @@ mp_covariate_bal_summary_helper <- function(decomposed_twfe_obj) {
 #' @description a function to plot the balance statistics for the covariates 
 #'  that were passed into the `extra_balance_vars_formula` argument in either 
 #'  `twfe_cov_bal` or `aipw_cov_bal`.
-#' @param decomposed_twfe_obj a `decomposed_twfe` object that comes from a 
+#' @param x a `decomposed_twfe` object that comes from a 
 #'  previous step of running either `twfe_cov_bal` or `aipw_cov_bal`.
 #' @param standardize a logical argument that determines whether the balance 
 #'  statistics should be standardized by the weighted average of the 
@@ -540,9 +529,12 @@ mp_covariate_bal_summary_helper <- function(decomposed_twfe_obj) {
 #'  effect on the treated (as computed by `did::att_gt` or `implicit_aipw_weights`), 
 #'  the "unweighted" covariate balance statistics can be different across 
 #'  the two methods; however, these differences are typically relatively small.
+#' @param ... extra arguments, not used here
 #' @return a ggplot object
 #' @export
-ggtwfeweights.decomposed_twfe <- function(decomposed_twfe_obj, standardize=TRUE) {
+ggtwfeweights.decomposed_twfe <- function(x, standardize=TRUE, ...) {
+  
+  decomposed_twfe_obj <- x
   
   # code to make this run for both twfe and aipw
   # catch if we are in aipw case
@@ -583,7 +575,7 @@ ggtwfeweights.decomposed_twfe <- function(decomposed_twfe_obj, standardize=TRUE)
 #'  argument.  This is the same way that covariates are included 
 #'  in `did::att_gt`.
 #' @param d_covs_formula a formula that includes time-varying covariates to 
-#'  be included in the form $X_t - X_{g-1}$, i.e., their change from the 
+#'  be included in the form \eqn{X_t - X_{g-1}}, i.e., their change from the 
 #'  "base period" to the current period.  By default, covariates are not 
 #'  included in this way which is the same as in `did::att_gt`, but you can 
 #'  include them by passing a formula here.
@@ -600,7 +592,7 @@ ggtwfeweights.decomposed_twfe <- function(decomposed_twfe_obj, standardize=TRUE)
 #'  setting `pscore_formula` to include covariates while setting `xformula=~1` 
 #'  will deliver "inverse probability weighting" estimates and decompositions.
 #' @param pscore_d_covs_formula a formula that includes time-varying covariates 
-#'  to include as $X_t - X_{g-1}$ in the propensity score model.  The default 
+#'  to include as \eqn{X_t - X_{g-1}} in the propensity score model.  The default 
 #'  is to set these to be the same as the covariates in `d_covs_formula`.
 #' @param extra_balance_vars_formula is currently ignored.  This argument 
 #'  makes the arguments the same as for `two_period_aipw_weights`, but currently 
@@ -858,12 +850,13 @@ summary.decomposed_aipw <- function(object, ...) {
 #' @description a function to plot the balance statistics for the covariates 
 #'  that were passed into the `extra_balance_vars_formula` argument in 
 #'  `aipw_cov_bal`.
-#' @param decomposed_aipw_obj a `decomposed_aipw` object that comes from 
+#' @param x a `decomposed_aipw` object that comes from 
 #'  running `aipw_cov_bal` in a previous step.
 #' @inheritParams ggtwfeweights.decomposed_twfe
 #' @return a ggplot object
 #' @export
-ggtwfeweights.decomposed_aipw <- function(decomposed_aipw_obj, standardize=TRUE) {
+ggtwfeweights.decomposed_aipw <- function(x, standardize=TRUE, ...) {
+  decomposed_aipw_obj <- x
   # should work to just call the plot for twfe at this point
   ggtwfeweights.decomposed_twfe(decomposed_aipw_obj, standardize=standardize)
 }

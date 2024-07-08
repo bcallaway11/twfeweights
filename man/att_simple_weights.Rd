@@ -22,5 +22,5 @@ a data.frame containing att_simple weights
 }
 \description{
 A function to compute weights on ATT(g,t) to deliver
-ATT^{simple} as discussed in Callaway and Sant'Anna (2021)
+\eqn{ATT^{simple}} as discussed in Callaway and Sant'Anna (2021)
 }
