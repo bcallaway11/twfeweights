@@ -18,7 +18,12 @@ test_that("Two period regression, base case", {
         data = this_df
     )
 
-    twfe_res <- fixest::feols(l_homicide ~ l_police | sid + year, data = this_df)
+    twfe_res <- fixest::feols(l_homicide ~ post + l_police | sid + year, data = this_df)
+
+    expect_equal(
+        unname(reg_res$est),
+        unname(coef(twfe_res)[1])
+    )
 })
 
 test_that("Two period regression, sampling weights", {
@@ -32,5 +37,125 @@ test_that("Two period regression, sampling weights", {
         weightsname = "popwt"
     )
 
-    twfe_res <- fixest::feols(l_homicide ~ l_police | sid + year, data = this_df, weights = this_df$popwt)
+    twfe_res <- fixest::feols(l_homicide ~ post + l_police | sid + year, data = this_df, weights = this_df$popwt)
+
+    expect_equal(
+        unname(reg_res$est),
+        unname(coef(twfe_res)[1])
+    )
+})
+
+test_that("Two period AIPW, base case", {
+    aipw_res <- two_period_aipw_weights(
+        yname = "l_homicide",
+        tname = "year",
+        idname = "sid",
+        gname = "G",
+        xformula = ~l_police,
+        data = this_df
+    )
+
+    csdid_res <- suppressWarnings(did::att_gt(yname = "l_homicide", tname = "year", idname = "sid", gname = "G", xformla = ~l_police, data = this_df))
+
+    expect_equal(
+        unname(aipw_res$est),
+        unname(csdid_res$att)
+    )
+})
+
+test_that("Two period AIPW, sampling weights", {
+    aipw_res <- suppressWarnings(two_period_aipw_weights(
+        yname = "l_homicide",
+        tname = "year",
+        idname = "sid",
+        gname = "G",
+        xformula = ~l_police,
+        data = this_df,
+        weightsname = "popwt"
+    ))
+
+    csdid_res <- suppressWarnings(did::att_gt(yname = "l_homicide", tname = "year", idname = "sid", gname = "G", xformla = ~l_police, data = this_df, weightsname = "popwt"))
+
+    expect_equal(
+        unname(aipw_res$est),
+        unname(csdid_res$att)
+    )
+})
+
+test_that("Two period regression adjustment, base case", {
+    aipw_res <- two_period_aipw_weights(
+        yname = "l_homicide",
+        tname = "year",
+        idname = "sid",
+        gname = "G",
+        xformula = ~l_police,
+        pscore_formula = ~1,
+        data = this_df
+    )
+
+    csdid_res <- suppressWarnings(did::att_gt(yname = "l_homicide", tname = "year", idname = "sid", gname = "G", xformla = ~l_police, data = this_df, est_method = "reg"))
+
+    expect_equal(
+        unname(aipw_res$est),
+        unname(csdid_res$att)
+    )
+})
+
+test_that("Two period regression adjustment, sampling weights", {
+    aipw_res <- suppressWarnings(two_period_aipw_weights(
+        yname = "l_homicide",
+        tname = "year",
+        idname = "sid",
+        gname = "G",
+        xformula = ~l_police,
+        pscore_formula = ~1,
+        data = this_df,
+        weightsname = "popwt"
+    ))
+
+    csdid_res <- suppressWarnings(did::att_gt(yname = "l_homicide", tname = "year", idname = "sid", gname = "G", xformla = ~l_police, data = this_df, weightsname = "popwt", est_method = "reg"))
+
+    expect_equal(
+        unname(aipw_res$est),
+        unname(csdid_res$att)
+    )
+})
+
+test_that("Two period inverse pscore weighting, base case", {
+    aipw_res <- two_period_aipw_weights(
+        yname = "l_homicide",
+        tname = "year",
+        idname = "sid",
+        gname = "G",
+        xformula = ~1,
+        pscore_formula = ~l_police,
+        data = this_df
+    )
+
+    ipw_res <- suppressWarnings(did::att_gt(yname = "l_homicide", tname = "year", idname = "sid", gname = "G", xformla = ~l_police, data = this_df, est_method = "ipw"))
+
+    expect_equal(
+        unname(aipw_res$est),
+        unname(ipw_res$att)
+    )
+})
+
+test_that("Two period inverse pscore weighting, sampling weights", {
+    aipw_res <- suppressWarnings(two_period_aipw_weights(
+        yname = "l_homicide",
+        tname = "year",
+        idname = "sid",
+        gname = "G",
+        xformula = ~1,
+        pscore_formula = ~l_police,
+        data = this_df,
+        weightsname = "popwt"
+    ))
+
+    ipw_res <- suppressWarnings(did::att_gt(yname = "l_homicide", tname = "year", idname = "sid", gname = "G", xformla = ~l_police, data = this_df, weightsname = "popwt", est_method = "ipw"))
+
+    expect_equal(
+        unname(aipw_res$est),
+        unname(ipw_res$att)
+    )
 })

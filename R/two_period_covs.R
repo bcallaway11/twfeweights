@@ -146,9 +146,11 @@ two_period_reg_weights <- function(yname,
   }
   .df_wide$.sampling_weights <- sampling_weights
   p <- weighted.mean(.D, w = sampling_weights)
-  dreg <- lm(BMisc::toformula(".D", BMisc::rhs.vars(reg_xformula)), data = .df_wide, weights = sampling_weights)
+  dreg <- lm(BMisc::toformula(".D", BMisc::rhs.vars(reg_xformula)), data = .df_wide, weights = .sampling_weights)
   dresid <- .D - predict(dreg)
-  twfe_reg <- lm(BMisc::toformula(paste0("d_", yname), c(".D", BMisc::rhs.vars(reg_xformula))), data = .df_wide, weights = sampling_weights)
+  twfe_reg <- lm(BMisc::toformula(paste0("d_", yname), c(".D", BMisc::rhs.vars(reg_xformula))),
+    data = .df_wide, weights = .sampling_weights
+  )
   twfe_alp <- coef(twfe_reg)[2]
   pm <- .D - (1 - .D)
   .regression_weights <- dresid / weighted.mean(dresid^2, w = sampling_weights) # from FWL
