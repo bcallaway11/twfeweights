@@ -153,14 +153,13 @@ two_period_reg_weights <- function(yname,
   pm <- .D - (1 - .D)
   .regression_weights <- dresid / weighted.mean(dresid^2, w = sampling_weights) # from FWL
 
-  alp_using_weights <- weighted.mean(.regression_weights * .dy, w = sampling_weights) # should be equal to alpha from TWFE
+  alp_using_weights <- weighted.mean(.regression_weights * .dy, w = sampling_weights)
+  # alp_using_weights should be equal to alpha from TWFE
   if (abs(twfe_alp - alp_using_weights) > 1e-6) {
     warning("Looks like something has gone wrong...")
   }
 
   # calculate balance for all supplied covariates
-  # data.table::setDT(.df_wide)
-  # .df_wide <- data.table::dcast(data, get(idname) ~ get(tname), value.var=BMisc::rhs.vars(xformula))
   .df_wide_temp <- data[data[, tname] == minT, BMisc::rhs.vars(xformula), drop = FALSE]
   colnames(.df_wide_temp) <- paste0(BMisc::rhs.vars(xformula), "_", minT)
   # if requested, additional covariates from first period
@@ -168,7 +167,10 @@ two_period_reg_weights <- function(yname,
     # try to account for factors here
     # drop intercept, this also helps with including all factors which is typically desirable here
     extra_balance_vars_formula <- BMisc::addCovToFormla("-1", extra_balance_vars_formula)
-    .df_wide_temp2 <- model.matrix(extra_balance_vars_formula, data[data[, tname] == minT, ])[, , drop = FALSE]
+    .df_wide_temp2 <- model.matrix(
+      extra_balance_vars_formula,
+      data[data[, tname] == minT, ]
+    )[, , drop = FALSE]
     # .df_wide_temp2 <- data[ data[,tname]==minT, BMisc::rhs.vars(additional_covariates_formula), drop=FALSE]
     colnames(.df_wide_temp2) <- paste0(colnames(.df_wide_temp2), "_", minT)
     .df_wide_temp <- cbind.data.frame(.df_wide_temp, .df_wide_temp2)
@@ -197,8 +199,12 @@ two_period_reg_weights <- function(yname,
     unweighted_untreat <- weighted.mean(.df_wide[, covariate][.D == 0], w = sampling_weights[.D == 0])
     unweighted_diff <- unweighted_treat - unweighted_untreat
 
-    weighted_treat <- weighted.mean(pm[.D == 1] * .regression_weights[.D == 1] * .df_wide[, covariate][.D == 1], w = sampling_weights[.D == 1]) * p
-    weighted_untreat <- weighted.mean(pm[.D == 0] * .regression_weights[.D == 0] * .df_wide[, covariate][.D == 0], w = sampling_weights[.D == 0]) * (1 - p)
+    weighted_treat <- weighted.mean(pm[.D == 1] * .regression_weights[.D == 1] * .df_wide[, covariate][.D == 1],
+      w = sampling_weights[.D == 1]
+    ) * p
+    weighted_untreat <- weighted.mean(pm[.D == 0] * .regression_weights[.D == 0] * .df_wide[, covariate][.D == 0],
+      w = sampling_weights[.D == 0]
+    ) * (1 - p)
     weighted_diff <- weighted_treat - weighted_untreat
 
     sd <- sqrt(weighted.mean((.df_wide[, covariate] - weighted.mean(.df_wide[, covariate], w = sampling_weights))^2, w = sampling_weights))
