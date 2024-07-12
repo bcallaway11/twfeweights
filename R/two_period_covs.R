@@ -209,7 +209,8 @@ two_period_reg_weights <- function(yname,
     ) * (1 - p)
     weighted_diff <- weighted_treat - weighted_untreat
 
-    sd <- sqrt(weighted.mean((.df_wide[, covariate] - weighted.mean(.df_wide[, covariate], w = sampling_weights))^2, w = sampling_weights))
+    #sd <- sqrt(weighted.mean((.df_wide[, covariate] - weighted.mean(.df_wide[, covariate], w = sampling_weights))^2, w = sampling_weights))
+    sd <- pooled_sd(.df_wide[, covariate], D, w = sampling_weights)
 
     list(
       covariate = covariate,
@@ -591,22 +592,28 @@ two_period_aipw_weights <- function(yname,
     unweighted_untreat <- weighted.mean(.df_wide[, covariate][D == 0], w = sampling_weights[D == 0])
     unweighted_diff <- unweighted_treat - unweighted_untreat
 
-    weighted_treat <- weighted.mean(.df_wide[, covariate][D == 1], w = ipw_weights1 * sampling_weights[D == 1])
+    weighted_treat <- weighted.mean(.df_wide[, covariate][D == 1], 
+      w = ipw_weights1 * sampling_weights[D == 1])
     weighted_treat # yes!
     # - regression adjustment term
-    weighted_untreat1 <- weighted.mean(.df_wide[, covariate][D == 0], w = as.numeric(X0 %*% gamma0) * sampling_weights[D == 0])
+    weighted_untreat1 <- weighted.mean(.df_wide[, covariate][D == 0], 
+      w = as.numeric(X0 %*% gamma0) * sampling_weights[D == 0])
     weighted_untreat1 # no!
     # - ipw term
-    weighted_untreat2 <- weighted.mean(.df_wide[, covariate][D == 0], w = ipw_weights0 * sampling_weights[D == 0])
+    weighted_untreat2 <- weighted.mean(.df_wide[, covariate][D == 0], 
+      w = ipw_weights0 * sampling_weights[D == 0])
     weighted_untreat2 # yes!
     # - cross term, ipw and regression adjustment
-    weighted_untreat3 <- weighted.mean(.df_wide[, covariate][D == 0], w = as.numeric(X0 %*% gamma0_tilde) * sampling_weights[D == 0])
+    weighted_untreat3 <- weighted.mean(.df_wide[, covariate][D == 0], 
+      w = as.numeric(X0 %*% gamma0_tilde) * sampling_weights[D == 0])
     weighted_untreat3 # no!
     weighted_untreat <- weighted_untreat1 + weighted_untreat2 - weighted_untreat3
 
     weighted_diff <- weighted_treat - weighted_untreat
 
-    sd <- sqrt(weighted.mean((.df_wide[, covariate] - weighted.mean(.df_wide[, covariate], w = sampling_weights))^2, w = sampling_weights))
+    
+    # sd <- sqrt(weighted.mean((.df_wide[, covariate] - weighted.mean(.df_wide[, covariate], w = sampling_weights))^2, w = sampling_weights))
+    sd <- pooled_sd(.df_wide[, covariate], D, w = sampling_weights)
 
     list(
       covariate = covariate,
@@ -623,4 +630,33 @@ two_period_aipw_weights <- function(yname,
 
   out <- two_period_covs_obj(att, aipw_weights, dy, D, cov_balance_df)
   out
+}
+
+
+#' @title pooled_sd
+#' @description a helper function to compute pooled standard deviations with treated and untreated group
+#' 
+#' @param x a numeric vector
+#' @param D a binary vector indicating treated and untreated group
+#' @param w a numeric vector of weights, default is rep(1, length(n))
+#' @return a numeric value containing the pooled standard deviation
+#' @export
+pooled_sd <- function(x, D, w=rep(1,length(n))) {
+  w <- w/mean(w)
+  # Function to compute weighted variance
+  weighted_var <- function(x, w) {
+    weighted.mean((x - weighted.mean(x, w = w))^2, w = w)
+  }
+
+  # Compute weighted variances
+  var1 <- weighted_var(x[D==1], w[D==1])
+  var0 <- weighted_var(x[D==0], w[D==0])
+
+  # Compute sample sizes (using weights sum)
+  n1 <- sum(weights_treated)
+  n0 <- sum(weights_untreated)
+
+  # Compute pooled standard deviation
+  pooled_sd <- sqrt(((n1 - 1) * var1 + (n0 - 1) * var0) / (n1 + n0 - 2))
+  pooled_sd
 }
