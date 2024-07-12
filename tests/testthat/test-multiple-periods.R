@@ -227,7 +227,7 @@ test_that("Same results for functions that can include covariates as though that
 })
 
 test_that("multiple periods functions work with time invariant covariates with time varying coefficients", {
-    skip("implicit_twfe_weights function does not work with time invariant covariates with time varying coefficients currently, this is a known bug")
+    # skip("implicit_twfe_weights function does not work with time invariant covariates with time varying coefficients currently, this is a known bug")
 
     # region is missing from the data so just randomly assign a region
     castle$region <- rep(

@@ -120,6 +120,8 @@ implicit_twfe_weights_gt <- function(g,
   ddotDit <- fixest::demean(Dit, data[, c(idname, tname)], weights = sampling_weights) %>% as.numeric()
   ddotYit <- fixest::demean(Yit, data[, c(idname, tname)], weights = sampling_weights) %>% as.numeric()
   ddotXit <- fixest::demean(Xit, data[, c(idname, tname)], weights = sampling_weights)
+  ddotXit <- suppressWarnings(BMisc::drop_collinear(ddotXit)) # drop collinear terms here (e.g., as.factor(year)*as.factor(region))
+
 
   # weights depend on linear projection of treatment
   # on covariates using all periods
@@ -211,6 +213,7 @@ combine_twfe_weights_gt <- function(g,
   # double demean variables in the model
   ddotDit <- fixest::demean(Dit, data[, c(idname, tname)], weights = sampling_weights) %>% as.numeric()
   ddotXit <- fixest::demean(Xit, data[, c(idname, tname)], weights = sampling_weights)
+  ddotXit <- suppressWarnings(BMisc::drop_collinear(ddotXit))
 
   # weights depend on linear projection of treatment
   # on covariates using all periods

@@ -9,7 +9,7 @@ two_period_df <- subset(castle, year %in% c(2000, 2010))
 two_period_df$G <- BMisc::get_group(two_period_df, "sid", tname = "year", treatname = "post")
 
 
-test_that("TWFE multipel periods no covariates", {
+test_that("TWFE multiple periods no covariates", {
     csdid_res <- suppressWarnings(did::att_gt(
         yname = "l_homicide", tname = "year",
         idname = "sid", gname = "G", data = castle, base_period = "universal",
