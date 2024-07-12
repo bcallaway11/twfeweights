@@ -155,6 +155,9 @@ two_period_reg_weights <- function(yname,
   pm <- .D - (1 - .D)
   .regression_weights <- dresid / weighted.mean(dresid^2, w = sampling_weights) # from FWL
 
+  weighted.mean(.regression_weights * .dy, w = sampling_weights)
+  weighted.mean(p*.regression_weights[.D==1] , w = sampling_weights[.D==1]) #- weighted.mean((1-p)*.regression_weights[.D==0] * .dy[.D==0], w = sampling_weights[.D==0])
+
   alp_using_weights <- weighted.mean(.regression_weights * .dy, w = sampling_weights)
   # alp_using_weights should be equal to alpha from TWFE
   if (abs(twfe_alp - alp_using_weights) > 1e-6) {
@@ -210,7 +213,15 @@ two_period_reg_weights <- function(yname,
     weighted_diff <- weighted_treat - weighted_untreat
 
     #sd <- sqrt(weighted.mean((.df_wide[, covariate] - weighted.mean(.df_wide[, covariate], w = sampling_weights))^2, w = sampling_weights))
-    sd <- pooled_sd(.df_wide[, covariate], D, w = sampling_weights)
+    sd <- pooled_sd(.df_wide[, covariate], D=.D, sampling_weights = sampling_weights)
+
+    # additional balance statistics
+    unweighted_lr_sd <- log_ratio_sd(.df_wide[, covariate], D=.D, sampling_weights = sampling_weights)
+    weighted_lr_sd <- log_ratio_sd(.df_wide[, covariate], D=.D, est_weights = .regression_weights, sampling_weights = sampling_weights)
+
+    unweighted_treated_extreme <- frac_treated_extreme(.df_wide[, covariate], D=.D, sampling_weights = sampling_weights)
+    weighted_treated_extreme <- frac_treated_extreme(.df_wide[, covariate], D=.D, est_weights = .regression_weights, sampling_weights = sampling_weights)
+    
 
     list(
       covariate = covariate,
@@ -220,11 +231,14 @@ two_period_reg_weights <- function(yname,
       weighted_treat = weighted_treat,
       weighted_untreat = weighted_untreat,
       weighted_diff = weighted_diff,
-      sd = sd
+      sd = sd,
+      unweighted_log_ratio_sd_diff = unweighted_lr_sd,
+      weighted_log_ratio_sd_diff = weighted_lr_sd,
+      unweighted_frac_treated_extreme = unweighted_treated_extreme,
+      weighted_frac_treated_extreme = weighted_treated_extreme
     )
   })
   cov_balance_df <- do.call(rbind.data.frame, cov_balance)
-
 
   # re-normalize the weights to be in line with other functions
   .regression_weights[.D == 1] <- .regression_weights[.D == 1] * sampling_weights[.D == 1]
@@ -613,7 +627,21 @@ two_period_aipw_weights <- function(yname,
 
     
     # sd <- sqrt(weighted.mean((.df_wide[, covariate] - weighted.mean(.df_wide[, covariate], w = sampling_weights))^2, w = sampling_weights))
-    sd <- pooled_sd(.df_wide[, covariate], D, w = sampling_weights)
+    sd <- pooled_sd(.df_wide[, covariate], D=D, sampling_weights = sampling_weights)
+
+    # additional balance statistics
+    # note that these are called slightly differently from regression case above because 
+    # aipw_weights already includes the sampling weights
+    unweighted_lr_sd <- log_ratio_sd(.df_wide[, covariate], D=D, sampling_weights = sampling_weights)
+    weighted_lr_sd <- log_ratio_sd(.df_wide[, covariate], D=D, sampling_weights = aipw_weights)
+
+    unweighted_treated_extreme <- frac_treated_extreme(.df_wide[, covariate], D=D, sampling_weights = sampling_weights)
+    weighted_treated_extreme <- frac_treated_extreme(.df_wide[, covariate], D=D, sampling_weights = aipw_weights)
+
+
+    #lr_sd <- log_ratio_sd(.df_wide[, covariate], D=D, w = sampling_weights)
+
+    #treated_extreme <- frac_treated_extreme(.df_wide[, covariate], D=D, w = sampling_weights)
 
     list(
       covariate = covariate,
@@ -623,7 +651,11 @@ two_period_aipw_weights <- function(yname,
       weighted_treat = weighted_treat,
       weighted_untreat = weighted_untreat,
       weighted_diff = weighted_diff,
-      sd = sd
+      sd = sd,
+      unweighted_log_ratio_sd_diff = unweighted_lr_sd,
+      weighted_log_ratio_sd_diff = weighted_lr_sd,
+      unweighted_frac_treated_extreme = unweighted_treated_extreme,
+      weighted_frac_treated_extreme = weighted_treated_extreme
     )
   })
   cov_balance_df <- do.call(rbind.data.frame, cov_balance)
@@ -641,22 +673,91 @@ two_period_aipw_weights <- function(yname,
 #' @param w a numeric vector of weights, default is rep(1, length(n))
 #' @return a numeric value containing the pooled standard deviation
 #' @export
-pooled_sd <- function(x, D, w=rep(1,length(n))) {
-  w <- w/mean(w)
+pooled_sd <- function(x, D, sampling_weights=rep(1,length(n))) {
+  sampling_weights <- sampling_weights/mean(sampling_weights)
   # Function to compute weighted variance
   weighted_var <- function(x, w) {
     weighted.mean((x - weighted.mean(x, w = w))^2, w = w)
   }
 
   # Compute weighted variances
-  var1 <- weighted_var(x[D==1], w[D==1])
-  var0 <- weighted_var(x[D==0], w[D==0])
+  var1 <- weighted_var(x[D==1], sampling_weights[D==1])
+  var0 <- weighted_var(x[D==0], sampling_weights[D==0])
 
   # Compute sample sizes (using weights sum)
-  n1 <- sum(weights_treated)
-  n0 <- sum(weights_untreated)
+  n1 <- sum(sampling_weights[D==1])
+  n0 <- sum(sampling_weights[D==0])
 
   # Compute pooled standard deviation
   pooled_sd <- sqrt(((n1 - 1) * var1 + (n0 - 1) * var0) / (n1 + n0 - 2))
   pooled_sd
+}
+
+#' @title log_ratio_sd
+#' @description a helper function to compute the log ratio of standard deviations with 
+#'  treated and untreated group.  This is unit-free balance summary statistic that compares 
+#'  the spread of the distribution of the covariate for the treated group relative to the 
+#'  untreated group.  This is a balance summary statistic that was discussed in Imbens and Rubin (2015).
+#' @inheritParams pooled_sd
+#' @param est_weights a numeric vector of weights coming from an estimation procedure, 
+#'  default is rep(1, length(n))
+#' @return a numeric value containing the log ratio of standard deviations
+#' @export
+log_ratio_sd <- function(x, D, est_weights=rep(1,length(x)), sampling_weights=rep(1,length(x))) {
+
+  # normalize sampling weights
+  sampling_weights <- sampling_weights/mean(sampling_weights)
+  # noramlize estimation weights within group
+  est_weights[D==1] <- est_weights[D==1] / weighted.mean(est_weights[D==1], w = sampling_weights[D==1])
+  est_weights[D==0] <- est_weights[D==0] / weighted.mean(est_weights[D==0], w = sampling_weights[D==0])
+
+  # Function to compute weighted variance
+  weighted_var <- function(x, est_weights, sampling_weights) {
+    weighted.mean((x*est_weights - weighted.mean(x*est_weights, w = sampling_weights))^2, w = sampling_weights)
+  }
+
+  # Compute weighted variances
+  var1 <- weighted_var(x[D==1], est_weights[D==1], sampling_weights[D==1])
+  var0 <- weighted_var(x[D==0], est_weights[D==0], sampling_weights[D==0])
+
+  # Compute sample sizes (using weights sum)
+  n1 <- sum(sampling_weights[D==1])
+  n0 <- sum(sampling_weights[D==0])
+
+  sd1 <- sqrt(n1-1)*sqrt(var1)
+  sd2 <- sqrt(n0-1)*sqrt(var0)
+
+  log(sd1) - log(sd2)
+}
+
+#' @title frac_treated_extreme
+#' @description a helper function to compute the fraction of treated units that have 
+#'  extreme values of a covariate relative to the untreated group.  The function 
+#'  calculates the (alpha/2) and (1-alpha/2) quantiles of the covariate for the 
+#'  untreated group and then computes the fraction of treated units that have 
+#'  values of the covariate that are less than the (alpha/2) quantile or greater 
+#'  than the (1-alpha/2) quantile.  This is a balance summary statistic that was 
+#'  discussed in Imbens and Rubin (2015).
+#' @inheritParams pooled_sd
+#' @param alpha a numeric value between 0 and 1, default is 0.05
+#' @return a numeric value containing the fraction of treated units with extreme values
+#' @export
+frac_treated_extreme <- function(x, D, est_weights=rep(1,length(x)), sampling_weights=rep(1,length(x)), alpha=0.05) {
+
+  if (length(unique(x)) < 3) return(NA) # not enough variation to compute quantiles
+
+  # normalize sampling weights
+  sampling_weights <- sampling_weights/mean(sampling_weights)
+  # noramlize estimation weights within group
+  est_weights[D==1] <- est_weights[D==1] / weighted.mean(est_weights[D==1], w = sampling_weights[D==1])
+  est_weights[D==0] <- est_weights[D==0] / weighted.mean(est_weights[D==0], w = sampling_weights[D==0])
+
+  untreated_dist_func <- BMisc::getWeightedDf(est_weights[D==0]*x[D==0], weights=sampling_weights[D==0])
+  uq <- quantile(untreated_dist_func, 1-alpha/2)
+  lq <- quantile(untreated_dist_func, alpha/2)
+
+  treated_dist_func <- BMisc::getWeightedDf(est_weights[D==1]*x[D==1], weights=sampling_weights[D==1])
+
+  fte <- 1-treated_dist_func(uq) + treated_dist_func(lq)
+  fte
 }

@@ -544,7 +544,12 @@ mp_covariate_bal_summary_helper <- function(decomposed_twfe_obj) {
 #' @param ... extra arguments, not used here
 #' @return a ggplot object
 #' @export
-ggtwfeweights.decomposed_twfe <- function(x, standardize = TRUE, ...) {
+ggtwfeweights.decomposed_twfe <- function(x, 
+      plot_relative_to_target = FALSE,
+      absolute_value = TRUE,
+      standardize = TRUE
+      , ...) {
+  
   decomposed_twfe_obj <- x
 
   # code to make this run for both twfe and aipw
