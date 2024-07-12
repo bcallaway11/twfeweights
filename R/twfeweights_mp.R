@@ -562,10 +562,31 @@ ggtwfeweights.decomposed_twfe <- function(x, standardize = TRUE, ...) {
     cov_balance_df$weighted <- cov_balance_df$weighted / cov_balance_df$avg_sd
     cov_balance_df$unweighted <- cov_balance_df$unweighted / cov_balance_df$avg_sd
   }
-  ggplot(cov_balance_df, aes(y = .data$covariate, x = abs(.data$weighted))) +
-    geom_point(color = "steelblue", size = 3, shape = 16) +
-    geom_point(aes(x = abs(.data$unweighted)), color = "red", size = 3, shape = 1) +
-    theme_bw()
+  plot_df <- cov_balance_df %>%
+    pivot_longer(
+      cols = c(contains("unweighted"), contains("weighted")),
+      names_to = "type",
+      values_to = "value"
+    )
+  ggplot(
+    plot_df,
+    aes(
+      y = .data$covariate,
+      x = abs(.data$value / .data$avg_sd),
+      color = .data$type,
+      shape = .data$type
+    )
+  ) +
+    geom_point(size = 4) +
+    theme_bw() +
+    theme(legend.position = "bottom") +
+    guides(
+      color = guide_legend(title = NULL, labels = c("unweighted", "weighted")),
+      shape = guide_legend(title = NULL, labels = c("unweighted", "weighted"))
+    ) +
+    xlab("standardized difference") +
+    scale_color_discrete(labels = c("unweighted", "weighted")) +
+    scale_shape_discrete(labels = c("unweighted", "weighted"))
 }
 
 #' @title implicit_aipw_weights

@@ -244,18 +244,101 @@ two_period_reg_weights <- function(yname,
 #' @description a function to plot the balance statistics from the `two_period_covs` function
 #'
 #' @param x the object returned from the `two_period_covs` function
+#' @param plot_outcome whether to include the outcome variable in the plot
+#' @param plot_relative_to_target whether to plot the differences relative to the target population.
+#'  This adds an extra point to the plot.
+#' @param absolute_value whether to plot the absolute value of the standardized difference
+#'  or just the value of the standardized difference, default is TRUE.
+#' @param standardize whether to standardize the differences by the standard deviation, default is TRUE.
 #' @param ... additional arguments, not used here
 #' @return a ggplot object
 #'
 #' @export
-ggtwfeweights.two_period_covs_obj <- function(x, ...) {
+ggtwfeweights.two_period_covs_obj <- function(
+    x,
+    plot_outcome = FALSE,
+    plot_relative_to_target = FALSE,
+    absolute_value = TRUE,
+    standardize = TRUE,
+    ...) {
   two_period_covs_obj <- x
   cov_balance_df <- two_period_covs_obj$cov_balance_df
-  cov_balance_df$covariate <- factor(cov_balance_df$covariate, levels = rev(unique(cov_balance_df$covariate)))
-  ggplot(cov_balance_df, aes(y = .data$covariate, x = abs(.data$weighted_diff / .data$sd))) +
-    geom_point(color = "steelblue", size = 3, shape = 16) +
-    geom_point(aes(x = abs(.data$unweighted_diff / .data$sd)), color = "red", size = 3, shape = 1) +
-    theme_bw()
+  cov_balance_df$covariate <- factor(cov_balance_df$covariate,
+    levels = rev(unique(cov_balance_df$covariate))
+  )
+  if (!plot_outcome) {
+    cov_balance_df <- cov_balance_df[-1, , drop = FALSE]
+  }
+
+  legend_text <- "standardized difference"
+  if (!standardize) {
+    cov_balance_df$sd <- 1
+    legend_text <- "difference"
+  }
+
+  if (absolute_value) abs_func <- abs else abs_func <- identity
+
+  if (plot_relative_to_target) {
+    # plot differences relative to the target population---the unweighted untreated
+    cov_balance_df$unweighted_untreat_relative <- cov_balance_df$unweighted_untreat -
+      cov_balance_df$unweighted_treat
+    cov_balance_df$weighted_treat_relative <- cov_balance_df$weighted_treat -
+      cov_balance_df$unweighted_treat
+    cov_balance_df$weighted_untreat_relative <- cov_balance_df$weighted_untreat -
+      cov_balance_df$unweighted_treat
+    plot_df <- cov_balance_df[, c(
+      "covariate", "unweighted_untreat_relative",
+      "weighted_treat_relative", "weighted_untreat_relative", "sd"
+    )] %>%
+      pivot_longer(
+        cols = c(contains("unweighted"), contains("weighted")),
+        names_to = "type",
+        values_to = "value",
+        names_transform = list(type = function(x) {
+          recode(x,
+            "unweighted_untreat_relative" = "unweighted comparison",
+            "weighted_treat_relative" = "weighted treated",
+            "weighted_untreat_relative" = "weighted comparison"
+          )
+        })
+      )
+    # legend_labels <- c("unweighted comparison", "weighted treated", "weighted comparison")
+  } else {
+    # just plot balance between treated and untreated
+    plot_df <- cov_balance_df[, c("covariate", "unweighted_diff", "weighted_diff", "sd")] %>%
+      pivot_longer(
+        cols = c(contains("unweighted"), contains("weighted")),
+        names_to = "type",
+        values_to = "value",
+        names_transform = list(type = function(x) {
+          recode(x,
+            "unweighted_diff" = "unweighted",
+            "weighted_diff" = "weighted"
+          )
+        })
+      )
+    # legend_labels <- c("unweighted", "weighted")
+  }
+  ggplot(
+    plot_df,
+    aes(
+      y = .data$covariate,
+      x = abs_func(.data$value / .data$sd),
+      color = .data$type,
+      shape = .data$type
+    )
+  ) +
+    geom_vline(xintercept = 0, color = "black", size = 1) +
+    geom_point(size = 4, alpha = 1) +
+    theme_bw() +
+    theme(legend.position = "bottom") +
+    guides(
+      color = guide_legend(title = NULL), # , labels = legend_labels),
+      shape = guide_legend(title = NULL) # , labels = legend_labels)
+    ) +
+    xlab(legend_text)
+  # scale_color_discrete(labels = legend_labels) +
+  # scale_shape_discrete(labels = legend_labels) +
 }
 
 
@@ -481,7 +564,8 @@ two_period_aipw_weights <- function(yname,
   # if requested, additional covariates from first period
   if (!is.null(extra_balance_vars_formula)) {
     # try to account for factors here
-    .df_wide_temp2 <- model.matrix(extra_balance_vars_formula, data[data[, tname] == minT, ])[, -1, drop = FALSE]
+    extra_balance_vars_formula <- BMisc::addCovToFormla("-1", extra_balance_vars_formula)
+    .df_wide_temp2 <- model.matrix(extra_balance_vars_formula, data[data[, tname] == minT, ])[, , drop = FALSE]
     # .df_wide_temp2 <- data[ data[,tname]==minT, BMisc::rhs.vars(additional_covariates_formula), drop=FALSE]
     colnames(.df_wide_temp2) <- paste0(colnames(.df_wide_temp2), "_", minT)
     .df_wide <- cbind.data.frame(.df_wide, .df_wide_temp2)
