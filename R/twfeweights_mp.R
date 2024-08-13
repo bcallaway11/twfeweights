@@ -298,6 +298,16 @@ implicit_twfe_weights <- function(yname,
     )
   })
 
+  twfe_att_gt <- unlist(BMisc::getListElement(twfe_gt, "weighted_outcome_diff"))
+  group <- unlist(BMisc::getListElement(twfe_gt, "g"))
+  time.period <- unlist(BMisc::getListElement(twfe_gt, "tp"))
+  alpha_weight <- unlist(BMisc::getListElement(twfe_gt, "alpha_weight"))
+  post <- 1 * (time.period >= group)
+  alpha <- sum(alpha_weight * twfe_att_gt)
+  pt_violations_bias <- sum(alpha_weight[post == 0] * twfe_att_gt[post == 0])
+  remainders <- unlist(BMisc::getListElement(twfe_gt, "remainder"))
+  rem <- sum(remainders * alpha_weight)
+
   out <- list()
   out$twfe_gt <- twfe_gt
   out$idname <- idname
@@ -305,6 +315,10 @@ implicit_twfe_weights <- function(yname,
   out$gname <- gname
   out$weightsname <- weightsname
   out$data <- data
+  out$est <- alpha + rem
+  out$pt_violations_bias <- pt_violations_bias
+  out$decomposition_est <- alpha
+  out$decomposition_remainder <- rem
   class(out) <- "decomposed_twfe"
   out
 }
@@ -464,21 +478,46 @@ twfe_cov_bal_gt <- function(g, tp, decomposed_twfe, X) {
   weighted_diff <- weighted_covs_treated - weighted_covs_comparison
 
   both_idx <- treated_idx | comparison_idx
+  # sd <- apply(X, 2, function(x) {
+  #   sqrt(weighted.mean((x[both_idx] - weighted.mean(x[both_idx], w = sampling_weights[both_idx]))^2,
+  #     w = sampling_weights[both_idx]
+  #   ))
+  # })
+  D <- 1 * (data$.G == g & data$.TP == tp)
+  # hack way to put implicit regression weights back in (relies on data being sorted by id)
+  est_weights <- rep(NA, length(D))
+  est_weights[treated_idx] <- weights_treated
+  est_weights[comparison_idx] <- weights_comparison
+
   sd <- apply(X, 2, function(x) {
-    sqrt(weighted.mean((x[both_idx] - weighted.mean(x[both_idx], w = sampling_weights[both_idx]))^2,
-      w = sampling_weights[both_idx]
-    ))
+    pooled_sd(x[both_idx], D = D[both_idx], sampling_weights = sampling_weights[both_idx])
+  })
+  unweighted_lr_sd <- apply(X, 2, function(x) {
+    log_ratio_sd(x[both_idx], D = D[both_idx], sampling_weights = sampling_weights[both_idx])
+  })
+  weighted_lr_sd <- apply(X, 2, function(x) {
+    log_ratio_sd(x[both_idx], D = D[both_idx], est_weights = est_weights[both_idx], sampling_weights = sampling_weights[both_idx])
+  })
+  unweighted_treated_extreme <- apply(X, 2, function(x) {
+    frac_treated_extreme(x[both_idx], D = D[both_idx], sampling_weights = sampling_weights[both_idx])
+  })
+  weighted_treated_extreme <- apply(X, 2, function(x) {
+    frac_treated_extreme(x[both_idx], D = D[both_idx], est_weights = est_weights[both_idx], sampling_weights = sampling_weights[both_idx])
   })
 
   # return data frame that contains the weighted covariates for the treated and comparison groups
   cbind.data.frame(
-    unweighted_covs_treated,
-    unweighted_covs_comparison,
-    unweighted_diff,
-    weighted_covs_treated,
-    weighted_covs_comparison,
-    weighted_diff,
-    sd
+    unweighted_covs_treated = unweighted_covs_treated,
+    unweighted_covs_comparison = unweighted_covs_comparison,
+    unweighted_diff = unweighted_diff,
+    weighted_covs_treated = weighted_covs_treated,
+    weighted_covs_comparison = weighted_covs_comparison,
+    weighted_diff = weighted_diff,
+    sd = sd,
+    unweighted_log_ratio_sd_diff = unweighted_lr_sd,
+    weighted_log_ratio_sd_diff = weighted_lr_sd,
+    unweighted_frac_treated_extreme = unweighted_treated_extreme,
+    weighted_frac_treated_extreme = weighted_treated_extreme
   )
 }
 
@@ -512,13 +551,67 @@ mp_covariate_bal_summary_helper <- function(decomposed_twfe_obj) {
   cov_bal_list <- lapply(1:ncovs, function(i) {
     do.call(rbind.data.frame, lapply(cov_bal_df_list, function(this_df) this_df[i, , drop = FALSE]))
   })
-  unweighted_diffs <- unlist(lapply(cov_bal_list, function(x) sum(post * alpha_weight * x$unweighted_diff)))
-  weighted_diffs <- unlist(lapply(cov_bal_list, function(x) sum(post * alpha_weight * x$weighted_diff)))
-  wtd_avg_sd <- unlist(lapply(cov_bal_list, function(x) sum(post * alpha_weight * x$sd)))
+
+  unweighted_diffs <- unlist(lapply(
+    cov_bal_list,
+    function(x) sum(post * alpha_weight * x$unweighted_diff)
+  ))
+  weighted_diffs <- unlist(lapply(
+    cov_bal_list,
+    function(x) sum(post * alpha_weight * x$weighted_diff)
+  ))
+  wtd_avg_sd <- unlist(lapply(
+    cov_bal_list,
+    function(x) sum(post * alpha_weight * x$sd)
+  ))
+  unweighted_treated <- unlist(lapply(
+    cov_bal_list,
+    function(x) sum(post * alpha_weight * x$unweighted_covs_treated)
+  ))
+  unweighted_comparison <- unlist(lapply(
+    cov_bal_list,
+    function(x) sum(post * alpha_weight * x$unweighted_covs_comparison)
+  ))
+  weighted_treated <- unlist(lapply(
+    cov_bal_list,
+    function(x) sum(post * alpha_weight * x$weighted_covs_treated)
+  ))
+  weighted_comparison <- unlist(lapply(
+    cov_bal_list,
+    function(x) sum(post * alpha_weight * x$weighted_covs_comparison)
+  ))
+  unweighted_log_ratio_sd_diff <- unlist(lapply(
+    cov_bal_list,
+    function(x) sum(post * alpha_weight * x$unweighted_log_ratio_sd_diff)
+  ))
+  weighted_log_ratio_sd_diff <- unlist(lapply(
+    cov_bal_list,
+    function(x) sum(post * alpha_weight * x$weighted_log_ratio_sd_diff)
+  ))
+  unweighted_frac_treated_extreme <- unlist(lapply(
+    cov_bal_list,
+    function(x) sum(post * alpha_weight * x$unweighted_frac_treated_extreme)
+  ))
+  weighted_frac_treated_extreme <- unlist(lapply(
+    cov_bal_list,
+    function(x) sum(post * alpha_weight * x$weighted_frac_treated_extreme)
+  ))
   # sanity check: for twfe should balance across all periods, b/c time-invariant - ok
   # lapply(cov_bal_list, function(x) sum(alpha_weight*x$weighted_diff))
 
-  cov_balance_summary_df <- cbind.data.frame(unweighted = unweighted_diffs, weighted = weighted_diffs, avg_sd = wtd_avg_sd)
+  cov_balance_summary_df <- cbind.data.frame(
+    unweighted_treat = unweighted_treated,
+    unweighted_untreat = unweighted_comparison,
+    unweighted_diff = unweighted_diffs,
+    weighted_treat = weighted_treated,
+    weighted_untreat = weighted_comparison,
+    weighted_diff = weighted_diffs,
+    sd = wtd_avg_sd,
+    unweighted_log_ratio_sd_diff = unweighted_log_ratio_sd_diff,
+    weighted_log_ratio_sd_diff = weighted_log_ratio_sd_diff,
+    unweighted_frac_treated_extreme = unweighted_frac_treated_extreme,
+    weighted_frac_treated_extreme = weighted_frac_treated_extreme
+  )
   rownames(cov_balance_summary_df) <- covnames
   cov_balance_summary_df
 }
@@ -544,12 +637,11 @@ mp_covariate_bal_summary_helper <- function(decomposed_twfe_obj) {
 #' @param ... extra arguments, not used here
 #' @return a ggplot object
 #' @export
-ggtwfeweights.decomposed_twfe <- function(x, 
-      plot_relative_to_target = FALSE,
-      absolute_value = TRUE,
-      standardize = TRUE
-      , ...) {
-  
+ggtwfeweights.decomposed_twfe <- function(x,
+                                          plot_relative_to_target = FALSE,
+                                          absolute_value = TRUE,
+                                          standardize = TRUE,
+                                          ...) {
   decomposed_twfe_obj <- x
 
   # code to make this run for both twfe and aipw
@@ -566,35 +658,46 @@ ggtwfeweights.decomposed_twfe <- function(x,
   }
   cov_balance_df <- mp_covariate_bal_summary_helper(decomposed_twfe_obj)
   cov_balance_df$covariate <- rownames(cov_balance_df) %>% as.factor()
-  if (standardize) {
-    cov_balance_df$weighted <- cov_balance_df$weighted / cov_balance_df$avg_sd
-    cov_balance_df$unweighted <- cov_balance_df$unweighted / cov_balance_df$avg_sd
-  }
-  plot_df <- cov_balance_df %>%
-    pivot_longer(
-      cols = c(contains("unweighted"), contains("weighted")),
-      names_to = "type",
-      values_to = "value"
-    )
-  ggplot(
-    plot_df,
-    aes(
-      y = .data$covariate,
-      x = abs(.data$value / .data$avg_sd),
-      color = .data$type,
-      shape = .data$type
-    )
-  ) +
-    geom_point(size = 4) +
-    theme_bw() +
-    theme(legend.position = "bottom") +
-    guides(
-      color = guide_legend(title = NULL, labels = c("unweighted", "weighted")),
-      shape = guide_legend(title = NULL, labels = c("unweighted", "weighted"))
-    ) +
-    xlab("standardized difference") +
-    scale_color_discrete(labels = c("unweighted", "weighted")) +
-    scale_shape_discrete(labels = c("unweighted", "weighted"))
+
+  ggtwfeweights.two_period_covs_obj(list(cov_balance_df = cov_balance_df),
+    standardize = standardize,
+    plot_relative_to_target = plot_relative_to_target,
+    absolute_value = absolute_value,
+    plot_outcome = TRUE, # there is no outcome to plot here, so this is just a "hack" to not drop a covariate
+    ...
+  )
+
+  # above, use two-period plotting function,
+  # but keeping this code here for now in case we want to use it later
+  # if (standardize) {
+  #   cov_balance_df$weighted <- cov_balance_df$weighted / cov_balance_df$avg_sd
+  #   cov_balance_df$unweighted <- cov_balance_df$unweighted / cov_balance_df$avg_sd
+  # }
+  # plot_df <- cov_balance_df %>%
+  #   pivot_longer(
+  #     cols = c(contains("unweighted"), contains("weighted")),
+  #     names_to = "type",
+  #     values_to = "value"
+  #   )
+  # ggplot(
+  #   plot_df,
+  #   aes(
+  #     y = .data$covariate,
+  #     x = abs(.data$value / .data$avg_sd),
+  #     color = .data$type,
+  #     shape = .data$type
+  #   )
+  # ) +
+  #   geom_point(size = 4) +
+  #   theme_bw() +
+  #   theme(legend.position = "bottom") +
+  #   guides(
+  #     color = guide_legend(title = NULL, labels = c("unweighted", "weighted")),
+  #     shape = guide_legend(title = NULL, labels = c("unweighted", "weighted"))
+  #   ) +
+  #   xlab("standardized difference") +
+  #   scale_color_discrete(labels = c("unweighted", "weighted")) +
+  #   scale_shape_discrete(labels = c("unweighted", "weighted"))
 }
 
 #' @title implicit_aipw_weights
@@ -726,6 +829,16 @@ implicit_aipw_weights <- function(yname,
   out$gname <- gname
   out$weightsname <- weightsname
   out$data <- data
+  aipw_att_gt <- unlist(BMisc::getListElement(aipw_gt, "est"))
+  group <- unlist(BMisc::getListElement(aipw_gt, "g"))
+  time.period <- unlist(BMisc::getListElement(aipw_gt, "tp"))
+  att_weight <- unlist(BMisc::getListElement(aipw_gt, "att_weight"))
+  post <- 1 * (time.period >= group)
+  atto <- sum(att_weight * aipw_att_gt)
+  out$est <- atto
+  out$pt_violations_bias <- 0
+  out$decomposition_est <- atto
+  out$decomposition_remainder <- 0
   class(out) <- "decomposed_aipw"
   out
 }
@@ -842,10 +955,13 @@ aipw_cov_bal_gt <- function(g, tp, decomposed_aipw, X) {
   weighted_diff <- weighted_covs_treated - weighted_covs_comparison
 
   both_idx <- treated_idx | comparison_idx
+  # sd <- apply(X, 2, function(x) {
+  #   sqrt(weighted.mean((x[both_idx] - weighted.mean(x[both_idx], w = sampling_weights[both_idx]))^2,
+  #     w = sampling_weights[both_idx]
+  #   ))
+  # })
   sd <- apply(X, 2, function(x) {
-    sqrt(weighted.mean((x[both_idx] - weighted.mean(x[both_idx], w = sampling_weights[both_idx]))^2,
-      w = sampling_weights[both_idx]
-    ))
+    pooled_sd(x[both_idx], D = D[both_idx], sampling_weights = sampling_weights[both_idx])
   })
 
   # return data frame that contains the weighted covariates for the treated and comparison groups
@@ -901,8 +1017,18 @@ summary.decomposed_aipw <- function(object, ...) {
 #' @inheritParams ggtwfeweights.decomposed_twfe
 #' @return a ggplot object
 #' @export
-ggtwfeweights.decomposed_aipw <- function(x, standardize = TRUE, ...) {
+ggtwfeweights.decomposed_aipw <- function(
+    x,
+    plot_relative_to_target = FALSE,
+    absolute_value = TRUE,
+    standardize = TRUE,
+    ...) {
   decomposed_aipw_obj <- x
   # should work to just call the plot for twfe at this point
-  ggtwfeweights.decomposed_twfe(decomposed_aipw_obj, standardize = standardize)
+  ggtwfeweights.decomposed_twfe(decomposed_aipw_obj,
+    plot_relative_to_target = plot_relative_to_target,
+    absolute_value = absolute_value,
+    standardize = standardize,
+    ...
+  )
 }
