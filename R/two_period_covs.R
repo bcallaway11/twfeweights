@@ -18,6 +18,7 @@
 #' @param dy the outcome variable
 #' @param D the treatment indicator
 #' @param cov_balance_df a data frame with the balance statistics for the covariates
+#' @param ess the effective sample size
 #' @return a `two_period_covs_obj` object that contains the elements
 #'  passed to the function
 #' @export
@@ -25,13 +26,15 @@ two_period_covs_obj <- function(est,
                                 weights = NULL,
                                 dy = NULL,
                                 D = NULL,
-                                cov_balance_df = NULL) {
+                                cov_balance_df = NULL,
+                                ess = NULL) {
   out <- list(
     est = est,
     weights = weights,
     dy = dy,
     D = D,
-    cov_balance_df = cov_balance_df
+    cov_balance_df = cov_balance_df,
+    ess = ess
   )
   class(out) <- "two_period_covs_obj"
   out
@@ -201,7 +204,9 @@ two_period_reg_weights <- function(yname,
   this_covs <- colnames(.df_wide)
   cov_balance <- lapply(this_covs, function(covariate) {
     unweighted_treat <- weighted.mean(.df_wide[, covariate][.D == 1], w = sampling_weights[.D == 1])
-    unweighted_untreat <- weighted.mean(.df_wide[, covariate][.D == 0], w = sampling_weights[.D == 0])
+    unweighted_untreat <- weighted.mean(.df_wide[, covariate][.D == 0],
+      w = sampling_weights[.D == 0]
+    )
     unweighted_diff <- unweighted_treat - unweighted_untreat
 
     weighted_treat <- weighted.mean(pm[.D == 1] * .regression_weights[.D == 1] * .df_wide[, covariate][.D == 1],
@@ -239,6 +244,10 @@ two_period_reg_weights <- function(yname,
     )
   })
   cov_balance_df <- do.call(rbind.data.frame, cov_balance)
+  ess <- effective_sample_size(
+    est_weights = .regression_weights[.D == 0],
+    sampling_weights = sampling_weights[.D == 0]
+  )
 
   # re-normalize the weights to be in line with other functions
   .regression_weights[.D == 1] <- .regression_weights[.D == 1] * sampling_weights[.D == 1]
@@ -250,7 +259,8 @@ two_period_reg_weights <- function(yname,
     weights = .regression_weights,
     dy = .dy,
     D = .D,
-    cov_balance_df = cov_balance_df
+    cov_balance_df = cov_balance_df,
+    ess = ess
   )
   out
 }
@@ -710,8 +720,9 @@ two_period_aipw_weights <- function(yname,
     )
   })
   cov_balance_df <- do.call(rbind.data.frame, cov_balance)
+  ess <- effective_sample_size(est_weights = aipw_weights[D == 0])
 
-  out <- two_period_covs_obj(att, aipw_weights, dy, D, cov_balance_df)
+  out <- two_period_covs_obj(att, aipw_weights, dy, D, cov_balance_df, ess)
   out
 }
 
@@ -769,7 +780,7 @@ pooled_sd <- function(x, D, sampling_weights = rep(1, length(n))) {
 log_ratio_sd <- function(x, D, est_weights = rep(1, length(x)), sampling_weights = rep(1, length(x))) {
   # normalize sampling weights
   sampling_weights <- sampling_weights / mean(sampling_weights)
-  # noramlize estimation weights within group
+  # normalize estimation weights within group
   est_weights[D == 1] <- est_weights[D == 1] / weighted.mean(est_weights[D == 1], w = sampling_weights[D == 1])
   est_weights[D == 0] <- est_weights[D == 0] / weighted.mean(est_weights[D == 0], w = sampling_weights[D == 0])
 
@@ -811,7 +822,7 @@ frac_treated_extreme <- function(x, D, est_weights = rep(1, length(x)), sampling
 
   # normalize sampling weights
   sampling_weights <- sampling_weights / mean(sampling_weights)
-  # noramlize estimation weights within group
+  # normalize estimation weights within group
   est_weights[D == 1] <- est_weights[D == 1] / weighted.mean(est_weights[D == 1], w = sampling_weights[D == 1])
   est_weights[D == 0] <- est_weights[D == 0] / weighted.mean(est_weights[D == 0], w = sampling_weights[D == 0])
 
@@ -823,4 +834,21 @@ frac_treated_extreme <- function(x, D, est_weights = rep(1, length(x)), sampling
 
   fte <- 1 - treated_dist_func(uq) + treated_dist_func(lq)
   fte
+}
+
+#' @title effective_sample_size
+#' @description a helper function to compute an effective sample size given
+#'  some estimation weights and sampling weights.  This function should be
+#'  called separately for the treated group and the untreated group.
+#' @inheritParams log_ratio_sd
+#' @return a numeric value containing the effective sample size
+#' @export
+effective_sample_size <- function(est_weights, sampling_weights = rep(1, length(est_weights))) {
+  # normalize sampling weights
+  sampling_weights <- sampling_weights / mean(sampling_weights)
+  # normalize estimation weights within group
+  est_weights <- est_weights / weighted.mean(est_weights, w = sampling_weights)
+
+  ess <- sum(est_weights)^2 / sum(est_weights^2)
+  ess
 }

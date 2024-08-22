@@ -31,6 +31,7 @@
 #'  is typically set by the `twfe_cov_bal` function, called subsequent to
 #'  `implicit_twfe_weights`.
 #' @param alpha_weight the contribution of this term to the estimate of alpha
+#' @param ess the effective sample size for the group-time period
 #' @export
 gt_weights <- function(g,
                        tp,
@@ -44,7 +45,8 @@ gt_weights <- function(g,
                        base_period = NULL,
                        remainder = NULL,
                        cov_bal_df = NULL,
-                       alpha_weight) {
+                       alpha_weight,
+                       ess = NULL) {
   ret_gt_weights <- list(
     g = g,
     tp = tp,
@@ -58,7 +60,8 @@ gt_weights <- function(g,
     base_period = base_period,
     remainder = remainder,
     cov_bal_df = cov_bal_df,
-    alpha_weight = alpha_weight
+    alpha_weight = alpha_weight,
+    ess = ess
   )
 
   class(ret_gt_weights) <- "gt_weights"
@@ -155,6 +158,7 @@ implicit_twfe_weights_gt <- function(g,
   upart <- weighted.mean(upart_w * outcomeit[thisG == 0], w = sampling_weights[idxU])
 
   reg_attgt <- gpart - upart
+  ess <- effective_sample_size(est_weights = upart_w, sampling_weights = sampling_weights[idxU])
 
   alpha_weight <- combine_twfe_weights_gt(g, tp, gname, tname, xformula, idname, data, weightsname)
 
@@ -179,7 +183,8 @@ implicit_twfe_weights_gt <- function(g,
     weighted_outcome_comparison = upart,
     weighted_outcome_diff = reg_attgt,
     remainder = remainder,
-    alpha_weight = alpha_weight
+    alpha_weight = alpha_weight,
+    ess = ess
   )
   out
 }
@@ -341,12 +346,15 @@ summary.decomposed_twfe <- function(object, ...) {
   alpha <- sum(alpha_weight * twfe_att_gt)
   pt_violations_bias <- sum(alpha_weight[post == 0] * twfe_att_gt[post == 0])
   remainders <- unlist(BMisc::getListElement(object, "remainder"))
+  ess <- unlist(BMisc::getListElement(object, "ess"))
+  ess <- sum(post) * sum(alpha_weight[post == 1] * ess[post == 1]) # this "counts up" ess across groups and time periods
   rem <- sum(remainders * alpha_weight)
   cat("alpha twfe:          ", round(alpha + rem, 4), "\n")
   cat("alpha decomp:        ", round(alpha, 4), "\n")
   cat("alpha post only:     ", round(sum(alpha_weight[post == 1] * twfe_att_gt[post == 1]), 4), "\n")
   cat("pta violations bias: ", round(pt_violations_bias, 4), "\n")
   cat("remainders:          ", round(rem, 4), "\n")
+  cat("ess:                 ", round(ess, 4), "\n")
   cat("\n")
   # this is basically just a check to see if the balance statistics have been computed
   # if not, we'll print the summary of the decomposition with respect
@@ -961,7 +969,7 @@ aipw_cov_bal_gt <- function(g, tp, decomposed_aipw, X) {
   #   ))
   # })
   sd <- apply(X, 2, function(x) {
-    pooled_sd(x[both_idx], D = D[both_idx], sampling_weights = sampling_weights[both_idx])
+    pooled_sd(x[both_idx], D = D, sampling_weights = sampling_weights[both_idx])
   })
 
   # return data frame that contains the weighted covariates for the treated and comparison groups
@@ -990,10 +998,13 @@ summary.decomposed_aipw <- function(object, ...) {
   group <- unlist(BMisc::getListElement(object, "g"))
   time.period <- unlist(BMisc::getListElement(object, "tp"))
   att_weight <- unlist(BMisc::getListElement(object, "att_weight"))
+  ess <- unlist(BMisc::getListElement(object, "ess"))
   post <- 1 * (time.period >= group)
   print_df <- cbind.data.frame(group, time.period, post, aipw_att_gt, att_weight)
   atto <- sum(att_weight * aipw_att_gt)
-  cat("overall att:          ", round(atto, 4), "\n")
+  cat("overall att:           ", round(atto, 4), "\n")
+  ess <- sum(post) * sum(att_weight * ess) # this "counts up" ess across groups and time periods
+  cat("ess:                   ", round(ess, 4), "\n")
   cat("\n")
   # this is basically just a check to see if the balance statistics have been computed
   # if not, we'll print the summary of the decomposition with respect
