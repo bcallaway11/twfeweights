@@ -15,6 +15,7 @@
 #' @import stats
 #' @import rlang
 #' @import tidyr
+#' @importFrom dplyr recode
 #' @importFrom utils tail
 #' @importFrom magrittr %>%
 NULL
