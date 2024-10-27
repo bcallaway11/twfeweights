@@ -14,6 +14,7 @@
 #' @import ggplot2
 #' @import stats
 #' @import rlang
+#' @import tidyr
 #' @importFrom utils tail
 #' @importFrom magrittr %>%
 NULL
