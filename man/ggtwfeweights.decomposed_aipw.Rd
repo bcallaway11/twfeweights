@@ -4,7 +4,13 @@
 \alias{ggtwfeweights.decomposed_aipw}
 \title{ggtwfeweights.decomposed_aipw}
 \usage{
-\method{ggtwfeweights}{decomposed_aipw}(x, standardize = TRUE, ...)
+\method{ggtwfeweights}{decomposed_aipw}(
+  x,
+  plot_relative_to_target = FALSE,
+  absolute_value = TRUE,
+  standardize = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{a \code{decomposed_aipw} object that comes from

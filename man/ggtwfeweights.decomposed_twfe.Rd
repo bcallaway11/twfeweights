@@ -4,7 +4,13 @@
 \alias{ggtwfeweights.decomposed_twfe}
 \title{ggtwfeweights.decomposed_twfe}
 \usage{
-\method{ggtwfeweights}{decomposed_twfe}(x, standardize = TRUE, ...)
+\method{ggtwfeweights}{decomposed_twfe}(
+  x,
+  plot_relative_to_target = FALSE,
+  absolute_value = TRUE,
+  standardize = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{a \code{decomposed_twfe} object that comes from a

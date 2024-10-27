@@ -18,6 +18,7 @@ two_period_aipw_weights(
   balance_d_vars_post = TRUE,
   data,
   weightsname = NULL,
+  post_lasso = FALSE,
   ...
 )
 }
@@ -75,6 +76,16 @@ is selected when this argument is set to be TRUE, which is the default.}
 \item{data}{the data frame}
 
 \item{weightsname}{optional name of the sampling weights variable}
+
+\item{post_lasso}{whether to use the Lasso to perform model selection among the available covariates.
+Default is FALSE.  If TRUE, the function will use the Lasso to select covariates for the
+propensity score and outcome regression, and then re-estimate both the outcome regression and propensity
+score using the selected covariates.  Post-Lasso results respect that the covariates that could be
+selected for the outcome regression and propensity score can be different.  For example, one can
+still specify \code{pscore_formula = ~1} and \code{pscore_d_covs_formula = ~1} in which case the function
+would use a Lasso-version of regression adjustment (though note that using this approach likely
+requires stronger assumptions on sparsity than including a full set of covariates for both the
+outcome regression and the propensity score).}
 
 \item{...}{additional arguments, currently unused but allows same arguments
 as would be used in \code{did::att_gt}}

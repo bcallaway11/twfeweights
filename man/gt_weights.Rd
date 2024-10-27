@@ -17,7 +17,8 @@ gt_weights(
   base_period = NULL,
   remainder = NULL,
   cov_bal_df = NULL,
-  alpha_weight
+  alpha_weight,
+  ess = NULL
 )
 }
 \arguments{
@@ -62,6 +63,8 @@ is typically set by the \code{twfe_cov_bal} function, called subsequent to
 \code{implicit_twfe_weights}.}
 
 \item{alpha_weight}{the contribution of this term to the estimate of alpha}
+
+\item{ess}{the effective sample size for the group-time period}
 }
 \description{
 a class for holding and working with group-time weights

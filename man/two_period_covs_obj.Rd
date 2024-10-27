@@ -9,7 +9,8 @@ two_period_covs_obj(
   weights = NULL,
   dy = NULL,
   D = NULL,
-  cov_balance_df = NULL
+  cov_balance_df = NULL,
+  ess = NULL
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ two_period_covs_obj(
 \item{D}{the treatment indicator}
 
 \item{cov_balance_df}{a data frame with the balance statistics for the covariates}
+
+\item{ess}{the effective sample size}
 }
 \value{
 a \code{two_period_covs_obj} object that contains the elements

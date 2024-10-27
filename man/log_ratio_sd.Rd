@@ -4,18 +4,27 @@
 \alias{log_ratio_sd}
 \title{log_ratio_sd}
 \usage{
-log_ratio_sd(x, D, w = rep(1, length(n)))
+log_ratio_sd(
+  x,
+  D,
+  est_weights = rep(1, length(x)),
+  sampling_weights = rep(1, length(x))
+)
 }
 \arguments{
 \item{x}{a numeric vector}
 
 \item{D}{a binary vector indicating treated and untreated group}
 
-\item{w}{a numeric vector of weights, default is rep(1, length(n))}
+\item{est_weights}{a numeric vector of weights coming from an estimation procedure,
+default is rep(1, length(n))}
 }
 \value{
 a numeric value containing the log ratio of standard deviations
 }
 \description{
-a helper function to compute the log ratio of standard deviations with treated and untreated group
+a helper function to compute the log ratio of standard deviations with
+treated and untreated group.  This is unit-free balance summary statistic that compares
+the spread of the distribution of the covariate for the treated group relative to the
+untreated group.  This is a balance summary statistic that was discussed in Imbens and Rubin (2015).
 }
