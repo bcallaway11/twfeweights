@@ -657,7 +657,14 @@ two_period_aipw_weights <- function(yname,
   if (!is.null(xformula_col_names)) {
     xformula_no_int <- BMisc::addCovToFormla("-1", xformula)
     .df_wide_xbal <- model.matrix(xformula_no_int, data[data[, tname] == minT, ])[, , drop = FALSE]
-    colnames(.df_wide_xbal) <- paste0(colnames(.df_wide_xbal), "_", minT)
+    .df_wide_xbal_maxT <- model.matrix(xformula_no_int, data[data[, tname] == maxT, ])[, , drop = FALSE]
+    # only append the early period label for variables that actually vary over time
+    xbal_time_varying <- apply(.df_wide_xbal != .df_wide_xbal_maxT, 2, any)
+    colnames(.df_wide_xbal) <- ifelse(
+      xbal_time_varying,
+      paste0(colnames(.df_wide_xbal), "_", minT),
+      colnames(.df_wide_xbal)
+    )
     .df_wide <- .df_wide[, !colnames(.df_wide) %in% xformula_col_names, drop = FALSE]
     .df_wide <- cbind.data.frame(.df_wide, .df_wide_xbal)
   }

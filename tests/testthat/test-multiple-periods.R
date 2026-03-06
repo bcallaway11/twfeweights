@@ -95,8 +95,8 @@ test_that("Same covariate balance in multiple period and two period case?", {
     )
 
     two_period_cb <- two_period_wts$cov_balance_df
-    two_period_avg_prisoner_unwtd <- two_period_cb[two_period_cb$covariate == "avg_l_prisoner_2000", "unweighted_diff"]
-    two_period_avg_prisoner_wtd <- two_period_cb[two_period_cb$covariate == "avg_l_prisoner_2000", "weighted_diff"]
+    two_period_avg_prisoner_unwtd <- two_period_cb[two_period_cb$covariate == "avg_l_prisoner", "unweighted_diff"]
+    two_period_avg_prisoner_wtd <- two_period_cb[two_period_cb$covariate == "avg_l_prisoner", "weighted_diff"]
 
     expect_equal(
         unname(twfe_cb_avg_prisoner_unwtd),
@@ -144,8 +144,8 @@ test_that("Same covariate balance in multiple period and two period case?, sampl
     )
 
     two_period_cb <- two_period_wts$cov_balance_df
-    two_period_avg_prisoner_unwtd <- two_period_cb[two_period_cb$covariate == "avg_l_prisoner_2000", "unweighted_diff"]
-    two_period_avg_prisoner_wtd <- two_period_cb[two_period_cb$covariate == "avg_l_prisoner_2000", "weighted_diff"]
+    two_period_avg_prisoner_unwtd <- two_period_cb[two_period_cb$covariate == "avg_l_prisoner", "unweighted_diff"]
+    two_period_avg_prisoner_wtd <- two_period_cb[two_period_cb$covariate == "avg_l_prisoner", "weighted_diff"]
 
     expect_equal(
         unname(twfe_cb_avg_prisoner_unwtd),

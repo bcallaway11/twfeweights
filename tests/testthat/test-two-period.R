@@ -276,7 +276,8 @@ test_that("AIPW balance includes all factor levels when xformula has a factor", 
     )
 
     balance_covs <- aipw_res$cov_balance_df$covariate
-    expected <- paste0("region", c("Midwest", "Northeast", "South", "West"), "_", min_t)
+    # region is time-invariant, so no period suffix is appended
+    expected <- paste0("region", c("Midwest", "Northeast", "South", "West"))
     expect_true(all(expected %in% balance_covs))
 })
 
