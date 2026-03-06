@@ -116,6 +116,8 @@ two_period_reg_weights <- function(yname,
     }
   }
 
+  if (is.null(xformula)) xformula <- ~1
+
   # ----------------------------------------------------------------------------
   # run the regression and calculate the weights
   # ----------------------------------------------------------------------------
@@ -168,10 +170,14 @@ two_period_reg_weights <- function(yname,
   }
 
   # calculate balance for all supplied covariates
-  .df_wide_temp <- data[data[, tname] == minT, BMisc::rhs.vars(xformula), drop = FALSE]
-  colnames(.df_wide_temp) <- paste0(BMisc::rhs.vars(xformula), "_", minT)
+  if (xformula != ~1) {
+    .df_wide_temp <- data[data[, tname] == minT, BMisc::rhs.vars(xformula), drop = FALSE]
+    colnames(.df_wide_temp) <- paste0(BMisc::rhs.vars(xformula), "_", minT)
+  } else {
+    .df_wide_temp <- data.frame(row.names = seq_len(sum(data[, tname] == minT)))
+  }
   # if requested, additional covariates from first period
-  if (!is.null(extra_balance_vars_formula)) {
+  if (!is.null(extra_balance_vars_formula) && extra_balance_vars_formula != ~1) {
     # try to account for factors here
     # drop intercept, this also helps with including all factors which is typically desirable here
     extra_balance_vars_formula <- BMisc::addCovToFormla("-1", extra_balance_vars_formula)
@@ -184,7 +190,7 @@ two_period_reg_weights <- function(yname,
     .df_wide_temp <- cbind.data.frame(.df_wide_temp, .df_wide_temp2)
   }
   # if requested, the change in additional covariates over time
-  if (!is.null(extra_balance_d_vars_formula)) {
+  if (!is.null(extra_balance_d_vars_formula) && extra_balance_d_vars_formula != ~1) {
     # in first case: report balance for levels in post-treatment periods
     # in second case: report balance in the change in the covariates over time
     if (balance_d_vars_post) {
@@ -199,7 +205,7 @@ two_period_reg_weights <- function(yname,
   }
   # merge the additional covariates with the main data and drop the
   # treatment indicator and the sampling weights
-  .df_wide <- cbind.data.frame(.df_wide[, 1:(ncol(.df_wide) - 2)], .df_wide_temp)
+  .df_wide <- cbind.data.frame(.df_wide[, 1:(ncol(.df_wide) - 2), drop = FALSE], .df_wide_temp)
 
   this_covs <- colnames(.df_wide)
   cov_balance <- lapply(this_covs, function(covariate) {
@@ -479,10 +485,12 @@ two_period_aipw_weights <- function(yname,
   reg_xformula <- NULL
   pscore_xformula <- NULL
   # add the time invariant variables
+  xformula_col_names <- NULL
   if (xformula != ~1) {
-    # try to account for factors here
+    # try to account for factors here; drop reference level so regression is full-rank
     .df_wide_temp <- model.matrix(xformula, data[data[, tname] == minT, ])[, -1, drop = FALSE]
     colnames(.df_wide_temp) <- paste0(colnames(.df_wide_temp), "_", minT)
+    xformula_col_names <- colnames(.df_wide_temp)
     .df_wide <- cbind.data.frame(.df_wide, .df_wide_temp)
     reg_xformula <- BMisc::toformula("", colnames(.df_wide_temp))
   } else {
@@ -633,6 +641,16 @@ two_period_aipw_weights <- function(yname,
 
   # drop no longer needed columns
   .df_wide <- .df_wide[, -c(2, ncol(.df_wide):(ncol(.df_wide) - 2))]
+
+  # rebuild xformula balance columns with all factor levels (matching TWFE behavior),
+  # replacing the regression-encoded columns which dropped the reference level
+  if (!is.null(xformula_col_names)) {
+    xformula_no_int <- BMisc::addCovToFormla("-1", xformula)
+    .df_wide_xbal <- model.matrix(xformula_no_int, data[data[, tname] == minT, ])[, , drop = FALSE]
+    colnames(.df_wide_xbal) <- paste0(colnames(.df_wide_xbal), "_", minT)
+    .df_wide <- .df_wide[, !colnames(.df_wide) %in% xformula_col_names, drop = FALSE]
+    .df_wide <- cbind.data.frame(.df_wide, .df_wide_xbal)
+  }
 
   # if requested, additional covariates from first period
   if (!is.null(extra_balance_vars_formula)) {

@@ -258,6 +258,114 @@ test_that("Covariate arguments to aipw work the same for ~1 and NULL", {
     )
 })
 
+# ---------------------------------------------------------------------------
+# Tests for balance covariate consistency between TWFE and AIPW
+# ---------------------------------------------------------------------------
+# Add a synthetic 4-level region factor to the test data
+this_df$region <- as.factor(c("Northeast", "South", "Midwest", "West")[(this_df$sid %% 4) + 1])
+min_t <- min(this_df$year)
+
+test_that("AIPW balance includes all factor levels when xformula has a factor", {
+    aipw_res <- two_period_aipw_weights(
+        yname = "l_homicide",
+        tname = "year",
+        idname = "sid",
+        gname = "G",
+        xformula = ~region,
+        data = this_df
+    )
+
+    balance_covs <- aipw_res$cov_balance_df$covariate
+    expected <- paste0("region", c("Midwest", "Northeast", "South", "West"), "_", min_t)
+    expect_true(all(expected %in% balance_covs))
+})
+
+test_that("TWFE and AIPW balance covariate names match for time-varying continuous covariate", {
+    # TWFE: xformula is time-varying -> balance gets d_x and x_min_t automatically
+    twfe_res <- two_period_reg_weights(
+        yname = "l_homicide",
+        tname = "year",
+        idname = "sid",
+        gname = "G",
+        xformula = ~l_police,
+        data = this_df
+    )
+
+    # AIPW: xformula for pre-period level, d_covs_formula for the change
+    aipw_res <- two_period_aipw_weights(
+        yname = "l_homicide",
+        tname = "year",
+        idname = "sid",
+        gname = "G",
+        xformula = ~l_police,
+        d_covs_formula = ~l_police,
+        data = this_df
+    )
+
+    expect_setequal(
+        twfe_res$cov_balance_df$covariate,
+        aipw_res$cov_balance_df$covariate
+    )
+})
+
+test_that("TWFE and AIPW balance covariate names match for factor covariate", {
+    # TWFE: factor is balance-only via extra_balance_vars_formula (all levels via -1)
+    twfe_res <- two_period_reg_weights(
+        yname = "l_homicide",
+        tname = "year",
+        idname = "sid",
+        gname = "G",
+        xformula = ~1,
+        extra_balance_vars_formula = ~region,
+        data = this_df
+    )
+
+    # AIPW: factor in xformula; balance rebuilt with all levels after fix
+    aipw_res <- two_period_aipw_weights(
+        yname = "l_homicide",
+        tname = "year",
+        idname = "sid",
+        gname = "G",
+        xformula = ~region,
+        data = this_df
+    )
+
+    expect_setequal(
+        twfe_res$cov_balance_df$covariate,
+        aipw_res$cov_balance_df$covariate
+    )
+})
+
+test_that("TWFE and AIPW balance covariate names match for both continuous and factor covariates", {
+    # TWFE: l_police is time-varying (xformula), region is balance-only (extra_balance_vars_formula)
+    twfe_res <- two_period_reg_weights(
+        yname = "l_homicide",
+        tname = "year",
+        idname = "sid",
+        gname = "G",
+        xformula = ~l_police,
+        extra_balance_vars_formula = ~region,
+        data = this_df
+    )
+
+    # AIPW: l_police in both xformula (for pre-period level) and d_covs_formula (for change);
+    # region in xformula for all factor levels
+    aipw_res <- two_period_aipw_weights(
+        yname = "l_homicide",
+        tname = "year",
+        idname = "sid",
+        gname = "G",
+        xformula = ~l_police + region,
+        d_covs_formula = ~l_police,
+        data = this_df
+    )
+
+    expect_setequal(
+        twfe_res$cov_balance_df$covariate,
+        aipw_res$cov_balance_df$covariate
+    )
+})
+
 test_that("Covariate arguments to reg functions work the same for ~1 and NULL", {
 
     res1 <- two_period_reg_weights(
