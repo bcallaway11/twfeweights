@@ -185,8 +185,18 @@ two_period_reg_weights <- function(yname,
       extra_balance_vars_formula,
       data[data[, tname] == minT, ]
     )[, , drop = FALSE]
-    # .df_wide_temp2 <- data[ data[,tname]==minT, BMisc::rhs.vars(additional_covariates_formula), drop=FALSE]
-    colnames(.df_wide_temp2) <- paste0(colnames(.df_wide_temp2), "_", minT)
+    .df_wide_temp2_maxT <- model.matrix(
+      extra_balance_vars_formula,
+      data[data[, tname] == maxT, ]
+    )[, , drop = FALSE]
+    # only append the early period label for variables that actually vary over time;
+    # time-invariant variables keep their original name since the time label adds no information
+    time_varying <- apply(.df_wide_temp2 != .df_wide_temp2_maxT, 2, any)
+    colnames(.df_wide_temp2) <- ifelse(
+      time_varying,
+      paste0(colnames(.df_wide_temp2), "_", minT),
+      colnames(.df_wide_temp2)
+    )
     .df_wide_temp <- cbind.data.frame(.df_wide_temp, .df_wide_temp2)
   }
   # if requested, the change in additional covariates over time
@@ -657,8 +667,15 @@ two_period_aipw_weights <- function(yname,
     # try to account for factors here
     extra_balance_vars_formula <- BMisc::addCovToFormla("-1", extra_balance_vars_formula)
     .df_wide_temp2 <- model.matrix(extra_balance_vars_formula, data[data[, tname] == minT, ])[, , drop = FALSE]
-    # .df_wide_temp2 <- data[ data[,tname]==minT, BMisc::rhs.vars(additional_covariates_formula), drop=FALSE]
-    colnames(.df_wide_temp2) <- paste0(colnames(.df_wide_temp2), "_", minT)
+    .df_wide_temp2_maxT <- model.matrix(extra_balance_vars_formula, data[data[, tname] == maxT, ])[, , drop = FALSE]
+    # only append the early period label for variables that actually vary over time;
+    # time-invariant variables keep their original name since the time label adds no information
+    time_varying <- apply(.df_wide_temp2 != .df_wide_temp2_maxT, 2, any)
+    colnames(.df_wide_temp2) <- ifelse(
+      time_varying,
+      paste0(colnames(.df_wide_temp2), "_", minT),
+      colnames(.df_wide_temp2)
+    )
     .df_wide <- cbind.data.frame(.df_wide, .df_wide_temp2)
   }
   # if requested, the change in additional covariates over time
