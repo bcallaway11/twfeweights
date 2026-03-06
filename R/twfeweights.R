@@ -56,19 +56,27 @@ twfe_weights <- function(attgt_res, keep_untreated=FALSE) {
 
   .gname <- attgt_res$DIDparams$gname
   .tname <- attgt_res$DIDparams$tname
-  .data <- attgt_res$DIDparams$data
-  .tlist <- attgt_res$DIDparams$tlist
-  .glist <- c(0,attgt_res$DIDparams$glist)
+  .data <- as.data.frame(attgt_res$DIDparams$data)
+  # did >= 2.3.0 renamed tlist/glist to time_periods/treated_groups
+  .tlist <- attgt_res$DIDparams$time_periods %||% attgt_res$DIDparams$tlist
+  .glist <- c(0, attgt_res$DIDparams$treated_groups %||% attgt_res$DIDparams$glist)
   .attgt <- c(rep(0, length(.tlist)), attgt_res$att)
   .t <- c(.tlist, attgt_res$t)
   .group <- c(rep(0, length(.tlist)), attgt_res$group)
-  
+
+  # did >= 2.3.0 codes untreated units as G=Inf; older versions used G=0.
+  # treat both 0 and Inf as "untreated" throughout.
+  .g_col <- .data[[.gname]]
+  .is_treated <- !is.infinite(.g_col) & .g_col != 0
+
   # twfe weights
   Edt <- function(t) {
-    mean( (t >= .data[,.gname]) & (.data[,.gname] !=0) )
+    mean( (t >= .g_col) & .is_treated )
   }
   mEdt <- mean(sapply(.tlist, Edt))
-  pg2 <- sapply(.glist, function(g) mean(.data[,.gname]==g))
+  pg2 <- sapply(.glist, function(g) {
+    if (g == 0) mean(!.is_treated) else mean(.g_col == g)
+  })
   maxT <- max(.tlist)
   wTWFE_num <- function(g,t,pre0=FALSE) {
     if ((t < g) & pre0) return(0) 
@@ -117,17 +125,24 @@ attO_weights <- function(attgt_res,
 
   .gname <- attgt_res$DIDparams$gname
   .tname <- attgt_res$DIDparams$tname
-  .data <- attgt_res$DIDparams$data
-  .tlist <- attgt_res$DIDparams$tlist
-  .glist <- c(0,attgt_res$DIDparams$glist)
+  .data <- as.data.frame(attgt_res$DIDparams$data)
+  # did >= 2.3.0 renamed tlist/glist to time_periods/treated_groups
+  .tlist <- attgt_res$DIDparams$time_periods %||% attgt_res$DIDparams$tlist
+  .glist <- c(0, attgt_res$DIDparams$treated_groups %||% attgt_res$DIDparams$glist)
   .attgt <- c(rep(0, length(.tlist)), attgt_res$att)
   .t <- c(.tlist, attgt_res$t)
   .group <- c(rep(0, length(.tlist)), attgt_res$group)
 
+  # did >= 2.3.0 codes untreated units as G=Inf; older versions used G=0.
+  .g_col <- .data[[.gname]]
+  .is_treated <- !is.infinite(.g_col) & .g_col != 0
+
   # overall attgt weights
-  .ever_treated <- which(.data[,.gname] != 0)
+  .ever_treated <- which(.is_treated)
   w <- w[.ever_treated]
-  pg <- sapply(.glist, function(g) weighted.mean(.data[.ever_treated,][,.gname]==g, w=w))
+  pg <- sapply(.glist, function(g) {
+    if (g == 0) 0 else weighted.mean(.data[.ever_treated, ][[.gname]]==g, w=w)
+  })
   maxT <- max(.tlist)
   wO <- function(g,t) {
     1*(t >= g)*pg[.glist==g] / (maxT - g + 1)
@@ -136,7 +151,7 @@ attO_weights <- function(attgt_res,
   wOgt <- sapply(1:length(.attgt),
                  function(i) wO(.group[i],
                                 .t[i]))
-  
+
   if (!keep_untreated) {
     wOgt <- wOgt[.group != 0]
     .attgt <- .attgt[.group != 0]
@@ -161,17 +176,24 @@ att_simple_weights <- function(attgt_res, w=rep(1,nrow(attgt_res$DIDparams$data)
   
   .gname <- attgt_res$DIDparams$gname
   .tname <- attgt_res$DIDparams$tname
-  .data <- attgt_res$DIDparams$data
-  .tlist <- attgt_res$DIDparams$tlist
-  .glist <- c(0,attgt_res$DIDparams$glist)
+  .data <- as.data.frame(attgt_res$DIDparams$data)
+  # did >= 2.3.0 renamed tlist/glist to time_periods/treated_groups
+  .tlist <- attgt_res$DIDparams$time_periods %||% attgt_res$DIDparams$tlist
+  .glist <- c(0, attgt_res$DIDparams$treated_groups %||% attgt_res$DIDparams$glist)
   .attgt <- c(rep(0, length(.tlist)), attgt_res$att)
   .t <- c(.tlist, attgt_res$t)
   .group <- c(rep(0, length(.tlist)), attgt_res$group)
-  
+
+  # did >= 2.3.0 codes untreated units as G=Inf; older versions used G=0.
+  .g_col <- .data[[.gname]]
+  .is_treated <- !is.infinite(.g_col) & .g_col != 0
+
   # overall attgt weights
-  .ever_treated <- which(.data[,.gname] != 0)
+  .ever_treated <- which(.is_treated)
   w <- w[.ever_treated]
-  pg <- sapply(.glist, function(g) weighted.mean(.data[.ever_treated,][,.gname]==g, w=w))
+  pg <- sapply(.glist, function(g) {
+    if (g == 0) 0 else weighted.mean(.data[.ever_treated, ][[.gname]]==g, w=w)
+  })
   maxT <- max(.tlist)
   wO <- function(g,t) {
     1*(t >= g)*pg[.glist==g]
@@ -181,8 +203,8 @@ att_simple_weights <- function(attgt_res, w=rep(1,nrow(attgt_res$DIDparams$data)
                  function(i) wO(.group[i],
                                 .t[i]))
   # account for denominator just by normalizing weights to sum to 1
-  wsimplegt <- wsimplegt / sum(wsimplegt) 
-  
+  wsimplegt <- wsimplegt / sum(wsimplegt)
+
   if (!keep_untreated) {
     wsimplegt <- wsimplegt[.group != 0]
     .attgt <- .attgt[.group != 0]

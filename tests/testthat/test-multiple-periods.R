@@ -230,6 +230,7 @@ test_that("multiple periods functions work with time invariant covariates with t
     # skip("implicit_twfe_weights function does not work with time invariant covariates with time varying coefficients currently, this is a known bug")
 
     # region is missing from the data so just randomly assign a region
+    set.seed(42)
     castle$region <- rep(
         sample(c("south", "north", "midwest", "west"),
             size = length(unique(castle$sid)), replace = TRUE
@@ -253,7 +254,7 @@ test_that("multiple periods functions work with time invariant covariates with t
 
     twfe_wts_est <- sum((twfe_res_gt + remainders) * alpha_weight)
 
-    twfe_res <- fixest::feols(l_homicide ~ post + l_police +
+    twfe_res <- fixest::feols(l_homicide ~ post +
         as.factor(year) * as.factor(region) | sid + year, data = castle)
 
     expect_equal(
@@ -301,4 +302,82 @@ test_that("multiple periods functions work with time invariant covariates with t
         unname(twfe_wts_est),
         unname(coef(twfe_res)[1])
     )
+})
+
+# ---------------------------------------------------------------------------
+# Precomputed results shared across new structural tests
+# ---------------------------------------------------------------------------
+twfe_wts_castle <- implicit_twfe_weights(
+    yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+    xformula = ~l_police, base_period = "gmin1", data = castle
+)
+twfe_wts_two_period <- implicit_twfe_weights(
+    yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+    xformula = ~l_police, base_period = "gmin1", data = two_period_df
+)
+aipw_wts_castle <- suppressWarnings(implicit_aipw_weights(
+    yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+    xformula = ~l_police, data = castle
+))
+
+# ---------------------------------------------------------------------------
+# Output structure of implicit_twfe_weights
+# ---------------------------------------------------------------------------
+
+test_that("implicit_twfe_weights returns a decomposed_twfe object with expected fields", {
+    expect_s3_class(twfe_wts_castle, "decomposed_twfe")
+    expect_true("twfe_gt" %in% names(twfe_wts_castle))
+    expect_true(is.list(twfe_wts_castle$twfe_gt))
+
+    # Each gt element should have expected fields
+    first_gt <- twfe_wts_castle$twfe_gt[[1]]
+    expect_true(all(c("g", "tp", "alpha_weight", "weighted_outcome_diff", "remainder") %in%
+        names(first_gt)))
+})
+
+test_that("alpha_weights from implicit_twfe_weights sum to 1 over post-treatment cells", {
+    twfe_wts_gt <- twfe_wts_castle$twfe_gt
+    alpha_weight <- unlist(BMisc::getListElement(twfe_wts_gt, "alpha_weight"))
+    groups <- unlist(BMisc::getListElement(twfe_wts_gt, "g"))
+    time_periods <- unlist(BMisc::getListElement(twfe_wts_gt, "tp"))
+    post <- time_periods >= groups
+
+    expect_equal(sum(alpha_weight[post]), 1, tolerance = 1e-6)
+})
+
+# ---------------------------------------------------------------------------
+# twfe_cov_bal output structure
+# ---------------------------------------------------------------------------
+
+test_that("twfe_cov_bal returns a decomposed_twfe with cov_bal_df in each gt element", {
+    tcb <- twfe_cov_bal(twfe_wts_two_period, ~l_prisoner)
+
+    expect_s3_class(tcb, "decomposed_twfe")
+    cov_bal_list <- BMisc::getListElement(tcb$twfe_gt, "cov_bal_df")
+    # every gt element should now have a cov_bal_df
+    expect_true(all(!sapply(cov_bal_list, is.null)))
+    # each cov_bal_df should have expected columns
+    first_cov_bal <- cov_bal_list[[1]]
+    expect_true(all(c("unweighted_diff", "weighted_diff") %in% colnames(first_cov_bal)))
+})
+
+test_that("twfe_cov_bal with multiple covariates has one row per covariate", {
+    tcb <- twfe_cov_bal(twfe_wts_two_period, ~l_prisoner + l_income)
+
+    # check that the post-treatment cov_bal_df has 2 rows (one per covariate)
+    groups <- unlist(BMisc::getListElement(tcb$twfe_gt, "g"))
+    time_periods <- unlist(BMisc::getListElement(tcb$twfe_gt, "tp"))
+    post <- time_periods >= groups
+    post_cov_bal <- tcb$twfe_gt[post][[1]]$cov_bal_df
+    expect_equal(nrow(post_cov_bal), 2)
+})
+
+# ---------------------------------------------------------------------------
+# implicit_aipw_weights output structure
+# ---------------------------------------------------------------------------
+
+test_that("implicit_aipw_weights returns a decomposed_aipw with expected fields", {
+    expect_s3_class(aipw_wts_castle, "decomposed_aipw")
+    expect_true("aipw_gt" %in% names(aipw_wts_castle))
+    expect_true(is.list(aipw_wts_castle$aipw_gt))
 })

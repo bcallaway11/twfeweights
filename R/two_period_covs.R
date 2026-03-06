@@ -359,7 +359,7 @@ ggtwfeweights.two_period_covs_obj <- function(
       shape = .data$type
     )
   ) +
-    geom_vline(xintercept = 0, color = "black", size = 1) +
+    geom_vline(xintercept = 0, color = "black", linewidth = 1) +
     geom_point(size = 4, alpha = 1) +
     theme_bw() +
     theme(legend.position = "bottom") +
@@ -765,7 +765,7 @@ two_period_aipw_weights <- function(yname,
 #' @param w a numeric vector of weights, default is rep(1, length(n))
 #' @return a numeric value containing the pooled standard deviation
 #' @export
-pooled_sd <- function(x, D, sampling_weights = rep(1, length(n))) {
+pooled_sd <- function(x, D, sampling_weights = rep(1, length(x))) {
   sampling_weights <- sampling_weights / mean(sampling_weights)
   # Function to compute weighted variance
   weighted_var <- function(x, w) {
