@@ -6,16 +6,23 @@
 \usage{
 attO_weights(
   attgt_res,
-  w = rep(1, nrow(attgt_res$DIDparams$data)),
-  keep_untreated = FALSE
+  w = NULL,
+  keep_untreated = FALSE,
+  weightsname = attgt_res$DIDparams$weightsname
 )
 }
 \arguments{
 \item{attgt_res}{Results from did::att_gt function}
 
-\item{w}{Optional external unit-specific weights}
+\item{w}{Optional external unit-specific weights, one per row of
+\code{attgt_res$DIDparams$data}.  If \code{NULL} (the default), the weights come
+from \code{weightsname}.}
 
 \item{keep_untreated}{Logical.  If TRUE, keep untreated group in results}
+
+\item{weightsname}{Name of the column holding time-invariant sampling
+weights.  Defaults to the \code{weightsname} passed to \code{\link[did:att_gt]{did::att_gt()}}.
+\code{NULL} means unweighted.  Ignored if \code{w} is supplied.}
 }
 \value{
 a data.frame containing attO weights

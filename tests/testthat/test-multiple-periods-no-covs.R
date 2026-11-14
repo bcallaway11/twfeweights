@@ -1,3 +1,12 @@
+# =============================================================================
+# Title: Tests: multiple periods, no covariates
+# Description: Checks that the TWFE, ATT^O and ATT^simple weights reproduce feols and
+#   did::aggte, with and without sampling weights and with skipped periods.
+# Author: Brant Callaway
+# Last update: 2026-11-14
+# Date created: 2024-07-08
+# =============================================================================
+
 library(testthat)
 library(twfeweights)
 library(causaldata)
@@ -44,8 +53,6 @@ test_that("TWFE multiple periods no covariates", {
 })
 
 test_that("TWFE multipel periods no covariates, sampling weights", {
-    skip("twfe_weights function does not currently support sampling weights, this is a known issue")
-
     csdid_res <- suppressWarnings(did::att_gt(
         yname = "l_homicide", tname = "year",
         idname = "sid", gname = "G", data = castle, base_period = "universal",
@@ -111,8 +118,6 @@ test_that("attO weights", {
 })
 
 test_that("attO weights, sampling weights", {
-    skip("attO_weights function does not currently support sampling weights, this is a known issue")
-
     csdid_res <- suppressWarnings(did::att_gt(
         yname = "l_homicide", tname = "year",
         idname = "sid", gname = "G", data = castle, base_period = "universal",
@@ -174,8 +179,6 @@ test_that("att_simple weights", {
 })
 
 test_that("att_simple weights, sampling weights", {
-    skip("att_simple_weights function does not currently support sampling weights, this is a known issue")
-
     csdid_res <- suppressWarnings(did::att_gt(
         yname = "l_homicide", tname = "year",
         idname = "sid", gname = "G", data = castle, base_period = "universal",
@@ -321,4 +324,41 @@ test_that("ggtwfeweights returns a ggplot for mp_weights_obj", {
     wts <- twfe_weights(csdid_res)
     p <- ggtwfeweights(wts)
     expect_s3_class(p, "ggplot")
+})
+
+
+# --- Non-consecutive periods ----------------------------------------------------
+# Drop some years so the observed periods are not consecutive. The number of
+# post-treatment periods must count observed periods, not max(t) - g + 1.
+
+castle_gaps <- subset(castle, !year %in% c(2003, 2006, 2007))
+csdid_gaps <- suppressWarnings(did::att_gt(
+    yname = "l_homicide", tname = "year",
+    idname = "sid", gname = "G", data = castle_gaps, base_period = "universal",
+    control_group = "nevertreated"
+))
+
+test_that("TWFE weights with non-consecutive periods", {
+    twfe_wts <- twfe_weights(csdid_gaps, keep_untreated = TRUE)$weights_df
+    twfe_res <- fixest::feols(l_homicide ~ post | sid + year, data = castle_gaps)
+    expect_equal(
+        sum(twfe_wts$attgt * twfe_wts$weight),
+        unname(coef(twfe_res)[1])
+    )
+    expect_equal(sum(twfe_wts$weight[twfe_wts$post == 1]), 1)
+})
+
+test_that("attO weights with non-consecutive periods", {
+    attO_wts <- attO_weights(csdid_gaps)$weights_df
+    expect_equal(
+        sum(attO_wts$attgt * attO_wts$weight),
+        did::aggte(csdid_gaps, type = "group")$overall.att
+    )
+})
+
+test_that("missing sampling weights column is an error", {
+    expect_error(
+        twfe_weights(csdid_res, weightsname = "not_a_column"),
+        "not found"
+    )
 })

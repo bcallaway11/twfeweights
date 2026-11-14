@@ -4,12 +4,22 @@
 \alias{twfe_weights}
 \title{twfe_weights}
 \usage{
-twfe_weights(attgt_res, keep_untreated = FALSE)
+twfe_weights(
+  attgt_res,
+  keep_untreated = FALSE,
+  weightsname = attgt_res$DIDparams$weightsname
+)
 }
 \arguments{
 \item{attgt_res}{Results from did::att_gt function}
 
 \item{keep_untreated}{Logical.  If TRUE, keep untreated group in results}
+
+\item{weightsname}{Name of the column holding time-invariant sampling
+weights.  Defaults to the \code{weightsname} passed to \code{\link[did:att_gt]{did::att_gt()}}, so
+the weights match a TWFE regression estimated with the same sampling
+weights (e.g., \code{fixest::feols(..., weights = ~w)}).  \code{NULL} means
+unweighted.}
 }
 \value{
 a data.frame containing the TWFE weighs

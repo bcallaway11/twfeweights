@@ -1,3 +1,12 @@
+# =============================================================================
+# Title: TWFE and aggregation weights on ATT(g,t), no covariates
+# Description: Computes the implicit TWFE weights on ATT(g,t) and the weights that deliver
+#   ATT^O and ATT^simple, for staggered adoption without covariates.
+# Author: Brant Callaway
+# Last update: 2026-11-14
+# Date created: 2023-05-30
+# =============================================================================
+
 #--------------------------------------------------------------------------
 #
 # All code in this file is for the case with no covariates.  
@@ -9,6 +18,31 @@
 # in pre-treatment contribute to the reported results.
 #
 #--------------------------------------------------------------------------
+
+# --- internal helpers ---------------------------------------------------------
+
+# Number of observed periods in tlist at or after g, i.e. the number of
+# post-treatment periods for group g. Used instead of max(t) - g + 1 so the
+# weights are right when periods are skipped or unequally spaced.
+n_post_periods <- function(g, tlist) {
+  sum(tlist >= g)
+}
+
+# Sampling weights, one per row of the data stored by did::att_gt(); equal
+# weights when weightsname is NULL. Errors if the column is missing, since
+# silently dropping the weights would make the TWFE weights not add up to the
+# weighted regression coefficient.
+get_sampling_weights <- function(data, weightsname = NULL) {
+  if (is.null(weightsname)) return(rep(1, nrow(data)))
+  if (!weightsname %in% names(data)) {
+    stop("sampling weights column '", weightsname, "' not found in the att_gt data.")
+  }
+  w <- data[[weightsname]]
+  if (anyNA(w) || any(w < 0)) {
+    stop("sampling weights must be non-missing and non-negative.")
+  }
+  w
+}
 
 #' @title mp_weights_obj
 #' 
@@ -37,10 +71,16 @@ mp_weights_obj <- function(weights_df) {
 #'  in a staggered treatment adoption setting.
 #' @param attgt_res Results from did::att_gt function
 #' @param keep_untreated Logical.  If TRUE, keep untreated group in results
+#' @param weightsname Name of the column holding time-invariant sampling
+#'  weights.  Defaults to the `weightsname` passed to [did::att_gt()], so
+#'  the weights match a TWFE regression estimated with the same sampling
+#'  weights (e.g., `fixest::feols(..., weights = ~w)`).  `NULL` means
+#'  unweighted.
 #'
 #' @return a data.frame containing the TWFE weighs
 #' @export
-twfe_weights <- function(attgt_res, keep_untreated=FALSE) {
+twfe_weights <- function(attgt_res, keep_untreated=FALSE,
+                         weightsname = attgt_res$DIDparams$weightsname) {
 
   if (attgt_res$DIDparams$control_group != "nevertreated") {
     stop("only \"nevertreated\" control group is supported.")
@@ -68,22 +108,33 @@ twfe_weights <- function(attgt_res, keep_untreated=FALSE) {
   # treat both 0 and Inf as "untreated" throughout.
   .g_col <- .data[[.gname]]
   .is_treated <- !is.infinite(.g_col) & .g_col != 0
+  .w <- get_sampling_weights(.data, weightsname)
 
   # twfe weights
+  # With time-invariant sampling weights, weighted TWFE is OLS on the
+  # weighted two-way demeaned treatment, so the formulas below hold with
+  # every share (treated share in period t, group shares) computed with the
+  # sampling weights. With all weights equal this is the unweighted case.
   Edt <- function(t) {
-    mean( (t >= .g_col) & .is_treated )
+    stats::weighted.mean((t >= .g_col) & .is_treated, w = .w)
   }
   mEdt <- mean(sapply(.tlist, Edt))
   pg2 <- sapply(.glist, function(g) {
-    if (g == 0) mean(!.is_treated) else mean(.g_col == g)
+    if (g == 0) {
+      stats::weighted.mean(!.is_treated, w = .w)
+    } else {
+      stats::weighted.mean(.g_col == g, w = .w)
+    }
   })
-  maxT <- max(.tlist)
   wTWFE_num <- function(g,t,pre0=FALSE) {
     if ((t < g) & pre0) return(0) 
     if (g==0) {
       hgt <- -Edt(t) + mEdt
     } else {
-      hgt <- 1*(t>=g) - (maxT-g+1)/length(.tlist) - Edt(t) + mEdt
+      # fraction of observed periods in which group g is treated; counting
+      # observed periods (not max(t) - g + 1) keeps this right when the
+      # periods are not consecutive integers
+      hgt <- 1 * (t >= g) - n_post_periods(g, .tlist) / length(.tlist) - Edt(t) + mEdt
     }
     hgt*pg2[.glist==g]
   }
@@ -115,13 +166,17 @@ twfe_weights <- function(attgt_res, keep_untreated=FALSE) {
 #' @description A function to compute weights on ATT(g,t) to deliver
 #'  \eqn{ATT^O} as discussed in Callaway and Sant'Anna (2021)
 #' @inheritParams twfe_weights
-#' @param w Optional external unit-specific weights
+#' @param w Optional external unit-specific weights, one per row of
+#'  `attgt_res$DIDparams$data`.  If `NULL` (the default), the weights come
+#'  from `weightsname`.
+#' @param weightsname Name of the column holding time-invariant sampling
+#'  weights.  Defaults to the `weightsname` passed to [did::att_gt()].
+#'  `NULL` means unweighted.  Ignored if `w` is supplied.
 #'
 #' @return a data.frame containing attO weights
 #' @export
-attO_weights <- function(attgt_res, 
-                         w=rep(1,nrow(attgt_res$DIDparams$data)),
-                         keep_untreated=FALSE) {
+attO_weights <- function(attgt_res, w = NULL, keep_untreated = FALSE,
+                         weightsname = attgt_res$DIDparams$weightsname) {
 
   .gname <- attgt_res$DIDparams$gname
   .tname <- attgt_res$DIDparams$tname
@@ -138,14 +193,16 @@ attO_weights <- function(attgt_res,
   .is_treated <- !is.infinite(.g_col) & .g_col != 0
 
   # overall attgt weights
+  if (is.null(w)) w <- get_sampling_weights(.data, weightsname)
   .ever_treated <- which(.is_treated)
   w <- w[.ever_treated]
   pg <- sapply(.glist, function(g) {
     if (g == 0) 0 else weighted.mean(.data[.ever_treated, ][[.gname]]==g, w=w)
   })
-  maxT <- max(.tlist)
   wO <- function(g,t) {
-    1*(t >= g)*pg[.glist==g] / (maxT - g + 1)
+    # divide by the number of observed post-treatment periods for g (not
+    # max(t) - g + 1, which is wrong when periods are not consecutive)
+    1 * (t >= g) * pg[.glist == g] / n_post_periods(g, .tlist)
   }
   # add weights to results
   wOgt <- sapply(1:length(.attgt),
@@ -167,12 +224,17 @@ attO_weights <- function(attgt_res,
 #' @description A function to compute weights on ATT(g,t) to deliver
 #'  \eqn{ATT^{simple}} as discussed in Callaway and Sant'Anna (2021)
 #' @inheritParams twfe_weights
-#' @param w Optional external unit-specific weights
+#' @param w Optional external unit-specific weights, one per row of
+#'  `attgt_res$DIDparams$data`.  If `NULL` (the default), the weights come
+#'  from `weightsname`.
+#' @param weightsname Name of the column holding time-invariant sampling
+#'  weights.  Defaults to the `weightsname` passed to [did::att_gt()].
+#'  `NULL` means unweighted.  Ignored if `w` is supplied.
 #'
 #' @return a data.frame containing att_simple weights
 #' @export
-att_simple_weights <- function(attgt_res, w=rep(1,nrow(attgt_res$DIDparams$data)),
-                               keep_untreated = FALSE) {
+att_simple_weights <- function(attgt_res, w = NULL, keep_untreated = FALSE,
+                               weightsname = attgt_res$DIDparams$weightsname) {
   
   .gname <- attgt_res$DIDparams$gname
   .tname <- attgt_res$DIDparams$tname
@@ -189,12 +251,12 @@ att_simple_weights <- function(attgt_res, w=rep(1,nrow(attgt_res$DIDparams$data)
   .is_treated <- !is.infinite(.g_col) & .g_col != 0
 
   # overall attgt weights
+  if (is.null(w)) w <- get_sampling_weights(.data, weightsname)
   .ever_treated <- which(.is_treated)
   w <- w[.ever_treated]
   pg <- sapply(.glist, function(g) {
     if (g == 0) 0 else weighted.mean(.data[.ever_treated, ][[.gname]]==g, w=w)
   })
-  maxT <- max(.tlist)
   wO <- function(g,t) {
     1*(t >= g)*pg[.glist==g]
   }
