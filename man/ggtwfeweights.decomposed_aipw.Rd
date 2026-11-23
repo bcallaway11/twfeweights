@@ -16,6 +16,12 @@
 \item{x}{a \code{decomposed_aipw} object that comes from
 running \code{aipw_cov_bal} in a previous step.}
 
+\item{plot_relative_to_target}{whether to plot the differences relative to the target population.
+This adds an extra point to the plot.}
+
+\item{absolute_value}{whether to plot the absolute value of the standardized difference
+or just the value of the standardized difference, default is TRUE.}
+
 \item{standardize}{a logical argument that determines whether the balance
 statistics should be standardized by the weighted average of the
 standard deviation of each covariate across post-treatment periods.

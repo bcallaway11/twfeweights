@@ -16,6 +16,12 @@
 \item{x}{a \code{decomposed_twfe} object that comes from a
 previous step of running either \code{twfe_cov_bal} or \code{aipw_cov_bal}.}
 
+\item{plot_relative_to_target}{whether to plot the differences relative to the target population.
+This adds an extra point to the plot.}
+
+\item{absolute_value}{whether to plot the absolute value of the standardized difference
+or just the value of the standardized difference, default is TRUE.}
+
 \item{standardize}{a logical argument that determines whether the balance
 statistics should be standardized by the weighted average of the
 standard deviation of each covariate across post-treatment periods.

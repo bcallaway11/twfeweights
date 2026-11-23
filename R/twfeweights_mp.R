@@ -107,35 +107,23 @@ implicit_twfe_weights_gt <- function(g,
   TP <- data[, tname] # a vector of the same length as the full panel data, nT
   G <- data[, gname] # a vector of the same length as the full panel data, nT
   thisG <- G[TP == tp] # a group vector of length n (# cross-sectional units)
-  minT <- min(unique(TP))
   maxT <- max(unique(TP))
-  nT <- length(unique(TP))
   if (!is.null(weightsname)) {
     sampling_weights <- data[, weightsname]
   } else {
     sampling_weights <- rep(1, nrow(data))
   }
 
-  if (g == 0 | g == (maxT + 1)) {
-    stop("not computng this for untreated group")
+  if (g == 0 || g == (maxT + 1)) {
+    stop(
+      "implicit_twfe_weights_gt() is only defined for treated groups; ",
+      "g = ", g, " is the never-treated group."
+    )
   }
 
-  Yit <- data[, yname]
-  xformula <- BMisc::add_cov_to_formula("-1", xformula)
-  Xit <- model.matrix(xformula, data = data)
-  Dit <- 1 * ((data[, tname] >= data[, gname]) & (data[, gname] != 0))
-
-  # double demean variables in the model
-  ddotDit <- as.numeric(fixest::demean(Dit, data[, c(idname, tname)], weights = sampling_weights))
-  ddotYit <- as.numeric(fixest::demean(Yit, data[, c(idname, tname)], weights = sampling_weights))
-  ddotXit <- fixest::demean(Xit, data[, c(idname, tname)], weights = sampling_weights)
-  ddotXit <- suppressWarnings(BMisc::drop_collinear(ddotXit)) # drop collinear terms here (e.g., as.factor(year)*as.factor(region))
-
-
-  # weights depend on linear projection of treatment
-  # on covariates using all periods
-  lp_treat <- lm(ddotDit ~ -1 + ddotXit, weights = sampling_weights)
-  gam <- as.matrix(coef(lp_treat))
+  # weights depend on the residual from projecting the treatment on the
+  # covariates (both double-demeaned), using all periods
+  resid_D <- twfe_treatment_residual(data, idname, tname, gname, xformula, sampling_weights)$resid
 
   idx <- G == g & TP == tp
   Yit <- BMisc::get_Yit(data, tp, idname, yname, tname)[TP == tp]
@@ -154,12 +142,12 @@ implicit_twfe_weights_gt <- function(g,
     outcomeit <- Yit - Yigmin1
   }
 
-  gpart_w_inner <- (ddotDit - BMisc::mv_mult(ddotXit, gam))[idx]
+  gpart_w_inner <- resid_D[idx]
   gpart_w <- gpart_w_inner / weighted.mean(gpart_w_inner, w = sampling_weights[idx])
   gpart <- weighted.mean(gpart_w * outcomeit[thisG == g], w = sampling_weights[idx])
 
   idxU <- G == 0 & TP == tp
-  upart_w_inner <- (ddotDit - BMisc::mv_mult(ddotXit, gam))[idxU]
+  upart_w_inner <- resid_D[idxU]
   upart_w <- upart_w_inner / weighted.mean(upart_w_inner, w = sampling_weights[idxU])
   upart <- weighted.mean(upart_w * outcomeit[thisG == 0], w = sampling_weights[idxU])
 
@@ -217,19 +205,11 @@ combine_twfe_weights_gt <- function(g,
     sampling_weights <- rep(1, nrow(data))
   }
 
-  xformula <- BMisc::add_cov_to_formula("-1", xformula)
-  Xit <- model.matrix(xformula, data = data)
-  Dit <- 1 * ((data[, tname] >= data[, gname]) & (data[, gname] != 0))
-
-  # double demean variables in the model
-  ddotDit <- as.numeric(fixest::demean(Dit, data[, c(idname, tname)], weights = sampling_weights))
-  ddotXit <- fixest::demean(Xit, data[, c(idname, tname)], weights = sampling_weights)
-  ddotXit <- suppressWarnings(BMisc::drop_collinear(ddotXit))
-
-  # weights depend on linear projection of treatment
-  # on covariates using all periods
-  lp_treat <- lm(ddotDit ~ -1 + ddotXit, weights = sampling_weights)
-  gam <- as.matrix(coef(lp_treat))
+  # residual from projecting the double-demeaned treatment on the
+  # double-demeaned covariates, using all periods
+  proj <- twfe_treatment_residual(data, idname, tname, gname, xformula, sampling_weights)
+  ddotDit <- proj$ddotDit
+  resid_D <- proj$resid
 
   if (g == (maxT + 1)) {
     g <- 0
@@ -238,22 +218,42 @@ combine_twfe_weights_gt <- function(g,
   idx <- G == g & TP == tp
   pg <- weighted.mean(G == g, w = sampling_weights)
 
-  alp_den <- weighted.mean((ddotDit - BMisc::mv_mult(ddotXit, gam)) * (ddotDit), w = sampling_weights)
-  weighted.mean((ddotDit - BMisc::mv_mult(ddotXit, gam))[idx], w = sampling_weights[idx]) * pg / (alp_den * maxT)
+  # FWL: alpha = E[resid_D * Y] / E[resid_D * ddotD]; the weight on (g,tp) is
+  # the average of resid_D in that cell, scaled by the cell's share
+  alp_den <- weighted.mean(resid_D * ddotDit, w = sampling_weights)
+  weighted.mean(resid_D[idx], w = sampling_weights[idx]) * pg / (alp_den * maxT)
+}
 
-  #
-  #
-  # G <- data[,gname]
-  # TP <- data[,tname]
-  # tlist <- sort(unique(TP))
-  # local_g <- which(tlist == g) # the group in terms of t=1,2,3,...,T
-  # minT <- min(unique(TP))
-  # nT <- length(unique(TP))
-  # pbarg <- mean( G[G!=0] == g)
-  # ntreatedperiods <- nT - local_g + 1
-  # w_gt <- pbarg/ntreatedperiods
-  # if (tp < g) w_gt <- -w_gt
-  # w_gt
+# Internal helper for implicit_twfe_weights_gt() and combine_twfe_weights_gt().
+# Double-demeans the treatment indicator and the covariates in `xformula`
+# (two-way fixed effects, with sampling weights) and returns
+#   ddotDit: the double-demeaned treatment, and
+#   resid:   ddotDit minus its weighted linear projection on the
+#            double-demeaned covariates (D_it - X_it'Gamma in Caetano and
+#            Callaway).
+# Collinear covariates are dropped first (e.g., time-invariant covariates,
+# which the unit fixed effects absorb, or redundant region-by-year terms).
+# With no covariates, or none left after dropping, resid = ddotDit.  This case
+# is handled explicitly because fixest::demean() crashes R when given a matrix
+# with zero columns.
+twfe_treatment_residual <- function(data, idname, tname, gname, xformula, sampling_weights) {
+  fe <- data[, c(idname, tname)]
+  Dit <- 1 * ((data[, tname] >= data[, gname]) & (data[, gname] != 0))
+  ddotDit <- as.numeric(fixest::demean(Dit, fe, weights = sampling_weights))
+
+  if (is.null(xformula)) xformula <- ~1
+  Xit <- model.matrix(BMisc::add_cov_to_formula("-1", xformula), data = data)
+  if (ncol(Xit) > 0) {
+    ddotXit <- fixest::demean(Xit, fe, weights = sampling_weights)
+    # as.matrix: BMisc <= 1.4.11 returns a vector when one column is left
+    ddotXit <- as.matrix(suppressWarnings(BMisc::drop_collinear(ddotXit)))
+  }
+  if (ncol(Xit) == 0 || ncol(ddotXit) == 0) {
+    return(list(ddotDit = ddotDit, resid = ddotDit))
+  }
+
+  gam <- as.matrix(coef(lm(ddotDit ~ -1 + ddotXit, weights = sampling_weights)))
+  list(ddotDit = ddotDit, resid = ddotDit - BMisc::mv_mult(ddotXit, gam))
 }
 
 #' @title implicit_twfe_weights
@@ -294,7 +294,7 @@ implicit_twfe_weights <- function(yname,
   rownames(gt_mat) <- NULL
   colnames(gt_mat) <- c("group", "time.period")
 
-  twfe_gt <- lapply(1:nrow(gt_mat), function(i) {
+  twfe_gt <- lapply(seq_len(nrow(gt_mat)), function(i) {
     implicit_twfe_weights_gt(
       g = gt_mat[i, 1],
       tp = gt_mat[i, 2],
@@ -401,18 +401,15 @@ twfe_cov_bal <- function(decomposed_twfe, extra_balance_vars_formula) {
   tname <- decomposed_twfe$tname
   gname <- decomposed_twfe$gname
   data <- decomposed_twfe$data
-  weightsname <- decomposed_twfe$weightsname
   # convert groups and time periods to scale like 1,2,3,4,5,etc.
   tlist <- sort(unique(data[, tname]))
-  glist <- sort(unique(data[, gname]))
   data$.TP <- BMisc::orig2t(data[, tname], tlist)
   data$.G <- BMisc::orig2t(data[, gname], tlist)
-  tlist <- sort(unique(data$.TP))
-  glist <- sort(unique(data$.G))
 
   # construct a data.frame that has the mean of each extra balance variable
-  extra_vars_frame <- as.data.frame(model.matrix(BMisc::add_cov_to_formula("-1", extra_balance_vars_formula), data = data))
-  mean_extra_var_list <- lapply(1:ncol(extra_vars_frame), function(j) {
+  extra_vars_formula <- BMisc::add_cov_to_formula("-1", extra_balance_vars_formula)
+  extra_vars_frame <- as.data.frame(model.matrix(extra_vars_formula, data = data))
+  mean_extra_var_list <- lapply(seq_len(ncol(extra_vars_frame)), function(j) {
     this_colname <- colnames(extra_vars_frame)[j]
     this_frame <- cbind.data.frame(extra_vars_frame[, j], data[, c(idname, tname, gname)])
     colnames(this_frame)[1] <- this_colname
@@ -426,7 +423,7 @@ twfe_cov_bal <- function(decomposed_twfe, extra_balance_vars_formula) {
   time_periods <- unlist(BMisc::get_list_element(decomposed_twfe$twfe_gt, "tp"))
   gt_mat <- cbind(groups, time_periods)
 
-  for (i in 1:nrow(gt_mat)) {
+  for (i in seq_len(nrow(gt_mat))) {
     this_balance_df <- twfe_cov_bal_gt(
       g = gt_mat[i, 1],
       tp = gt_mat[i, 2],
@@ -456,9 +453,6 @@ twfe_cov_bal <- function(decomposed_twfe, extra_balance_vars_formula) {
 #'  in `twfe_cov_bal`.
 #' @keywords internal
 twfe_cov_bal_gt <- function(g, tp, decomposed_twfe, X) {
-  idname <- decomposed_twfe$idname
-  tname <- decomposed_twfe$tname
-  gname <- decomposed_twfe$gname
   data <- decomposed_twfe$data
   weightsname <- decomposed_twfe$weightsname
   groups <- unlist(BMisc::get_list_element(decomposed_twfe$twfe_gt, "g"))
@@ -510,13 +504,19 @@ twfe_cov_bal_gt <- function(g, tp, decomposed_twfe, X) {
     log_ratio_sd(x[both_idx], D = D[both_idx], sampling_weights = sampling_weights[both_idx])
   })
   weighted_lr_sd <- apply(X, 2, function(x) {
-    log_ratio_sd(x[both_idx], D = D[both_idx], est_weights = est_weights[both_idx], sampling_weights = sampling_weights[both_idx])
+    log_ratio_sd(x[both_idx],
+      D = D[both_idx], est_weights = est_weights[both_idx],
+      sampling_weights = sampling_weights[both_idx]
+    )
   })
   unweighted_treated_extreme <- apply(X, 2, function(x) {
     frac_treated_extreme(x[both_idx], D = D[both_idx], sampling_weights = sampling_weights[both_idx])
   })
   weighted_treated_extreme <- apply(X, 2, function(x) {
-    frac_treated_extreme(x[both_idx], D = D[both_idx], est_weights = est_weights[both_idx], sampling_weights = sampling_weights[both_idx])
+    frac_treated_extreme(x[both_idx],
+      D = D[both_idx], est_weights = est_weights[both_idx],
+      sampling_weights = sampling_weights[both_idx]
+    )
   })
 
   # return data frame that contains the weighted covariates for the treated and comparison groups
@@ -638,6 +638,7 @@ mp_covariate_bal_summary_helper <- function(decomposed_twfe_obj) {
 #'  `twfe_cov_bal` or `aipw_cov_bal`.
 #' @param x a `decomposed_twfe` object that comes from a
 #'  previous step of running either `twfe_cov_bal` or `aipw_cov_bal`.
+#' @inheritParams ggtwfeweights.two_period_covs_obj
 #' @param standardize a logical argument that determines whether the balance
 #'  statistics should be standardized by the weighted average of the
 #'  standard deviation of each covariate across post-treatment periods.
@@ -668,7 +669,10 @@ ggtwfeweights.decomposed_twfe <- function(x,
   }
 
   if (is.null(decomposed_twfe_obj[[1]]$cov_bal_df)) {
-    stop("nothing to plot.  Run twfe_cov_bal first")
+    stop(
+      "No covariate balance results to plot. Run twfe_cov_bal() ",
+      "(or aipw_cov_bal() for AIPW weights) on this object first."
+    )
   }
   cov_balance_df <- mp_covariate_bal_summary_helper(decomposed_twfe_obj)
   cov_balance_df$covariate <- as.factor(rownames(cov_balance_df))
@@ -810,7 +814,7 @@ implicit_aipw_weights <- function(yname,
   # drop pre-treatment values of t
   gt_mat <- gt_mat[gt_mat$time.period >= gt_mat$group, ]
 
-  aipw_gt <- lapply(1:nrow(gt_mat), function(i) {
+  aipw_gt <- lapply(seq_len(nrow(gt_mat)), function(i) {
     this_data <- data[data$.G %in% c(0, gt_mat[i, 1]) & data$.TP %in% c(gt_mat[i, 1] - 1, gt_mat[i, 2]), ]
     two_period_aipw_res <- two_period_aipw_weights(
       yname = yname,
@@ -844,10 +848,7 @@ implicit_aipw_weights <- function(yname,
   out$weightsname <- weightsname
   out$data <- data
   aipw_att_gt <- unlist(BMisc::get_list_element(aipw_gt, "est"))
-  group <- unlist(BMisc::get_list_element(aipw_gt, "g"))
-  time.period <- unlist(BMisc::get_list_element(aipw_gt, "tp"))
   att_weight <- unlist(BMisc::get_list_element(aipw_gt, "att_weight"))
-  post <- 1 * (time.period >= group)
   atto <- sum(att_weight * aipw_att_gt)
   out$est <- atto
   out$pt_violations_bias <- 0
@@ -873,18 +874,15 @@ aipw_cov_bal <- function(decomposed_aipw, extra_balance_vars_formula) {
   tname <- decomposed_aipw$tname
   gname <- decomposed_aipw$gname
   data <- decomposed_aipw$data
-  weightsname <- decomposed_aipw$weightsname
   # convert groups and time periods to scale like 1,2,3,4,5,etc.
   tlist <- sort(unique(data[, tname]))
-  glist <- sort(unique(data[, gname]))
   data$.TP <- BMisc::orig2t(data[, tname], tlist)
   data$.G <- BMisc::orig2t(data[, gname], tlist)
-  tlist <- sort(unique(data$.TP))
-  glist <- sort(unique(data$.G))
 
   # construct a data.frame that has the mean of each extra balance variable
-  extra_vars_frame <- as.data.frame(model.matrix(BMisc::add_cov_to_formula("-1", extra_balance_vars_formula), data = data))
-  mean_extra_var_list <- lapply(1:ncol(extra_vars_frame), function(j) {
+  extra_vars_formula <- BMisc::add_cov_to_formula("-1", extra_balance_vars_formula)
+  extra_vars_frame <- as.data.frame(model.matrix(extra_vars_formula, data = data))
+  mean_extra_var_list <- lapply(seq_len(ncol(extra_vars_frame)), function(j) {
     this_colname <- colnames(extra_vars_frame)[j]
     this_frame <- cbind.data.frame(extra_vars_frame[, j], data[, c(idname, tname, gname)])
     colnames(this_frame)[1] <- this_colname
@@ -898,7 +896,7 @@ aipw_cov_bal <- function(decomposed_aipw, extra_balance_vars_formula) {
   time_periods <- unlist(BMisc::get_list_element(decomposed_aipw$aipw_gt, "tp"))
   gt_mat <- cbind(groups, time_periods)
 
-  for (i in 1:nrow(gt_mat)) {
+  for (i in seq_len(nrow(gt_mat))) {
     this_balance_df <- aipw_cov_bal_gt(
       g = gt_mat[i, 1],
       tp = gt_mat[i, 2],
@@ -925,16 +923,12 @@ aipw_cov_bal <- function(decomposed_aipw, extra_balance_vars_formula) {
 #'  in `aipw_cov_bal`.
 #' @keywords internal
 aipw_cov_bal_gt <- function(g, tp, decomposed_aipw, X) {
-  idname <- decomposed_aipw$idname
-  tname <- ".TP"
-  gname <- ".G"
   data <- decomposed_aipw$data
   weightsname <- decomposed_aipw$weightsname
   groups <- unlist(BMisc::get_list_element(decomposed_aipw$aipw_gt, "g"))
   time_periods <- unlist(BMisc::get_list_element(decomposed_aipw$aipw_gt, "tp"))
   this_gt_idx <- which(groups == g & time_periods == tp)
   this_decomposed_aipw <- decomposed_aipw$aipw_gt[[this_gt_idx]]
-  dy <- this_decomposed_aipw$dy
   D <- this_decomposed_aipw$D
   weights_treated <- this_decomposed_aipw$weights[D == 1]
   weights_comparison <- this_decomposed_aipw$weights[D == 0]
@@ -1035,11 +1029,12 @@ summary.decomposed_aipw <- function(object, ...) {
 #' @return a ggplot object
 #' @export
 ggtwfeweights.decomposed_aipw <- function(
-    x,
-    plot_relative_to_target = FALSE,
-    absolute_value = TRUE,
-    standardize = TRUE,
-    ...) {
+  x,
+  plot_relative_to_target = FALSE,
+  absolute_value = TRUE,
+  standardize = TRUE,
+  ...
+) {
   decomposed_aipw_obj <- x
   # should work to just call the plot for twfe at this point
   ggtwfeweights.decomposed_twfe(decomposed_aipw_obj,

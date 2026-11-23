@@ -9,17 +9,21 @@
 
 #--------------------------------------------------------------------------
 #
-# All code in this file is for the case with no covariates.  
+# All code in this file is for the case with no covariates.
 #
 # The TWFE are essentially those from de Chaisemartin and d'Haultfoeuille (2020)
-# though they emphasize decompositions in the sense that they do not rely 
-# on imposing parallel trends and (i) the results add up to be exactly equal 
-# to the TWFE regression coefficient (ii) violations of parallel trends 
+# though they emphasize decompositions in the sense that they do not rely
+# on imposing parallel trends and (i) the results add up to be exactly equal
+# to the TWFE regression coefficient (ii) violations of parallel trends
 # in pre-treatment contribute to the reported results.
 #
 #--------------------------------------------------------------------------
 
 # --- internal helpers ---------------------------------------------------------
+
+# Null-coalescing operator (x if not NULL, otherwise y). Base R has this from
+# 4.4.0; defined here so the package also works on earlier versions of R.
+`%||%` <- function(x, y) if (is.null(x)) y else x
 
 # Number of observed periods in tlist at or after g, i.e. the number of
 # post-treatment periods for group g. Used instead of max(t) - g + 1 so the
@@ -33,7 +37,9 @@ n_post_periods <- function(g, tlist) {
 # silently dropping the weights would make the TWFE weights not add up to the
 # weighted regression coefficient.
 get_sampling_weights <- function(data, weightsname = NULL) {
-  if (is.null(weightsname)) return(rep(1, nrow(data)))
+  if (is.null(weightsname)) {
+    return(rep(1, nrow(data)))
+  }
   if (!weightsname %in% names(data)) {
     stop("sampling weights column '", weightsname, "' not found in the att_gt data.")
   }
@@ -45,20 +51,20 @@ get_sampling_weights <- function(data, weightsname = NULL) {
 }
 
 #' @title mp_weights_obj
-#' 
-#' @description A class to store weighted averages of group-time average 
+#'
+#' @description A class to store weighted averages of group-time average
 #'  treatment effects
-#'  
+#'
 #' @param weights_df A data.frame containing the following elements:
 #'  - group: group identifier
 #'  - time.period: time period identifier
 #'  - weight: weight for the group-time period
 #'  - attgt: average treatment effect for the group-time period
-#'  
+#'
 #' @keywords internal
 mp_weights_obj <- function(weights_df) {
-  weights_df$post <- as.factor(1*((weights_df$time.period >= weights_df$group) & 
-                                    weights_df$group != 0))
+  is_post <- (weights_df$time.period >= weights_df$group) & (weights_df$group != 0)
+  weights_df$post <- as.factor(1 * is_post)
   out <- list()
   out$weights_df <- weights_df
   class(out) <- "mp_weights_obj"
@@ -79,23 +85,27 @@ mp_weights_obj <- function(weights_df) {
 #'
 #' @return a data.frame containing the TWFE weighs
 #' @export
-twfe_weights <- function(attgt_res, keep_untreated=FALSE,
+twfe_weights <- function(attgt_res, keep_untreated = FALSE,
                          weightsname = attgt_res$DIDparams$weightsname) {
-
   if (attgt_res$DIDparams$control_group != "nevertreated") {
-    stop("only \"nevertreated\" control group is supported.")
+    stop(
+      "twfe_weights() currently supports only control_group = \"nevertreated\" ",
+      "in did::att_gt()."
+    )
   }
 
   if (attgt_res$DIDparams$base_period != "universal") {
-    stop("only \"universal\" base period is supported.")
+    stop("twfe_weights() requires base_period = \"universal\" in did::att_gt().")
   }
 
   if (attgt_res$DIDparams$xformla != ~1) {
-    stop("including covariates is not supported.")
+    stop(
+      "twfe_weights() does not support covariates (xformla in did::att_gt()). ",
+      "For TWFE regressions with covariates, use implicit_twfe_weights()."
+    )
   }
 
   .gname <- attgt_res$DIDparams$gname
-  .tname <- attgt_res$DIDparams$tname
   .data <- as.data.frame(attgt_res$DIDparams$data)
   # did >= 2.3.0 renamed tlist/glist to time_periods/treated_groups
   .tlist <- attgt_res$DIDparams$time_periods %||% attgt_res$DIDparams$tlist
@@ -126,9 +136,11 @@ twfe_weights <- function(attgt_res, keep_untreated=FALSE,
       stats::weighted.mean(.g_col == g, w = .w)
     }
   })
-  wTWFE_num <- function(g,t,pre0=FALSE) {
-    if ((t < g) & pre0) return(0) 
-    if (g==0) {
+  wTWFE_num <- function(g, t, pre0 = FALSE) {
+    if ((t < g) && pre0) {
+      return(0)
+    }
+    if (g == 0) {
       hgt <- -Edt(t) + mEdt
     } else {
       # fraction of observed periods in which group g is treated; counting
@@ -136,22 +148,32 @@ twfe_weights <- function(attgt_res, keep_untreated=FALSE,
       # periods are not consecutive integers
       hgt <- 1 * (t >= g) - n_post_periods(g, .tlist) / length(.tlist) - Edt(t) + mEdt
     }
-    hgt*pg2[.glist==g]
+    hgt * pg2[.glist == g]
   }
 
   # calculate weights
-  wTWFEgt_num <- sapply(1:length(.attgt), 
-                        function(i) wTWFE_num(.group[i],
-                                              .t[i],
-                                              pre0=FALSE))
-  wTWFEgt_den <- sapply(1:length(.attgt), 
-                        function(i) wTWFE_num(.group[i],
-                                              .t[i],
-                                              pre0=FALSE))
+  wTWFEgt_num <- sapply(
+    seq_along(.attgt),
+    function(i) {
+      wTWFE_num(.group[i],
+        .t[i],
+        pre0 = FALSE
+      )
+    }
+  )
+  wTWFEgt_den <- sapply(
+    seq_along(.attgt),
+    function(i) {
+      wTWFE_num(.group[i],
+        .t[i],
+        pre0 = FALSE
+      )
+    }
+  )
 
   cond <- (.t >= .group & .group != 0)
-  wTWFEgt <- wTWFEgt_num/sum(wTWFEgt_den[cond])
-  
+  wTWFEgt <- wTWFEgt_num / sum(wTWFEgt_den[cond])
+
   if (!keep_untreated) {
     wTWFEgt <- wTWFEgt[.group != 0]
     .attgt <- .attgt[.group != 0]
@@ -159,7 +181,7 @@ twfe_weights <- function(attgt_res, keep_untreated=FALSE,
     .group <- .group[.group != 0]
   }
 
-  out <- mp_weights_obj(cbind.data.frame(group=.group, time.period=.t, weight=wTWFEgt, attgt=.attgt))
+  mp_weights_obj(cbind.data.frame(group = .group, time.period = .t, weight = wTWFEgt, attgt = .attgt))
 }
 
 #' @title attO_weights
@@ -177,9 +199,7 @@ twfe_weights <- function(attgt_res, keep_untreated=FALSE,
 #' @export
 attO_weights <- function(attgt_res, w = NULL, keep_untreated = FALSE,
                          weightsname = attgt_res$DIDparams$weightsname) {
-
   .gname <- attgt_res$DIDparams$gname
-  .tname <- attgt_res$DIDparams$tname
   .data <- as.data.frame(attgt_res$DIDparams$data)
   # did >= 2.3.0 renamed tlist/glist to time_periods/treated_groups
   .tlist <- attgt_res$DIDparams$time_periods %||% attgt_res$DIDparams$tlist
@@ -197,17 +217,23 @@ attO_weights <- function(attgt_res, w = NULL, keep_untreated = FALSE,
   .ever_treated <- which(.is_treated)
   w <- w[.ever_treated]
   pg <- sapply(.glist, function(g) {
-    if (g == 0) 0 else weighted.mean(.data[.ever_treated, ][[.gname]]==g, w=w)
+    if (g == 0) 0 else weighted.mean(.data[.ever_treated, ][[.gname]] == g, w = w)
   })
-  wO <- function(g,t) {
+  wO <- function(g, t) {
     # divide by the number of observed post-treatment periods for g (not
     # max(t) - g + 1, which is wrong when periods are not consecutive)
     1 * (t >= g) * pg[.glist == g] / n_post_periods(g, .tlist)
   }
   # add weights to results
-  wOgt <- sapply(1:length(.attgt),
-                 function(i) wO(.group[i],
-                                .t[i]))
+  wOgt <- sapply(
+    seq_along(.attgt),
+    function(i) {
+      wO(
+        .group[i],
+        .t[i]
+      )
+    }
+  )
 
   if (!keep_untreated) {
     wOgt <- wOgt[.group != 0]
@@ -215,8 +241,8 @@ attO_weights <- function(attgt_res, w = NULL, keep_untreated = FALSE,
     .t <- .t[.group != 0]
     .group <- .group[.group != 0]
   }
-  
-  out <- mp_weights_obj(cbind.data.frame(group=.group, time.period=.t, weight=wOgt, attgt=.attgt))
+
+  mp_weights_obj(cbind.data.frame(group = .group, time.period = .t, weight = wOgt, attgt = .attgt))
 }
 
 
@@ -235,9 +261,7 @@ attO_weights <- function(attgt_res, w = NULL, keep_untreated = FALSE,
 #' @export
 att_simple_weights <- function(attgt_res, w = NULL, keep_untreated = FALSE,
                                weightsname = attgt_res$DIDparams$weightsname) {
-  
   .gname <- attgt_res$DIDparams$gname
-  .tname <- attgt_res$DIDparams$tname
   .data <- as.data.frame(attgt_res$DIDparams$data)
   # did >= 2.3.0 renamed tlist/glist to time_periods/treated_groups
   .tlist <- attgt_res$DIDparams$time_periods %||% attgt_res$DIDparams$tlist
@@ -255,15 +279,21 @@ att_simple_weights <- function(attgt_res, w = NULL, keep_untreated = FALSE,
   .ever_treated <- which(.is_treated)
   w <- w[.ever_treated]
   pg <- sapply(.glist, function(g) {
-    if (g == 0) 0 else weighted.mean(.data[.ever_treated, ][[.gname]]==g, w=w)
+    if (g == 0) 0 else weighted.mean(.data[.ever_treated, ][[.gname]] == g, w = w)
   })
-  wO <- function(g,t) {
-    1*(t >= g)*pg[.glist==g]
+  wO <- function(g, t) {
+    1 * (t >= g) * pg[.glist == g]
   }
   # add weights to results
-  wsimplegt <- sapply(1:length(.attgt),
-                 function(i) wO(.group[i],
-                                .t[i]))
+  wsimplegt <- sapply(
+    seq_along(.attgt),
+    function(i) {
+      wO(
+        .group[i],
+        .t[i]
+      )
+    }
+  )
   # account for denominator just by normalizing weights to sum to 1
   wsimplegt <- wsimplegt / sum(wsimplegt)
 
@@ -273,24 +303,26 @@ att_simple_weights <- function(attgt_res, w = NULL, keep_untreated = FALSE,
     .t <- .t[.group != 0]
     .group <- .group[.group != 0]
   }
-  
-  out <- mp_weights_obj(cbind.data.frame(group=.group, time.period=.t, weight=wsimplegt, attgt=.attgt))
+
+  mp_weights_obj(cbind.data.frame(group = .group, time.period = .t, weight = wsimplegt, attgt = .attgt))
 }
 
 #' @title ggtwfeweights.mp_weights_obj
-#' 
+#'
 #' @description A function to plot weights on group-time average treatment effects
-#' 
+#'
 #' @param x An object of class mp_weights_obj
 #' @param ... Additional arguments to be passed to ggplot
-#' 
+#'
 #' @export
 ggtwfeweights.mp_weights_obj <- function(x, ...) {
   weights_df <- x$weights_df
-  ggplot(data=weights_df,
-         mapping=aes(x=.data$weight, y=.data$attgt, color=.data$post)) +
-    geom_hline(yintercept=0, linewidth=1.5) +
-    geom_vline(xintercept=0, linewidth=1.5) + 
-    geom_point(size=6) +
+  ggplot(
+    data = weights_df,
+    mapping = aes(x = .data$weight, y = .data$attgt, color = .data$post)
+  ) +
+    geom_hline(yintercept = 0, linewidth = 1.5) +
+    geom_vline(xintercept = 0, linewidth = 1.5) +
+    geom_point(size = 6) +
     theme_bw()
 }

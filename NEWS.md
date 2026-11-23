@@ -10,6 +10,13 @@
 	* Fewer dependencies: dplyr, tidyr, magrittr, rlang and DRDID are no
 	  longer required. caret is now a required (rather than suggested)
 	  package, because `implicit_twfe_weights()` needs it through BMisc.
+	* fix: `implicit_twfe_weights()` works without covariates
+	  (`xformula = ~1` or `NULL`). Previously this crashed R. Without
+	  covariates its weights now match `twfe_weights()`.
+	* `twfe_weights()`, `attO_weights()` and `att_simple_weights()` now return
+	  their results visibly, so they print when called at the console.
+	* Clearer error and warning messages, which name the function, the
+	  requirement and an alternative where there is one.
 
 	* `twfe_weights()`, `attO_weights()` and `att_simple_weights()` now support
 	  sampling weights. By default they use the `weightsname` passed to

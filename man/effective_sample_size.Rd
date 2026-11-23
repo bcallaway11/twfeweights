@@ -10,11 +10,11 @@ effective_sample_size(
 )
 }
 \arguments{
-\item{est_weights}{a numeric vector of weights coming from an estimation procedure,
-default is rep(1, length(n))}
+\item{est_weights}{a numeric vector of weights coming from an estimation
+procedure (e.g., implicit regression or AIPW weights) for one group}
 
-\item{sampling_weights}{a numeric vector of weights, default is
-\code{rep(1, length(x))}}
+\item{sampling_weights}{a numeric vector of sampling weights for the same
+units, default is \code{rep(1, length(est_weights))}}
 }
 \value{
 a numeric value containing the effective sample size

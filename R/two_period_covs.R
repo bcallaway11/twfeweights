@@ -88,16 +88,22 @@ two_period_reg_weights <- function(yname,
                                    weightsname = NULL,
                                    ...) {
   if (length(unique(data[, tname])) != 2) {
-    stop("Only two periods are allowed.")
+    stop(
+      "two_period_reg_weights() requires exactly two time periods, but `", tname, "` has ",
+      length(unique(data[, tname])), ". For more periods, use implicit_twfe_weights()."
+    )
   }
 
   if (length(unique(data[, gname])) != 2) {
-    stop("Only two groups are allowed.")
+    stop(
+      "two_period_reg_weights() requires exactly two groups (treated and untreated), but `",
+      gname, "` has ", length(unique(data[, gname])), " distinct values."
+    )
   }
 
   # check for balanced panel
   if (nrow(BMisc::make_balanced_panel(data, idname, tname)) != nrow(data)) {
-    stop("function only works for balanced panel data")
+    stop("two_period_reg_weights() requires a balanced panel: every unit must be observed in both periods.")
   }
 
   # sort data by id and then by time period
@@ -112,7 +118,7 @@ two_period_reg_weights <- function(yname,
   if (!is.null(weightsname)) {
     dweights <- data[data[, tname] == maxT, weightsname] - data[data[, tname] == minT, weightsname]
     if (!all(dweights == 0)) {
-      stop("sampling weights are not time constant for all units")
+      stop("sampling weights in `", weightsname, "` must be constant over time within each unit.")
     }
   }
 
@@ -157,16 +163,21 @@ two_period_reg_weights <- function(yname,
     data = .df_wide, weights = .sampling_weights
   )
   twfe_alp <- coef(twfe_reg)[2]
-  pm <- .D - (1 - .D)
   .regression_weights <- dresid / weighted.mean(dresid^2, w = sampling_weights) # from FWL
+  # +1 for treated, -1 for untreated: the untreated regression weights are
+  # negative, so this flips their sign when computing weighted balance below
+  pm <- .D - (1 - .D)
 
-  weighted.mean(.regression_weights * .dy, w = sampling_weights)
-  weighted.mean(p * .regression_weights[.D == 1], w = sampling_weights[.D == 1]) #- weighted.mean((1-p)*.regression_weights[.D==0] * .dy[.D==0], w = sampling_weights[.D==0])
-
+  # by FWL, the weighted average of dy using the regression weights is the
+  # TWFE coefficient; check that as a consistency check
   alp_using_weights <- weighted.mean(.regression_weights * .dy, w = sampling_weights)
-  # alp_using_weights should be equal to alpha from TWFE
   if (abs(twfe_alp - alp_using_weights) > 1e-6) {
-    warning("Looks like something has gone wrong...")
+    warning(
+      "Internal consistency check failed: the estimate implied by the ",
+      "regression weights (", round(alp_using_weights, 6), ") differs from the ",
+      "TWFE coefficient (", round(twfe_alp, 6), "). Please report this at ",
+      "https://github.com/bcallaway11/twfeweights/issues."
+    )
   }
 
   # calculate balance for all supplied covariates
@@ -233,15 +244,20 @@ two_period_reg_weights <- function(yname,
     ) * (1 - p)
     weighted_diff <- weighted_treat - weighted_untreat
 
-    # sd <- sqrt(weighted.mean((.df_wide[, covariate] - weighted.mean(.df_wide[, covariate], w = sampling_weights))^2, w = sampling_weights))
     sd <- pooled_sd(.df_wide[, covariate], D = .D, sampling_weights = sampling_weights)
 
     # additional balance statistics
     unweighted_lr_sd <- log_ratio_sd(.df_wide[, covariate], D = .D, sampling_weights = sampling_weights)
-    weighted_lr_sd <- log_ratio_sd(.df_wide[, covariate], D = .D, est_weights = .regression_weights, sampling_weights = sampling_weights)
+    weighted_lr_sd <- log_ratio_sd(.df_wide[, covariate],
+      D = .D, est_weights = .regression_weights, sampling_weights = sampling_weights
+    )
 
-    unweighted_treated_extreme <- frac_treated_extreme(.df_wide[, covariate], D = .D, sampling_weights = sampling_weights)
-    weighted_treated_extreme <- frac_treated_extreme(.df_wide[, covariate], D = .D, est_weights = .regression_weights, sampling_weights = sampling_weights)
+    unweighted_treated_extreme <- frac_treated_extreme(.df_wide[, covariate],
+      D = .D, sampling_weights = sampling_weights
+    )
+    weighted_treated_extreme <- frac_treated_extreme(.df_wide[, covariate],
+      D = .D, est_weights = .regression_weights, sampling_weights = sampling_weights
+    )
 
 
     list(
@@ -296,12 +312,13 @@ two_period_reg_weights <- function(yname,
 #'
 #' @export
 ggtwfeweights.two_period_covs_obj <- function(
-    x,
-    plot_outcome = FALSE,
-    plot_relative_to_target = FALSE,
-    absolute_value = TRUE,
-    standardize = TRUE,
-    ...) {
+  x,
+  plot_outcome = FALSE,
+  plot_relative_to_target = FALSE,
+  absolute_value = TRUE,
+  standardize = TRUE,
+  ...
+) {
   two_period_covs_obj <- x
   cov_balance_df <- two_period_covs_obj$cov_balance_df
   cov_balance_df$covariate <- factor(cov_balance_df$covariate,
@@ -416,16 +433,22 @@ two_period_aipw_weights <- function(yname,
                                     weightsname = NULL,
                                     ...) {
   if (length(unique(data[, tname])) != 2) {
-    stop("Only two periods are allowed.")
+    stop(
+      "two_period_aipw_weights() requires exactly two time periods, but `", tname, "` has ",
+      length(unique(data[, tname])), ". For more periods, use implicit_aipw_weights()."
+    )
   }
 
   if (length(unique(data[, gname])) != 2) {
-    stop("Only two groups are allowed.")
+    stop(
+      "two_period_aipw_weights() requires exactly two groups (treated and untreated), but `",
+      gname, "` has ", length(unique(data[, gname])), " distinct values."
+    )
   }
 
   # check for balanced panel
   if (nrow(BMisc::make_balanced_panel(data, idname, tname)) != nrow(data)) {
-    stop("function only works for balanced panel data")
+    stop("two_period_aipw_weights() requires a balanced panel: every unit must be observed in both periods.")
   }
 
   # sort data by id and then by time period
@@ -440,7 +463,7 @@ two_period_aipw_weights <- function(yname,
   if (!is.null(weightsname)) {
     dweights <- data[data[, tname] == maxT, weightsname] - data[data[, tname] == minT, weightsname]
     if (!all(dweights == 0)) {
-      stop("sampling weights are not time constant for all units")
+      stop("sampling weights in `", weightsname, "` must be constant over time within each unit.")
     }
   }
 
@@ -454,16 +477,20 @@ two_period_aipw_weights <- function(yname,
   }
 
   if (is.null(pscore_formula)) {
-    warning("setting pscore_formula=NULL results in no covariates being used in the propensity score.\n
-     * to use the same covariates as for the outcome regression, set pscore_formula=xformula\n
-     * to use no covariates and avoid this warnings, set pscore_formula=~1")
+    warning(
+      "pscore_formula = NULL means no covariates are used in the propensity score.\n",
+      "  * To use the outcome-regression covariates, set pscore_formula = xformula.\n",
+      "  * To use no covariates without this warning, set pscore_formula = ~1."
+    )
     pscore_formula <- ~1
   }
 
   if (is.null(pscore_d_covs_formula)) {
-    warning("setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.\n
-     * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula\n
-     * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1")
+    warning(
+      "pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.\n",
+      "  * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.\n",
+      "  * To use no covariates without this warning, set pscore_d_covs_formula = ~1."
+    )
     pscore_d_covs_formula <- ~1
   }
 
@@ -523,7 +550,7 @@ two_period_aipw_weights <- function(yname,
       pscore_xformula <- BMisc::add_cov_to_formula(colnames(.df_wide_temp), pscore_xformula)
     }
   }
-  if ((pscore_formula == xformula) & (pscore_d_covs_formula == d_covs_formula)) {
+  if ((pscore_formula == xformula) && (pscore_d_covs_formula == d_covs_formula)) {
     pscore_xformula <- reg_xformula
   }
 
@@ -536,7 +563,6 @@ two_period_aipw_weights <- function(yname,
   }
   .df_wide$.sampling_weights <- sampling_weights
   p <- weighted.mean(D, w = sampling_weights)
-  pm <- D - (1 - D)
   full_pscore_formula <- BMisc::toformula("D", BMisc::rhs_vars(pscore_xformula))
   environment(full_pscore_formula) <- environment() # not sure why I need this
   pscore <- predict(
@@ -696,16 +722,19 @@ two_period_aipw_weights <- function(yname,
 
     weighted_diff <- weighted_treat - weighted_untreat
 
-    # sd <- sqrt(weighted.mean((.df_wide[, covariate] - weighted.mean(.df_wide[, covariate], w = sampling_weights))^2, w = sampling_weights))
     sd <- pooled_sd(.df_wide[, covariate], D = D, sampling_weights = sampling_weights)
 
     # additional balance statistics
-    # note that these are called slightly differently from regression case above because
-    # aipw_weights already includes the sampling weights (this is going to be slightly off because of re-scaling factor used in methods where we pass in through est_weights)
+    # note that these are called slightly differently from the regression case
+    # above because aipw_weights already include the sampling weights (this is
+    # slightly off because of the re-scaling factor used in methods where the
+    # weights are passed in through est_weights)
     unweighted_lr_sd <- log_ratio_sd(.df_wide[, covariate], D = D, sampling_weights = sampling_weights)
     weighted_lr_sd <- log_ratio_sd(.df_wide[, covariate], D = D, est_weights = aipw_weights)
 
-    unweighted_treated_extreme <- frac_treated_extreme(.df_wide[, covariate], D = D, sampling_weights = sampling_weights)
+    unweighted_treated_extreme <- frac_treated_extreme(.df_wide[, covariate],
+      D = D, sampling_weights = sampling_weights
+    )
     weighted_treated_extreme <- frac_treated_extreme(.df_wide[, covariate], D = D, est_weights = aipw_weights)
 
 
@@ -783,8 +812,8 @@ pooled_sd <- function(x, D, sampling_weights = rep(1, length(x))) {
 #'  the spread of the distribution of the covariate for the treated group relative to the
 #'  untreated group.  This is a balance summary statistic that was discussed in Imbens and Rubin (2015).
 #' @inheritParams pooled_sd
-#' @param est_weights a numeric vector of weights coming from an estimation procedure,
-#'  default is rep(1, length(n))
+#' @param est_weights a numeric vector of weights coming from an estimation procedure
+#'  (e.g., implicit regression or AIPW weights), default is `rep(1, length(x))`
 #' @return a numeric value containing the log ratio of standard deviations
 #' @export
 log_ratio_sd <- function(x, D, est_weights = rep(1, length(x)), sampling_weights = rep(1, length(x))) {
@@ -821,11 +850,12 @@ log_ratio_sd <- function(x, D, est_weights = rep(1, length(x)), sampling_weights
 #'  values of the covariate that are less than the (alpha/2) quantile or greater
 #'  than the (1-alpha/2) quantile.  This is a balance summary statistic that was
 #'  discussed in Imbens and Rubin (2015).
-#' @inheritParams pooled_sd
+#' @inheritParams log_ratio_sd
 #' @param alpha a numeric value between 0 and 1, default is 0.05
 #' @return a numeric value containing the fraction of treated units with extreme values
 #' @export
-frac_treated_extreme <- function(x, D, est_weights = rep(1, length(x)), sampling_weights = rep(1, length(x)), alpha = 0.05) {
+frac_treated_extreme <- function(x, D, est_weights = rep(1, length(x)),
+                                 sampling_weights = rep(1, length(x)), alpha = 0.05) {
   if (length(unique(x)) < 3) {
     return(NA)
   } # not enough variation to compute quantiles
@@ -850,7 +880,10 @@ frac_treated_extreme <- function(x, D, est_weights = rep(1, length(x)), sampling
 #' @description a helper function to compute an effective sample size given
 #'  some estimation weights and sampling weights.  This function should be
 #'  called separately for the treated group and the untreated group.
-#' @inheritParams log_ratio_sd
+#' @param est_weights a numeric vector of weights coming from an estimation
+#'  procedure (e.g., implicit regression or AIPW weights) for one group
+#' @param sampling_weights a numeric vector of sampling weights for the same
+#'  units, default is `rep(1, length(est_weights))`
 #' @return a numeric value containing the effective sample size
 #' @export
 effective_sample_size <- function(est_weights, sampling_weights = rep(1, length(est_weights))) {
