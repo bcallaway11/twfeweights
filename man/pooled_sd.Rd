@@ -4,14 +4,15 @@
 \alias{pooled_sd}
 \title{pooled_sd}
 \usage{
-pooled_sd(x, D, sampling_weights = rep(1, length(n)))
+pooled_sd(x, D, sampling_weights = rep(1, length(x)))
 }
 \arguments{
 \item{x}{a numeric vector}
 
 \item{D}{a binary vector indicating treated and untreated group}
 
-\item{w}{a numeric vector of weights, default is rep(1, length(n))}
+\item{sampling_weights}{a numeric vector of weights, default is
+\code{rep(1, length(x))}}
 }
 \value{
 a numeric value containing the pooled standard deviation

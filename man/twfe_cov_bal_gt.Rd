@@ -28,3 +28,4 @@ using the implicit weights from a TWFE regression for a particular
 group \code{g} and time period \code{tp}.  This function is called internally
 by \code{twfe_cov_bal}.
 }
+\keyword{internal}

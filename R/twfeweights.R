@@ -3,7 +3,7 @@
 # Description: Computes the implicit TWFE weights on ATT(g,t) and the weights that deliver
 #   ATT^O and ATT^simple, for staggered adoption without covariates.
 # Author: Brant Callaway
-# Last update: 2026-11-14
+# Last update: 2026-11-23
 # Date created: 2023-05-30
 # =============================================================================
 
@@ -55,7 +55,7 @@ get_sampling_weights <- function(data, weightsname = NULL) {
 #'  - weight: weight for the group-time period
 #'  - attgt: average treatment effect for the group-time period
 #'  
-#' @export
+#' @keywords internal
 mp_weights_obj <- function(weights_df) {
   weights_df$post <- as.factor(1*((weights_df$time.period >= weights_df$group) & 
                                     weights_df$group != 0))

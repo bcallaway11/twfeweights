@@ -1,12 +1,12 @@
-#-------------------------------------------------------------------------------
-#
-# File contains functions to compute implicit weights for the setting with
-# two time periods.  The two cases covered are:
-#
-# * implicit TWFE regression weights
-# * implicit AIPW weights
-#
-#-------------------------------------------------------------------------------
+# =============================================================================
+# Title: Implicit weights with two time periods
+# Description: Implicit TWFE regression weights and implicit AIPW (including RA
+#   and IPW) weights with two periods, plus covariate balance statistics and
+#   the balance plot.
+# Author: Brant Callaway
+# Last update: 2026-11-23
+# Date created: 2024-05-28
+# =============================================================================
 
 #' @title two_period_covs_obj
 #'
@@ -21,7 +21,7 @@
 #' @param ess the effective sample size
 #' @return a `two_period_covs_obj` object that contains the elements
 #'  passed to the function
-#' @export
+#' @keywords internal
 two_period_covs_obj <- function(est,
                                 weights = NULL,
                                 dy = NULL,
@@ -96,7 +96,7 @@ two_period_reg_weights <- function(yname,
   }
 
   # check for balanced panel
-  if (nrow(BMisc::makeBalancedPanel(data, idname, tname)) != nrow(data)) {
+  if (nrow(BMisc::make_balanced_panel(data, idname, tname)) != nrow(data)) {
     stop("function only works for balanced panel data")
   }
 
@@ -122,11 +122,11 @@ two_period_reg_weights <- function(yname,
   # run the regression and calculate the weights
   # ----------------------------------------------------------------------------
   # add the variables that change over time
-  dvars <- lapply(c(yname, BMisc::rhs.vars(xformula)), function(varname) {
+  dvars <- lapply(c(yname, BMisc::rhs_vars(xformula)), function(varname) {
     data[data[, tname] == maxT, varname] - data[data[, tname] == minT, varname]
   })
   .df_wide <- do.call(cbind.data.frame, dvars)
-  colnames(.df_wide) <- paste0("d_", c(yname, BMisc::rhs.vars(xformula)))
+  colnames(.df_wide) <- paste0("d_", c(yname, BMisc::rhs_vars(xformula)))
   # this will be the formula for the covariates in the regression later
   reg_xformula <- BMisc::toformula("", paste0("", colnames(.df_wide))[-1])
 
@@ -135,7 +135,7 @@ two_period_reg_weights <- function(yname,
     # try to account for factors here
     .df_wide_temp <- model.matrix(time_invariant_x_formula, data[data[, tname] == minT, ])[, -1]
     # recode formula using new names of variables
-    reg_xformula <- BMisc::addCovToFormla(colnames(.df_wide_temp), reg_xformula)
+    reg_xformula <- BMisc::add_cov_to_formula(colnames(.df_wide_temp), reg_xformula)
     .df_wide <- cbind.data.frame(.df_wide, .df_wide_temp)
   }
 
@@ -151,9 +151,9 @@ two_period_reg_weights <- function(yname,
   }
   .df_wide$.sampling_weights <- sampling_weights
   p <- weighted.mean(.D, w = sampling_weights)
-  dreg <- lm(BMisc::toformula(".D", BMisc::rhs.vars(reg_xformula)), data = .df_wide, weights = .sampling_weights)
+  dreg <- lm(BMisc::toformula(".D", BMisc::rhs_vars(reg_xformula)), data = .df_wide, weights = .sampling_weights)
   dresid <- .D - predict(dreg)
-  twfe_reg <- lm(BMisc::toformula(paste0("d_", yname), c(".D", BMisc::rhs.vars(reg_xformula))),
+  twfe_reg <- lm(BMisc::toformula(paste0("d_", yname), c(".D", BMisc::rhs_vars(reg_xformula))),
     data = .df_wide, weights = .sampling_weights
   )
   twfe_alp <- coef(twfe_reg)[2]
@@ -171,8 +171,8 @@ two_period_reg_weights <- function(yname,
 
   # calculate balance for all supplied covariates
   if (xformula != ~1) {
-    .df_wide_temp <- data[data[, tname] == minT, BMisc::rhs.vars(xformula), drop = FALSE]
-    colnames(.df_wide_temp) <- paste0(BMisc::rhs.vars(xformula), "_", minT)
+    .df_wide_temp <- data[data[, tname] == minT, BMisc::rhs_vars(xformula), drop = FALSE]
+    colnames(.df_wide_temp) <- paste0(BMisc::rhs_vars(xformula), "_", minT)
   } else {
     .df_wide_temp <- data.frame(row.names = seq_len(sum(data[, tname] == minT)))
   }
@@ -180,7 +180,7 @@ two_period_reg_weights <- function(yname,
   if (!is.null(extra_balance_vars_formula) && extra_balance_vars_formula != ~1) {
     # try to account for factors here
     # drop intercept, this also helps with including all factors which is typically desirable here
-    extra_balance_vars_formula <- BMisc::addCovToFormla("-1", extra_balance_vars_formula)
+    extra_balance_vars_formula <- BMisc::add_cov_to_formula("-1", extra_balance_vars_formula)
     .df_wide_temp2 <- model.matrix(
       extra_balance_vars_formula,
       data[data[, tname] == minT, ]
@@ -204,12 +204,12 @@ two_period_reg_weights <- function(yname,
     # in first case: report balance for levels in post-treatment periods
     # in second case: report balance in the change in the covariates over time
     if (balance_d_vars_post) {
-      .df_wide_temp3 <- data[data[, tname] == maxT, BMisc::rhs.vars(extra_balance_d_vars_formula), drop = FALSE]
-      colnames(.df_wide_temp3) <- paste0(BMisc::rhs.vars(extra_balance_d_vars_formula), "_", maxT)
+      .df_wide_temp3 <- data[data[, tname] == maxT, BMisc::rhs_vars(extra_balance_d_vars_formula), drop = FALSE]
+      colnames(.df_wide_temp3) <- paste0(BMisc::rhs_vars(extra_balance_d_vars_formula), "_", maxT)
     } else {
-      .df_wide_temp3 <- data[data[, tname] == maxT, BMisc::rhs.vars(extra_balance_d_vars_formula), drop = FALSE] -
-        data[data[, tname] == minT, BMisc::rhs.vars(extra_balance_d_vars_formula), drop = FALSE]
-      colnames(.df_wide_temp3) <- paste0("d", BMisc::rhs.vars(extra_balance_d_vars_formula))
+      .df_wide_temp3 <- data[data[, tname] == maxT, BMisc::rhs_vars(extra_balance_d_vars_formula), drop = FALSE] -
+        data[data[, tname] == minT, BMisc::rhs_vars(extra_balance_d_vars_formula), drop = FALSE]
+      colnames(.df_wide_temp3) <- paste0("d", BMisc::rhs_vars(extra_balance_d_vars_formula))
     }
     .df_wide_temp <- cbind.data.frame(.df_wide_temp, .df_wide_temp3)
   }
@@ -327,38 +327,17 @@ ggtwfeweights.two_period_covs_obj <- function(
       cov_balance_df$unweighted_treat
     cov_balance_df$weighted_untreat_relative <- cov_balance_df$weighted_untreat -
       cov_balance_df$unweighted_treat
-    plot_df <- cov_balance_df[, c(
-      "covariate", "unweighted_untreat_relative",
-      "weighted_treat_relative", "weighted_untreat_relative", "sd"
-    )] %>%
-      pivot_longer(
-        cols = c(contains("unweighted"), contains("weighted")),
-        names_to = "type",
-        values_to = "value",
-        names_transform = list(type = function(x) {
-          recode(x,
-            "unweighted_untreat_relative" = "unweighted comparison",
-            "weighted_treat_relative" = "weighted treated",
-            "weighted_untreat_relative" = "weighted comparison"
-          )
-        })
-      )
-    # legend_labels <- c("unweighted comparison", "weighted treated", "weighted comparison")
+    plot_df <- stack_balance_cols(cov_balance_df, c(
+      "unweighted_untreat_relative" = "unweighted comparison",
+      "weighted_treat_relative" = "weighted treated",
+      "weighted_untreat_relative" = "weighted comparison"
+    ))
   } else {
     # just plot balance between treated and untreated
-    plot_df <- cov_balance_df[, c("covariate", "unweighted_diff", "weighted_diff", "sd")] %>%
-      pivot_longer(
-        cols = c(contains("unweighted"), contains("weighted")),
-        names_to = "type",
-        values_to = "value",
-        names_transform = list(type = function(x) {
-          recode(x,
-            "unweighted_diff" = "unweighted",
-            "weighted_diff" = "weighted"
-          )
-        })
-      )
-    # legend_labels <- c("unweighted", "weighted")
+    plot_df <- stack_balance_cols(cov_balance_df, c(
+      "unweighted_diff" = "unweighted",
+      "weighted_diff" = "weighted"
+    ))
   }
   ggplot(
     plot_df,
@@ -378,8 +357,28 @@ ggtwfeweights.two_period_covs_obj <- function(
       shape = guide_legend(title = NULL) # , labels = legend_labels)
     ) +
     xlab(legend_text)
-  # scale_color_discrete(labels = legend_labels) +
-  # scale_shape_discrete(labels = legend_labels) +
+}
+
+# Reshape selected balance columns to long format for plotting (base-R
+# replacement for tidyr::pivot_longer).  `cols` is a named character vector
+# mapping column names in `cov_balance_df` to the labels used in the legend.
+# Returns a data.frame with columns covariate, sd, type, value; rows are
+# ordered by covariate, then by the order of `cols`, as pivot_longer did, so
+# overlapping points are drawn in the same order.
+stack_balance_cols <- function(cov_balance_df, cols) {
+  long <- do.call(rbind, lapply(seq_along(cols), function(j) {
+    data.frame(
+      .row = seq_len(nrow(cov_balance_df)),
+      .col = j,
+      covariate = cov_balance_df$covariate,
+      sd = cov_balance_df$sd,
+      type = unname(cols[j]),
+      value = cov_balance_df[[names(cols)[j]]]
+    )
+  }))
+  long <- long[order(long$.row, long$.col), c("covariate", "sd", "type", "value")]
+  rownames(long) <- NULL
+  long
 }
 
 
@@ -399,15 +398,6 @@ ggtwfeweights.two_period_covs_obj <- function(
 #'  `extra_balance_d_vars_formula`, whether to report balance for their levels in post-treatment
 #'  period or to report balance in the change in the covariates over time.  The first option
 #'  is selected when this argument is set to be TRUE, which is the default.
-#' @param post_lasso whether to use the Lasso to perform model selection among the available covariates.
-#'   Default is FALSE.  If TRUE, the function will use the Lasso to select covariates for the
-#'  propensity score and outcome regression, and then re-estimate both the outcome regression and propensity
-#'  score using the selected covariates.  Post-Lasso results respect that the covariates that could be
-#'  selected for the outcome regression and propensity score can be different.  For example, one can
-#'  still specify `pscore_formula = ~1` and `pscore_d_covs_formula = ~1` in which case the function
-#'  would use a Lasso-version of regression adjustment (though note that using this approach likely
-#'  requires stronger assumptions on sparsity than including a full set of covariates for both the
-#'  outcome regression and the propensity score).
 #' @return a `two_period_covs_obj` object that contains the aipw estimate
 #'  of the ATT and the implicit weights.
 #' @export
@@ -424,7 +414,6 @@ two_period_aipw_weights <- function(yname,
                                     balance_d_vars_post = TRUE,
                                     data,
                                     weightsname = NULL,
-                                    post_lasso = FALSE,
                                     ...) {
   if (length(unique(data[, tname])) != 2) {
     stop("Only two periods are allowed.")
@@ -435,7 +424,7 @@ two_period_aipw_weights <- function(yname,
   }
 
   # check for balanced panel
-  if (nrow(BMisc::makeBalancedPanel(data, idname, tname)) != nrow(data)) {
+  if (nrow(BMisc::make_balanced_panel(data, idname, tname)) != nrow(data)) {
     stop("function only works for balanced panel data")
   }
 
@@ -453,11 +442,6 @@ two_period_aipw_weights <- function(yname,
     if (!all(dweights == 0)) {
       stop("sampling weights are not time constant for all units")
     }
-  }
-
-  # handle post-lasso case
-  if (post_lasso) {
-    stop("not implemented yet")
   }
 
   # handle covariate formulas
@@ -508,14 +492,14 @@ two_period_aipw_weights <- function(yname,
   }
   # add the variables that change over time
   if (d_covs_formula != ~1) {
-    dvars <- lapply(c(BMisc::rhs.vars(d_covs_formula)), function(varname) {
+    dvars <- lapply(c(BMisc::rhs_vars(d_covs_formula)), function(varname) {
       data[data[, tname] == maxT, varname] - data[data[, tname] == minT, varname]
     })
     .df_wide_temp <- do.call(cbind.data.frame, dvars)
-    colnames(.df_wide_temp) <- paste0("d_", c(BMisc::rhs.vars(d_covs_formula)))
+    colnames(.df_wide_temp) <- paste0("d_", c(BMisc::rhs_vars(d_covs_formula)))
     .df_wide <- cbind.data.frame(.df_wide, .df_wide_temp)
     # this will be the formula for the covariates in the regression later
-    reg_xformula <- BMisc::addCovToFormla(colnames(.df_wide_temp), reg_xformula)
+    reg_xformula <- BMisc::add_cov_to_formula(colnames(.df_wide_temp), reg_xformula)
   }
   # add any additional/alternative variables for the propensity score
   if (pscore_formula != xformula) {
@@ -530,13 +514,13 @@ two_period_aipw_weights <- function(yname,
         pscore_xformula <- ~1
       }
     } else {
-      dvars <- lapply(c(BMisc::rhs.vars(pscore_d_covs_formula)), function(varname) {
+      dvars <- lapply(c(BMisc::rhs_vars(pscore_d_covs_formula)), function(varname) {
         data[data[, tname] == maxT, varname] - data[data[, tname] == minT, varname]
       })
       .df_wide_temp <- do.call(cbind.data.frame, dvars)
-      colnames(.df_wide_temp) <- paste0("d_", c(BMisc::rhs.vars(pscore_d_covs_formula)))
+      colnames(.df_wide_temp) <- paste0("d_", c(BMisc::rhs_vars(pscore_d_covs_formula)))
       .df_wide <- cbind.data.frame(.df_wide, .df_wide_temp)
-      pscore_xformula <- BMisc::addCovToFormla(colnames(.df_wide_temp), pscore_xformula)
+      pscore_xformula <- BMisc::add_cov_to_formula(colnames(.df_wide_temp), pscore_xformula)
     }
   }
   if ((pscore_formula == xformula) & (pscore_d_covs_formula == d_covs_formula)) {
@@ -553,7 +537,7 @@ two_period_aipw_weights <- function(yname,
   .df_wide$.sampling_weights <- sampling_weights
   p <- weighted.mean(D, w = sampling_weights)
   pm <- D - (1 - D)
-  full_pscore_formula <- BMisc::toformula("D", BMisc::rhs.vars(pscore_xformula))
+  full_pscore_formula <- BMisc::toformula("D", BMisc::rhs_vars(pscore_xformula))
   environment(full_pscore_formula) <- environment() # not sure why I need this
   pscore <- predict(
     suppressWarnings(glm(full_pscore_formula,
@@ -566,42 +550,21 @@ two_period_aipw_weights <- function(yname,
 
   ipw_weights0 <- (pscore / (1 - pscore) * (1 - p) / p)[D == 0]
   ipw_weights1 <- rep(1, sum(D == 1))
-  # => normalize jointly instead of one by one
-  # weighted.mean(dy[D==1], w=ipw_weights1*sampling_weights[D==1]) -
-  #  weighted.mean(dy[D==0], w=ipw_weights0*sampling_weights[D==0])# this is ipw and confirmed same as drdid
   .df_wide$.pscore <- pscore
   .df_wide$.odds_ratio <- pscore / (1 - pscore)
-  gamma0_tilde <- coef(lm(BMisc::toformula(".odds_ratio", BMisc::rhs.vars(reg_xformula)),
+  gamma0_tilde <- coef(lm(BMisc::toformula(".odds_ratio", BMisc::rhs_vars(reg_xformula)),
     data = .df_wide[D == 0, ],
     weights = .sampling_weights
   ))
-  X <- model.matrix(BMisc::toformula("", BMisc::rhs.vars(reg_xformula)), data = .df_wide)
+  X <- model.matrix(BMisc::toformula("", BMisc::rhs_vars(reg_xformula)), data = .df_wide)
   X0 <- X[D == 0, , drop = FALSE]
   X1 <- X[D == 1, , drop = FALSE]
   Qxx <- t(sampling_weights[D == 0] * X0) %*% X0 / sum(D == 0)
   gamma0 <- solve(Qxx) %*% colMeans(sampling_weights[D == 1] * X1) / mean(sampling_weights[D == 1]) * p / (1 - p)
-  aipw_extra_weights0 <- (1 - p) / p * X0 %*% (gamma0 - gamma0_tilde)
-  aipw_weights0 <- ipw_weights0 + aipw_extra_weights0
-  aipw_weights_att <- weighted.mean(dy[D == 1], w = ipw_weights1 * sampling_weights[D == 1]) -
-    weighted.mean(dy[D == 0], w = aipw_weights0 * sampling_weights[D == 0])
 
-  # check components
-  # - avg change for treated group
-  t1 <- weighted.mean(dy[D == 1], w = ipw_weights1 * sampling_weights[D == 1])
-  t1 # yes!
-  # - regression adjustment term
-  t2 <- weighted.mean(dy[D == 0], w = as.numeric(X0 %*% gamma0) * sampling_weights[D == 0])
-  t2 # no!
-  # - ipw term
-  t3 <- weighted.mean(dy[D == 0], w = ipw_weights0 * sampling_weights[D == 0])
-  t3 # yes!
-  # - cross term, ipw and regression adjustment
-  t4 <- weighted.mean(dy[D == 0], w = as.numeric(X0 %*% gamma0_tilde) * sampling_weights[D == 0])
-  t4 # no!
-  aipw_weights_att <- t1 - t2 - t3 + t4
-  t1 - t2 - t3 + t4 # this should be equal to the final result
-  ###
-
+  # implicit AIPW weights (Caetano and Callaway, Prop. aipw-decomp): each of
+  # the three comparison-group terms (regression adjustment, IPW, and the
+  # cross term) is normalized to have mean one separately
   aipw_weights_treat <- ipw_weights1 * sampling_weights[D == 1]
   aipw_weights_treat <- aipw_weights_treat / mean(aipw_weights_treat)
   aipw_weights_untreat1 <- as.numeric(X0 %*% gamma0) * sampling_weights[D == 0]
@@ -614,40 +577,44 @@ two_period_aipw_weights <- function(yname,
   aipw_weights[D == 1] <- aipw_weights_treat
   aipw_weights[D == 0] <- (aipw_weights_untreat1 + aipw_weights_untreat2 - aipw_weights_untreat3)
 
-  # can calculate ATT as follows
-  mean(aipw_weights[D == 1] * dy[D == 1]) - mean(aipw_weights[D == 0] * dy[D == 0])
-  # compute AIPW using ipw functions so that we can allow for reg and pscore
-  # covariates to be different
-  out_reg_formula <- BMisc::toformula(paste0("d_", yname), BMisc::rhs.vars(reg_xformula))
+  # ATT implied by the implicit weights; checked against the direct estimate below
+  aipw_weights_att <- mean(aipw_weights[D == 1] * dy[D == 1]) - mean(aipw_weights[D == 0] * dy[D == 0])
+
+  # direct AIPW estimate: IPW applied to outcomes net of the comparison-group
+  # regression prediction, which lets the outcome-model and pscore covariates
+  # differ
+  out_reg_formula <- BMisc::toformula(paste0("d_", yname), BMisc::rhs_vars(reg_xformula))
   out_reg <- lm(out_reg_formula,
     data = .df_wide[D == 0, ],
     weights = .sampling_weights
   )
   L0 <- predict(out_reg, newdata = .df_wide)
 
-  att <- DRDID::std_ipw_did_panel(dy - L0, rep(0, nrow(.df_wide)), D,
-    covariates = model.matrix(BMisc::toformula("", BMisc::rhs.vars(pscore_xformula)), data = .df_wide),
-    i.weights = sampling_weights
-  )$ATT
-
-  # DRDID::drdid_panel(dy, rep(0,nrow(.df_wide)), D,
-  #                   covariates=model.matrix(BMisc::toformula("", BMisc::rhs.vars(reg_xformula)), data=.df_wide),
-  #                   i.weights=sampling_weights)$ATT
-
-  # did::att_gt(yname=yname, tname=tname, idname="sid", gname=gname,
-  #             xformla=xformula, data=data,
-  #             weightsname=weightsname,
-  #             est_method="dr")
+  # Normalized (Hajek) IPW on dy - L0.  This reproduces
+  # DRDID::std_ipw_did_panel() (DRDID 1.4.1), including its propensity score
+  # handling: fitted values capped at 1 - 1e-6, and comparison units with
+  # pscore >= 0.995 dropped.
+  ps_capped <- pmin(pscore, 1 - 1e-6)
+  keep <- (D == 1) | (ps_capped < 0.995)
+  w_treat <- keep * sampling_weights * D
+  w_cont <- keep * sampling_weights * ps_capped * (1 - D) / (1 - ps_capped)
+  att <- sum(w_treat * (dy - L0)) / sum(w_treat) -
+    sum(w_cont * (dy - L0)) / sum(w_cont)
 
   if (abs(aipw_weights_att - att) > 1e-6) {
-    warning("Looks like something has gone wrong...")
+    warning(
+      "The ATT implied by the AIPW weights (", round(aipw_weights_att, 6),
+      ") differs from the direct AIPW estimate (", round(att, 6), "). ",
+      "This can happen when some comparison units have estimated propensity ",
+      "scores of 0.995 or above, which the direct estimate trims."
+    )
   }
 
   # calculate balance for all supplied covariates
   # data.table::setDT(.df_wide)
-  # .df_wide <- data.table::dcast(data, get(idname) ~ get(tname), value.var=BMisc::rhs.vars(xformula))
-  # .df_wide_temp <- data[ data[,tname]==minT, BMisc::rhs.vars(xformula), drop=FALSE]
-  # colnames(.df_wide_temp) <- paste0(BMisc::rhs.vars(xformula), "_", minT)
+  # .df_wide <- data.table::dcast(data, get(idname) ~ get(tname), value.var=BMisc::rhs_vars(xformula))
+  # .df_wide_temp <- data[ data[,tname]==minT, BMisc::rhs_vars(xformula), drop=FALSE]
+  # colnames(.df_wide_temp) <- paste0(BMisc::rhs_vars(xformula), "_", minT)
 
   # drop no longer needed columns
   .df_wide <- .df_wide[, -c(2, ncol(.df_wide):(ncol(.df_wide) - 2))]
@@ -655,7 +622,7 @@ two_period_aipw_weights <- function(yname,
   # rebuild xformula balance columns with all factor levels (matching TWFE behavior),
   # replacing the regression-encoded columns which dropped the reference level
   if (!is.null(xformula_col_names)) {
-    xformula_no_int <- BMisc::addCovToFormla("-1", xformula)
+    xformula_no_int <- BMisc::add_cov_to_formula("-1", xformula)
     .df_wide_xbal <- model.matrix(xformula_no_int, data[data[, tname] == minT, ])[, , drop = FALSE]
     .df_wide_xbal_maxT <- model.matrix(xformula_no_int, data[data[, tname] == maxT, ])[, , drop = FALSE]
     # only append the early period label for variables that actually vary over time
@@ -672,7 +639,7 @@ two_period_aipw_weights <- function(yname,
   # if requested, additional covariates from first period
   if (!is.null(extra_balance_vars_formula)) {
     # try to account for factors here
-    extra_balance_vars_formula <- BMisc::addCovToFormla("-1", extra_balance_vars_formula)
+    extra_balance_vars_formula <- BMisc::add_cov_to_formula("-1", extra_balance_vars_formula)
     .df_wide_temp2 <- model.matrix(extra_balance_vars_formula, data[data[, tname] == minT, ])[, , drop = FALSE]
     .df_wide_temp2_maxT <- model.matrix(extra_balance_vars_formula, data[data[, tname] == maxT, ])[, , drop = FALSE]
     # only append the early period label for variables that actually vary over time;
@@ -690,12 +657,12 @@ two_period_aipw_weights <- function(yname,
     # in first case: report balance for levels in post-treatment periods
     # in second case: report balance in the change in the covariates over time
     if (balance_d_vars_post) {
-      .df_wide_temp3 <- data[data[, tname] == maxT, BMisc::rhs.vars(extra_balance_d_vars_formula), drop = FALSE]
-      colnames(.df_wide_temp3) <- paste0(BMisc::rhs.vars(extra_balance_d_vars_formula), "_", maxT)
+      .df_wide_temp3 <- data[data[, tname] == maxT, BMisc::rhs_vars(extra_balance_d_vars_formula), drop = FALSE]
+      colnames(.df_wide_temp3) <- paste0(BMisc::rhs_vars(extra_balance_d_vars_formula), "_", maxT)
     } else {
-      .df_wide_temp3 <- data[data[, tname] == maxT, BMisc::rhs.vars(extra_balance_d_vars_formula), drop = FALSE] -
-        data[data[, tname] == minT, BMisc::rhs.vars(extra_balance_d_vars_formula), drop = FALSE]
-      colnames(.df_wide_temp3) <- paste0("d", BMisc::rhs.vars(extra_balance_d_vars_formula))
+      .df_wide_temp3 <- data[data[, tname] == maxT, BMisc::rhs_vars(extra_balance_d_vars_formula), drop = FALSE] -
+        data[data[, tname] == minT, BMisc::rhs_vars(extra_balance_d_vars_formula), drop = FALSE]
+      colnames(.df_wide_temp3) <- paste0("d", BMisc::rhs_vars(extra_balance_d_vars_formula))
     }
     .df_wide <- cbind.data.frame(.df_wide, .df_wide_temp3)
   }
@@ -786,7 +753,8 @@ two_period_aipw_weights <- function(yname,
 #'
 #' @param x a numeric vector
 #' @param D a binary vector indicating treated and untreated group
-#' @param w a numeric vector of weights, default is rep(1, length(n))
+#' @param sampling_weights a numeric vector of weights, default is
+#'  `rep(1, length(x))`
 #' @return a numeric value containing the pooled standard deviation
 #' @export
 pooled_sd <- function(x, D, sampling_weights = rep(1, length(x))) {
@@ -868,11 +836,11 @@ frac_treated_extreme <- function(x, D, est_weights = rep(1, length(x)), sampling
   est_weights[D == 1] <- est_weights[D == 1] / weighted.mean(est_weights[D == 1], w = sampling_weights[D == 1])
   est_weights[D == 0] <- est_weights[D == 0] / weighted.mean(est_weights[D == 0], w = sampling_weights[D == 0])
 
-  untreated_dist_func <- BMisc::getWeightedDf(est_weights[D == 0] * x[D == 0], weights = sampling_weights[D == 0])
+  untreated_dist_func <- BMisc::weighted_ecdf(est_weights[D == 0] * x[D == 0], weights = sampling_weights[D == 0])
   uq <- quantile(untreated_dist_func, 1 - alpha / 2)
   lq <- quantile(untreated_dist_func, alpha / 2)
 
-  treated_dist_func <- BMisc::getWeightedDf(est_weights[D == 1] * x[D == 1], weights = sampling_weights[D == 1])
+  treated_dist_func <- BMisc::weighted_ecdf(est_weights[D == 1] * x[D == 1], weights = sampling_weights[D == 1])
 
   fte <- 1 - treated_dist_func(uq) + treated_dist_func(lq)
   fte

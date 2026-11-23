@@ -1,6 +1,6 @@
 Package: twfeweights
 Title: Computes Implicit Weights from TWFE Regressions
-Version: 0.9.0
+Version: 1.0.0
 Authors@R:
     person("Brantly", "Callaway", , "brantly.callaway@uga.edu", role = c("aut", "cre"))
 Description:
@@ -13,20 +13,14 @@ Description:
     `twfeweights` package can be useful for researchers for assessing how well
     implicit weight balance (functions of) the covariates across groups and
     time periods.
-License: MIT + file LICENSE
+License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
 Imports:
-    BMisc,
+    BMisc (>= 1.4.8),
+    caret,
     fixest,
-    DRDID,
     ggplot2,
-    dplyr,
-    rlang,
-    magrittr,
-    tidyr,
-    dplyr,
     stats,
     utils
 Suggests:
@@ -34,3 +28,4 @@ Suggests:
     causaldata,
     did
 Config/testthat/edition: 3
+Config/roxygen2/version: 8.1.1

@@ -1,4 +1,3 @@
-^LICENSE\.md$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^README\.Rmd$
@@ -6,3 +5,4 @@
 ^docs$
 ^\.github$
 ^\.lintr$
+^dev$

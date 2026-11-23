@@ -69,3 +69,4 @@ is typically set by the \code{twfe_cov_bal} function, called subsequent to
 \description{
 a class for holding and working with group-time weights
 }
+\keyword{internal}

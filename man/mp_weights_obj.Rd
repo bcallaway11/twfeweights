@@ -19,3 +19,4 @@ mp_weights_obj(weights_df)
 A class to store weighted averages of group-time average
 treatment effects
 }
+\keyword{internal}

@@ -21,3 +21,4 @@ in either \code{twfe_cov_bal} or \code{aipw_cov_bal}.
 a helper function to summarize the balance statistics mainly
 to handle some repetitive calculations used across functions.
 }
+\keyword{internal}

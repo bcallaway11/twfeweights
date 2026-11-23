@@ -28,3 +28,4 @@ using the implicit weights from an AIPW regression for a particular
 group \code{g} and time period \code{tp}.  This function is called internally
 by \code{aipw_cov_bal}.
 }
+\keyword{internal}

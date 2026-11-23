@@ -34,3 +34,4 @@ passed to the function
 an object that holds the results of the \code{two_period_reg_weights}
 function
 }
+\keyword{internal}

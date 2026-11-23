@@ -1,4 +1,15 @@
-# twfeweights (development version)
+# twfeweights 1.0.0
+
+	* The package is now licensed under GPL-3 (previously MIT).
+	* Removed the unfinished `did_post_lasso()` and the unused `post_lasso`
+	  argument of `two_period_aipw_weights()`.
+	* Internal helpers are no longer exported: `gt_weights()`,
+	  `mp_weights_obj()`, `two_period_covs_obj()`,
+	  `mp_covariate_bal_summary_helper()`, `combine_twfe_weights_gt()`,
+	  `twfe_cov_bal_gt()` and `aipw_cov_bal_gt()`.
+	* Fewer dependencies: dplyr, tidyr, magrittr, rlang and DRDID are no
+	  longer required. caret is now a required (rather than suggested)
+	  package, because `implicit_twfe_weights()` needs it through BMisc.
 
 	* `twfe_weights()`, `attO_weights()` and `att_simple_weights()` now support
 	  sampling weights. By default they use the `weightsname` passed to

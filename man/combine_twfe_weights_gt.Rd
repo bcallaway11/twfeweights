@@ -31,17 +31,34 @@ in the untreated group.}
 \item{xformula}{formula for covariates that are included in the
 TWFE regression.
 
-@return a gt_weights object
-@export}
+@return a gt_weights object}
 
 \item{idname}{The individual (cross-sectional unit) id name}
 
 \item{data}{The name of the data.frame that contains the data}
 
 \item{weightsname}{The name of the column containing the sampling weights.
-If not set, all observations have same weight.}
+If not set, all observations have same weight. When weights are
+time-invariant (constant within each unit across periods), all
+\code{fix_weights} options produce identical results and no special
+handling is needed.
+
+When weights vary across time (e.g., time-varying population sizes),
+the default behavior differs by panel type:
+\describe{
+\item{Balanced panel}{Each 2x2 DiD comparison uses the weight from the
+earlier of the two time periods involved. For post-treatment cells,
+this is the base period (g-1). For pre-treatment cells with
+\code{base_period="varying"}, this is the pre-treatment period itself.
+The panel DRDID estimators are used.}
+\item{Repeated cross sections and unbalanced panels}{Both periods'
+per-observation weights are passed directly to the RC DRDID estimators,
+so each observation carries its own period-specific weight.}
+}
+Use the \code{fix_weights} argument to override the default behavior.}
 }
 \description{
 a function that recovers the weights on each implicit
 group-time average treatment effect from the TWFE regression
 }
+\keyword{internal}

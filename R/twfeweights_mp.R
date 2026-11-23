@@ -1,5 +1,11 @@
-# Code for computing TWFE weights with multiple
-# periods and variation in treatment timing
+# =============================================================================
+# Title: Implicit weights with multiple periods and staggered adoption
+# Description: Implicit TWFE regression weights and implicit AIPW weights on
+#   ATT(g,t) with covariates, covariate balance, summaries and plots.
+# Author: Brant Callaway
+# Last update: 2026-11-23
+# Date created: 2023-06-09
+# =============================================================================
 
 #' @title gt_weights
 #' @description a class for holding and working with group-time weights
@@ -32,7 +38,7 @@
 #'  `implicit_twfe_weights`.
 #' @param alpha_weight the contribution of this term to the estimate of alpha
 #' @param ess the effective sample size for the group-time period
-#' @export
+#' @keywords internal
 gt_weights <- function(g,
                        tp,
                        treated = NULL,
@@ -87,7 +93,7 @@ gt_weights <- function(g,
 #'  TWFE regression.
 #'
 #'  @return a gt_weights object
-#'  @export
+#' @keywords internal
 implicit_twfe_weights_gt <- function(g,
                                      tp,
                                      yname,
@@ -115,13 +121,13 @@ implicit_twfe_weights_gt <- function(g,
   }
 
   Yit <- data[, yname]
-  xformula <- BMisc::addCovToFormla("-1", xformula)
+  xformula <- BMisc::add_cov_to_formula("-1", xformula)
   Xit <- model.matrix(xformula, data = data)
   Dit <- 1 * ((data[, tname] >= data[, gname]) & (data[, gname] != 0))
 
   # double demean variables in the model
-  ddotDit <- fixest::demean(Dit, data[, c(idname, tname)], weights = sampling_weights) %>% as.numeric()
-  ddotYit <- fixest::demean(Yit, data[, c(idname, tname)], weights = sampling_weights) %>% as.numeric()
+  ddotDit <- as.numeric(fixest::demean(Dit, data[, c(idname, tname)], weights = sampling_weights))
+  ddotYit <- as.numeric(fixest::demean(Yit, data[, c(idname, tname)], weights = sampling_weights))
   ddotXit <- fixest::demean(Xit, data[, c(idname, tname)], weights = sampling_weights)
   ddotXit <- suppressWarnings(BMisc::drop_collinear(ddotXit)) # drop collinear terms here (e.g., as.factor(year)*as.factor(region))
 
@@ -148,12 +154,12 @@ implicit_twfe_weights_gt <- function(g,
     outcomeit <- Yit - Yigmin1
   }
 
-  gpart_w_inner <- (ddotDit - mv_mult(ddotXit, gam))[idx]
+  gpart_w_inner <- (ddotDit - BMisc::mv_mult(ddotXit, gam))[idx]
   gpart_w <- gpart_w_inner / weighted.mean(gpart_w_inner, w = sampling_weights[idx])
   gpart <- weighted.mean(gpart_w * outcomeit[thisG == g], w = sampling_weights[idx])
 
   idxU <- G == 0 & TP == tp
-  upart_w_inner <- (ddotDit - mv_mult(ddotXit, gam))[idxU]
+  upart_w_inner <- (ddotDit - BMisc::mv_mult(ddotXit, gam))[idxU]
   upart_w <- upart_w_inner / weighted.mean(upart_w_inner, w = sampling_weights[idxU])
   upart <- weighted.mean(upart_w * outcomeit[thisG == 0], w = sampling_weights[idxU])
 
@@ -193,7 +199,7 @@ implicit_twfe_weights_gt <- function(g,
 #' @description a function that recovers the weights on each implicit
 #'  group-time average treatment effect from the TWFE regression
 #' @inheritParams implicit_twfe_weights_gt
-#' @export
+#' @keywords internal
 combine_twfe_weights_gt <- function(g,
                                     tp,
                                     gname,
@@ -211,12 +217,12 @@ combine_twfe_weights_gt <- function(g,
     sampling_weights <- rep(1, nrow(data))
   }
 
-  xformula <- BMisc::addCovToFormla("-1", xformula)
+  xformula <- BMisc::add_cov_to_formula("-1", xformula)
   Xit <- model.matrix(xformula, data = data)
   Dit <- 1 * ((data[, tname] >= data[, gname]) & (data[, gname] != 0))
 
   # double demean variables in the model
-  ddotDit <- fixest::demean(Dit, data[, c(idname, tname)], weights = sampling_weights) %>% as.numeric()
+  ddotDit <- as.numeric(fixest::demean(Dit, data[, c(idname, tname)], weights = sampling_weights))
   ddotXit <- fixest::demean(Xit, data[, c(idname, tname)], weights = sampling_weights)
   ddotXit <- suppressWarnings(BMisc::drop_collinear(ddotXit))
 
@@ -232,8 +238,8 @@ combine_twfe_weights_gt <- function(g,
   idx <- G == g & TP == tp
   pg <- weighted.mean(G == g, w = sampling_weights)
 
-  alp_den <- weighted.mean((ddotDit - mv_mult(ddotXit, gam)) * (ddotDit), w = sampling_weights)
-  weighted.mean((ddotDit - mv_mult(ddotXit, gam))[idx], w = sampling_weights[idx]) * pg / (alp_den * maxT)
+  alp_den <- weighted.mean((ddotDit - BMisc::mv_mult(ddotXit, gam)) * (ddotDit), w = sampling_weights)
+  weighted.mean((ddotDit - BMisc::mv_mult(ddotXit, gam))[idx], w = sampling_weights[idx]) * pg / (alp_den * maxT)
 
   #
   #
@@ -267,8 +273,9 @@ implicit_twfe_weights <- function(yname,
                                   weightsname = NULL) {
   # confirm balanced panel and sort data
   norig <- nrow(data)
-  data <- BMisc::makeBalancedPanel(data, idname = idname, tname = tname)
-  data <- dplyr::arrange(data, idname, tname) %>% as.data.frame()
+  data <- BMisc::make_balanced_panel(data, idname = idname, tname = tname)
+  data <- as.data.frame(data)
+  data <- data[order(data[[idname]], data[[tname]]), ]
   if (nrow(data) != norig) {
     warning(paste0("Dropped ", norig - nrow(data), " rows of data to balance the data."))
   }
@@ -276,16 +283,15 @@ implicit_twfe_weights <- function(yname,
   # convert groups and time periods to scale like 1,2,3,4,5,etc.
   tlist <- sort(unique(data[, tname]))
   glist <- sort(unique(data[, gname]))
-  data$.TP <- orig2t(data[, tname], tlist)
-  data$.G <- orig2t(data[, gname], tlist)
+  data$.TP <- BMisc::orig2t(data[, tname], tlist)
+  data$.G <- BMisc::orig2t(data[, gname], tlist)
 
   tlist <- sort(unique(data$.TP))
   glist <- sort(unique(data$.G))
   # glist <- glist[glist!=0] # drop never-treated group
   gt_mat <- as.data.frame(expand.grid(glist[-1], tlist))
-  gt_mat <- gt_mat %>%
-    arrange_all() %>%
-    as.data.frame()
+  gt_mat <- gt_mat[order(gt_mat[, 1], gt_mat[, 2]), ]
+  rownames(gt_mat) <- NULL
   colnames(gt_mat) <- c("group", "time.period")
 
   twfe_gt <- lapply(1:nrow(gt_mat), function(i) {
@@ -303,14 +309,14 @@ implicit_twfe_weights <- function(yname,
     )
   })
 
-  twfe_att_gt <- unlist(BMisc::getListElement(twfe_gt, "weighted_outcome_diff"))
-  group <- unlist(BMisc::getListElement(twfe_gt, "g"))
-  time.period <- unlist(BMisc::getListElement(twfe_gt, "tp"))
-  alpha_weight <- unlist(BMisc::getListElement(twfe_gt, "alpha_weight"))
+  twfe_att_gt <- unlist(BMisc::get_list_element(twfe_gt, "weighted_outcome_diff"))
+  group <- unlist(BMisc::get_list_element(twfe_gt, "g"))
+  time.period <- unlist(BMisc::get_list_element(twfe_gt, "tp"))
+  alpha_weight <- unlist(BMisc::get_list_element(twfe_gt, "alpha_weight"))
   post <- 1 * (time.period >= group)
   alpha <- sum(alpha_weight * twfe_att_gt)
   pt_violations_bias <- sum(alpha_weight[post == 0] * twfe_att_gt[post == 0])
-  remainders <- unlist(BMisc::getListElement(twfe_gt, "remainder"))
+  remainders <- unlist(BMisc::get_list_element(twfe_gt, "remainder"))
   rem <- sum(remainders * alpha_weight)
 
   out <- list()
@@ -337,16 +343,16 @@ implicit_twfe_weights <- function(yname,
 #' @export
 summary.decomposed_twfe <- function(object, ...) {
   object <- object$twfe_gt
-  twfe_att_gt <- unlist(BMisc::getListElement(object, "weighted_outcome_diff"))
-  group <- unlist(BMisc::getListElement(object, "g"))
-  time.period <- unlist(BMisc::getListElement(object, "tp"))
-  alpha_weight <- unlist(BMisc::getListElement(object, "alpha_weight"))
+  twfe_att_gt <- unlist(BMisc::get_list_element(object, "weighted_outcome_diff"))
+  group <- unlist(BMisc::get_list_element(object, "g"))
+  time.period <- unlist(BMisc::get_list_element(object, "tp"))
+  alpha_weight <- unlist(BMisc::get_list_element(object, "alpha_weight"))
   post <- 1 * (time.period >= group)
   print_df <- cbind.data.frame(group, time.period, post, twfe_att_gt, alpha_weight)
   alpha <- sum(alpha_weight * twfe_att_gt)
   pt_violations_bias <- sum(alpha_weight[post == 0] * twfe_att_gt[post == 0])
-  remainders <- unlist(BMisc::getListElement(object, "remainder"))
-  ess <- unlist(BMisc::getListElement(object, "ess"))
+  remainders <- unlist(BMisc::get_list_element(object, "remainder"))
+  ess <- unlist(BMisc::get_list_element(object, "ess"))
   ess <- sum(post) * sum(alpha_weight[post == 1] * ess[post == 1]) # this "counts up" ess across groups and time periods
   rem <- sum(remainders * alpha_weight)
   cat("alpha twfe:          ", round(alpha + rem, 4), "\n")
@@ -399,13 +405,13 @@ twfe_cov_bal <- function(decomposed_twfe, extra_balance_vars_formula) {
   # convert groups and time periods to scale like 1,2,3,4,5,etc.
   tlist <- sort(unique(data[, tname]))
   glist <- sort(unique(data[, gname]))
-  data$.TP <- orig2t(data[, tname], tlist)
-  data$.G <- orig2t(data[, gname], tlist)
+  data$.TP <- BMisc::orig2t(data[, tname], tlist)
+  data$.G <- BMisc::orig2t(data[, gname], tlist)
   tlist <- sort(unique(data$.TP))
   glist <- sort(unique(data$.G))
 
   # construct a data.frame that has the mean of each extra balance variable
-  extra_vars_frame <- as.data.frame(model.matrix(BMisc::addCovToFormla("-1", extra_balance_vars_formula), data = data))
+  extra_vars_frame <- as.data.frame(model.matrix(BMisc::add_cov_to_formula("-1", extra_balance_vars_formula), data = data))
   mean_extra_var_list <- lapply(1:ncol(extra_vars_frame), function(j) {
     this_colname <- colnames(extra_vars_frame)[j]
     this_frame <- cbind.data.frame(extra_vars_frame[, j], data[, c(idname, tname, gname)])
@@ -416,8 +422,8 @@ twfe_cov_bal <- function(decomposed_twfe, extra_balance_vars_formula) {
   colnames(mean_extra_vars) <- paste0("mean_", colnames(extra_vars_frame))
 
   # compute balance statistics for each extra balance variable
-  groups <- unlist(BMisc::getListElement(decomposed_twfe$twfe_gt, "g"))
-  time_periods <- unlist(BMisc::getListElement(decomposed_twfe$twfe_gt, "tp"))
+  groups <- unlist(BMisc::get_list_element(decomposed_twfe$twfe_gt, "g"))
+  time_periods <- unlist(BMisc::get_list_element(decomposed_twfe$twfe_gt, "tp"))
   gt_mat <- cbind(groups, time_periods)
 
   for (i in 1:nrow(gt_mat)) {
@@ -448,15 +454,15 @@ twfe_cov_bal <- function(decomposed_twfe, extra_balance_vars_formula) {
 #' @return a data frame that contains the balance statistics for each
 #'  covariate that was passed into the `extra_balance_vars_formula` argument
 #'  in `twfe_cov_bal`.
-#' @export
+#' @keywords internal
 twfe_cov_bal_gt <- function(g, tp, decomposed_twfe, X) {
   idname <- decomposed_twfe$idname
   tname <- decomposed_twfe$tname
   gname <- decomposed_twfe$gname
   data <- decomposed_twfe$data
   weightsname <- decomposed_twfe$weightsname
-  groups <- unlist(BMisc::getListElement(decomposed_twfe$twfe_gt, "g"))
-  time_periods <- unlist(BMisc::getListElement(decomposed_twfe$twfe_gt, "tp"))
+  groups <- unlist(BMisc::get_list_element(decomposed_twfe$twfe_gt, "g"))
+  time_periods <- unlist(BMisc::get_list_element(decomposed_twfe$twfe_gt, "tp"))
   this_gt_idx <- which(groups == g & time_periods == tp)
   this_decomposed_twfe <- decomposed_twfe$twfe_gt[[this_gt_idx]]
   weights_treated <- this_decomposed_twfe$weights_treated
@@ -539,7 +545,7 @@ twfe_cov_bal_gt <- function(g, tp, decomposed_twfe, X) {
 #' @return a data frame that contains the balance statistics for each
 #'  covariate that was passed into the `extra_balance_vars_formula` argument
 #'  in either `twfe_cov_bal` or `aipw_cov_bal`.
-#' @export
+#' @keywords internal
 mp_covariate_bal_summary_helper <- function(decomposed_twfe_obj) {
   # code to get this to work for both twfe and aipw
   # attribute names for twfe
@@ -549,13 +555,13 @@ mp_covariate_bal_summary_helper <- function(decomposed_twfe_obj) {
     est_name <- "att_weight"
   }
 
-  group <- unlist(BMisc::getListElement(decomposed_twfe_obj, "g"))
-  time.period <- unlist(BMisc::getListElement(decomposed_twfe_obj, "tp"))
-  alpha_weight <- unlist(BMisc::getListElement(decomposed_twfe_obj, est_name))
+  group <- unlist(BMisc::get_list_element(decomposed_twfe_obj, "g"))
+  time.period <- unlist(BMisc::get_list_element(decomposed_twfe_obj, "tp"))
+  alpha_weight <- unlist(BMisc::get_list_element(decomposed_twfe_obj, est_name))
   post <- 1 * (time.period >= group)
   ncovs <- nrow(decomposed_twfe_obj[[1]]$cov_bal_df)
   covnames <- rownames(decomposed_twfe_obj[[1]]$cov_bal_df)
-  cov_bal_df_list <- BMisc::getListElement(decomposed_twfe_obj, "cov_bal_df")
+  cov_bal_df_list <- BMisc::get_list_element(decomposed_twfe_obj, "cov_bal_df")
   cov_bal_list <- lapply(1:ncovs, function(i) {
     do.call(rbind.data.frame, lapply(cov_bal_df_list, function(this_df) this_df[i, , drop = FALSE]))
   })
@@ -665,7 +671,7 @@ ggtwfeweights.decomposed_twfe <- function(x,
     stop("nothing to plot.  Run twfe_cov_bal first")
   }
   cov_balance_df <- mp_covariate_bal_summary_helper(decomposed_twfe_obj)
-  cov_balance_df$covariate <- rownames(cov_balance_df) %>% as.factor()
+  cov_balance_df$covariate <- as.factor(rownames(cov_balance_df))
 
   ggtwfeweights.two_period_covs_obj(list(cov_balance_df = cov_balance_df),
     standardize = standardize,
@@ -776,8 +782,9 @@ implicit_aipw_weights <- function(yname,
                                   ...) {
   # confirm balanced panel and sort data
   norig <- nrow(data)
-  data <- BMisc::makeBalancedPanel(data, idname = idname, tname = tname)
-  data <- dplyr::arrange(data, idname, tname) %>% as.data.frame()
+  data <- BMisc::make_balanced_panel(data, idname = idname, tname = tname)
+  data <- as.data.frame(data)
+  data <- data[order(data[[idname]], data[[tname]]), ]
   if (nrow(data) != norig) {
     warning(paste0("Dropped ", norig - nrow(data), " rows of data to balance the data."))
   }
@@ -785,8 +792,8 @@ implicit_aipw_weights <- function(yname,
   # convert groups and time periods to scale like 1,2,3,4,5,etc.
   tlist <- sort(unique(data[, tname]))
   glist <- sort(unique(data[, gname]))
-  data$.TP <- orig2t(data[, tname], tlist)
-  data$.G <- orig2t(data[, gname], tlist)
+  data$.TP <- BMisc::orig2t(data[, tname], tlist)
+  data$.G <- BMisc::orig2t(data[, gname], tlist)
 
   tlist <- sort(unique(data$.TP))
   glist <- sort(unique(data$.G))
@@ -797,9 +804,8 @@ implicit_aipw_weights <- function(yname,
     sampling_weights <- rep(1, nrow(data))
   }
   gt_mat <- as.data.frame(expand.grid(glist[-1], tlist))
-  gt_mat <- gt_mat %>%
-    arrange_all() %>%
-    as.data.frame()
+  gt_mat <- gt_mat[order(gt_mat[, 1], gt_mat[, 2]), ]
+  rownames(gt_mat) <- NULL
   colnames(gt_mat) <- c("group", "time.period")
   # drop pre-treatment values of t
   gt_mat <- gt_mat[gt_mat$time.period >= gt_mat$group, ]
@@ -837,10 +843,10 @@ implicit_aipw_weights <- function(yname,
   out$gname <- gname
   out$weightsname <- weightsname
   out$data <- data
-  aipw_att_gt <- unlist(BMisc::getListElement(aipw_gt, "est"))
-  group <- unlist(BMisc::getListElement(aipw_gt, "g"))
-  time.period <- unlist(BMisc::getListElement(aipw_gt, "tp"))
-  att_weight <- unlist(BMisc::getListElement(aipw_gt, "att_weight"))
+  aipw_att_gt <- unlist(BMisc::get_list_element(aipw_gt, "est"))
+  group <- unlist(BMisc::get_list_element(aipw_gt, "g"))
+  time.period <- unlist(BMisc::get_list_element(aipw_gt, "tp"))
+  att_weight <- unlist(BMisc::get_list_element(aipw_gt, "att_weight"))
   post <- 1 * (time.period >= group)
   atto <- sum(att_weight * aipw_att_gt)
   out$est <- atto
@@ -871,13 +877,13 @@ aipw_cov_bal <- function(decomposed_aipw, extra_balance_vars_formula) {
   # convert groups and time periods to scale like 1,2,3,4,5,etc.
   tlist <- sort(unique(data[, tname]))
   glist <- sort(unique(data[, gname]))
-  data$.TP <- orig2t(data[, tname], tlist)
-  data$.G <- orig2t(data[, gname], tlist)
+  data$.TP <- BMisc::orig2t(data[, tname], tlist)
+  data$.G <- BMisc::orig2t(data[, gname], tlist)
   tlist <- sort(unique(data$.TP))
   glist <- sort(unique(data$.G))
 
   # construct a data.frame that has the mean of each extra balance variable
-  extra_vars_frame <- as.data.frame(model.matrix(BMisc::addCovToFormla("-1", extra_balance_vars_formula), data = data))
+  extra_vars_frame <- as.data.frame(model.matrix(BMisc::add_cov_to_formula("-1", extra_balance_vars_formula), data = data))
   mean_extra_var_list <- lapply(1:ncol(extra_vars_frame), function(j) {
     this_colname <- colnames(extra_vars_frame)[j]
     this_frame <- cbind.data.frame(extra_vars_frame[, j], data[, c(idname, tname, gname)])
@@ -888,8 +894,8 @@ aipw_cov_bal <- function(decomposed_aipw, extra_balance_vars_formula) {
   colnames(mean_extra_vars) <- paste0("mean_", colnames(extra_vars_frame))
 
   # compute balance statistics for each extra balance variable
-  groups <- unlist(BMisc::getListElement(decomposed_aipw$aipw_gt, "g"))
-  time_periods <- unlist(BMisc::getListElement(decomposed_aipw$aipw_gt, "tp"))
+  groups <- unlist(BMisc::get_list_element(decomposed_aipw$aipw_gt, "g"))
+  time_periods <- unlist(BMisc::get_list_element(decomposed_aipw$aipw_gt, "tp"))
   gt_mat <- cbind(groups, time_periods)
 
   for (i in 1:nrow(gt_mat)) {
@@ -917,15 +923,15 @@ aipw_cov_bal <- function(decomposed_aipw, extra_balance_vars_formula) {
 #' @return a data frame that contains the balance statistics for each
 #'  covariate that was passed into the `extra_balance_vars_formula` argument
 #'  in `aipw_cov_bal`.
-#' @export
+#' @keywords internal
 aipw_cov_bal_gt <- function(g, tp, decomposed_aipw, X) {
   idname <- decomposed_aipw$idname
   tname <- ".TP"
   gname <- ".G"
   data <- decomposed_aipw$data
   weightsname <- decomposed_aipw$weightsname
-  groups <- unlist(BMisc::getListElement(decomposed_aipw$aipw_gt, "g"))
-  time_periods <- unlist(BMisc::getListElement(decomposed_aipw$aipw_gt, "tp"))
+  groups <- unlist(BMisc::get_list_element(decomposed_aipw$aipw_gt, "g"))
+  time_periods <- unlist(BMisc::get_list_element(decomposed_aipw$aipw_gt, "tp"))
   this_gt_idx <- which(groups == g & time_periods == tp)
   this_decomposed_aipw <- decomposed_aipw$aipw_gt[[this_gt_idx]]
   dy <- this_decomposed_aipw$dy
@@ -994,11 +1000,11 @@ aipw_cov_bal_gt <- function(g, tp, decomposed_aipw, X) {
 #' @export
 summary.decomposed_aipw <- function(object, ...) {
   object <- object$aipw_gt
-  aipw_att_gt <- unlist(BMisc::getListElement(object, "est"))
-  group <- unlist(BMisc::getListElement(object, "g"))
-  time.period <- unlist(BMisc::getListElement(object, "tp"))
-  att_weight <- unlist(BMisc::getListElement(object, "att_weight"))
-  ess <- unlist(BMisc::getListElement(object, "ess"))
+  aipw_att_gt <- unlist(BMisc::get_list_element(object, "est"))
+  group <- unlist(BMisc::get_list_element(object, "g"))
+  time.period <- unlist(BMisc::get_list_element(object, "tp"))
+  att_weight <- unlist(BMisc::get_list_element(object, "att_weight"))
+  ess <- unlist(BMisc::get_list_element(object, "ess"))
   post <- 1 * (time.period >= group)
   print_df <- cbind.data.frame(group, time.period, post, aipw_att_gt, att_weight)
   atto <- sum(att_weight * aipw_att_gt)

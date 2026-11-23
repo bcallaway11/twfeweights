@@ -21,9 +21,9 @@ test_that("TWFE Regression multiple periods", {
     )
 
     twfe_wts_gt <- twfe_wts$twfe_gt
-    twfe_res_gt <- unlist(BMisc::getListElement(twfe_wts_gt, "weighted_outcome_diff"))
-    alpha_weight <- unlist(BMisc::getListElement(twfe_wts_gt, "alpha_weight"))
-    remainders <- unlist(BMisc::getListElement(twfe_wts_gt, "remainder"))
+    twfe_res_gt <- unlist(BMisc::get_list_element(twfe_wts_gt, "weighted_outcome_diff"))
+    alpha_weight <- unlist(BMisc::get_list_element(twfe_wts_gt, "alpha_weight"))
+    remainders <- unlist(BMisc::get_list_element(twfe_wts_gt, "remainder"))
 
     twfe_wts_est <- sum((twfe_res_gt + remainders) * alpha_weight)
 
@@ -48,9 +48,9 @@ test_that("TWFE Regression multiple periods, sampling weights", {
     )
 
     twfe_wts_gt <- twfe_wts$twfe_gt
-    twfe_res_gt <- unlist(BMisc::getListElement(twfe_wts_gt, "weighted_outcome_diff"))
-    alpha_weight <- unlist(BMisc::getListElement(twfe_wts_gt, "alpha_weight"))
-    remainders <- unlist(BMisc::getListElement(twfe_wts_gt, "remainder"))
+    twfe_res_gt <- unlist(BMisc::get_list_element(twfe_wts_gt, "weighted_outcome_diff"))
+    alpha_weight <- unlist(BMisc::get_list_element(twfe_wts_gt, "alpha_weight"))
+    remainders <- unlist(BMisc::get_list_element(twfe_wts_gt, "remainder"))
 
     twfe_wts_est <- sum((twfe_res_gt + remainders) * alpha_weight)
 
@@ -74,9 +74,9 @@ test_that("Same covariate balance in multiple period and two period case?", {
         data = two_period_df
     )
     tcb <- twfe_cov_bal(twfe_wts, ~l_prisoner)
-    BMisc::getListElement(tcb$twfe_gt, "cov_bal_df")
-    g <- unlist(BMisc::getListElement(tcb$twfe_gt, "g"))
-    tp <- unlist(BMisc::getListElement(tcb$twfe_gt, "tp"))
+    BMisc::get_list_element(tcb$twfe_gt, "cov_bal_df")
+    g <- unlist(BMisc::get_list_element(tcb$twfe_gt, "g"))
+    tp <- unlist(BMisc::get_list_element(tcb$twfe_gt, "tp"))
     post <- tp >= g
     twfe_cb <- tcb$twfe_gt[post][[1]]$cov_bal_df
     twfe_cb_avg_prisoner_unwtd <- twfe_cb[, "unweighted_diff"]
@@ -122,9 +122,9 @@ test_that("Same covariate balance in multiple period and two period case?, sampl
         weightsname = "popwt"
     )
     tcb <- twfe_cov_bal(twfe_wts, ~l_prisoner)
-    BMisc::getListElement(tcb$twfe_gt, "cov_bal_df")
-    g <- unlist(BMisc::getListElement(tcb$twfe_gt, "g"))
-    tp <- unlist(BMisc::getListElement(tcb$twfe_gt, "tp"))
+    BMisc::get_list_element(tcb$twfe_gt, "cov_bal_df")
+    g <- unlist(BMisc::get_list_element(tcb$twfe_gt, "g"))
+    tp <- unlist(BMisc::get_list_element(tcb$twfe_gt, "tp"))
     post <- tp >= g
     twfe_cb <- tcb$twfe_gt[post][[1]]$cov_bal_df
     twfe_cb_avg_prisoner_unwtd <- twfe_cb[, "unweighted_diff"]
@@ -171,9 +171,9 @@ test_that("Same results for functions that can include covariates as though that
     )
 
     twfe_wts_gt <- twfe_wts$twfe_gt
-    twfe_res_gt <- unlist(BMisc::getListElement(twfe_wts_gt, "weighted_outcome_diff"))
-    alpha_weight <- unlist(BMisc::getListElement(twfe_wts_gt, "alpha_weight"))
-    remainders <- unlist(BMisc::getListElement(twfe_wts_gt, "remainder"))
+    twfe_res_gt <- unlist(BMisc::get_list_element(twfe_wts_gt, "weighted_outcome_diff"))
+    alpha_weight <- unlist(BMisc::get_list_element(twfe_wts_gt, "alpha_weight"))
+    remainders <- unlist(BMisc::get_list_element(twfe_wts_gt, "remainder"))
 
     # without covariates, remainders should all be equal to 0
     expect_equal(
@@ -205,9 +205,9 @@ test_that("Same results for functions that can include covariates as though that
     )
 
     twfe_wts_gt <- twfe_wts$twfe_gt
-    twfe_res_gt <- unlist(BMisc::getListElement(twfe_wts_gt, "weighted_outcome_diff"))
-    alpha_weight <- unlist(BMisc::getListElement(twfe_wts_gt, "alpha_weight"))
-    remainders <- unlist(BMisc::getListElement(twfe_wts_gt, "remainder"))
+    twfe_res_gt <- unlist(BMisc::get_list_element(twfe_wts_gt, "weighted_outcome_diff"))
+    alpha_weight <- unlist(BMisc::get_list_element(twfe_wts_gt, "alpha_weight"))
+    remainders <- unlist(BMisc::get_list_element(twfe_wts_gt, "remainder"))
 
     # without covariates, remainders should all be equal to 0
     expect_equal(
@@ -248,9 +248,9 @@ test_that("multiple periods functions work with time invariant covariates with t
     )
 
     twfe_wts_gt <- twfe_wts$twfe_gt
-    twfe_res_gt <- unlist(BMisc::getListElement(twfe_wts_gt, "weighted_outcome_diff"))
-    alpha_weight <- unlist(BMisc::getListElement(twfe_wts_gt, "alpha_weight"))
-    remainders <- unlist(BMisc::getListElement(twfe_wts_gt, "remainder"))
+    twfe_res_gt <- unlist(BMisc::get_list_element(twfe_wts_gt, "weighted_outcome_diff"))
+    alpha_weight <- unlist(BMisc::get_list_element(twfe_wts_gt, "alpha_weight"))
+    remainders <- unlist(BMisc::get_list_element(twfe_wts_gt, "remainder"))
 
     twfe_wts_est <- sum((twfe_res_gt + remainders) * alpha_weight)
 
@@ -285,9 +285,9 @@ test_that("multiple periods functions work with time invariant covariates with t
     )
 
     twfe_wts_gt <- twfe_wts$twfe_gt
-    twfe_res_gt <- unlist(BMisc::getListElement(twfe_wts_gt, "weighted_outcome_diff"))
-    alpha_weight <- unlist(BMisc::getListElement(twfe_wts_gt, "alpha_weight"))
-    remainders <- unlist(BMisc::getListElement(twfe_wts_gt, "remainder"))
+    twfe_res_gt <- unlist(BMisc::get_list_element(twfe_wts_gt, "weighted_outcome_diff"))
+    alpha_weight <- unlist(BMisc::get_list_element(twfe_wts_gt, "alpha_weight"))
+    remainders <- unlist(BMisc::get_list_element(twfe_wts_gt, "remainder"))
 
     twfe_wts_est <- sum((twfe_res_gt + remainders) * alpha_weight)
 
@@ -337,9 +337,9 @@ test_that("implicit_twfe_weights returns a decomposed_twfe object with expected 
 
 test_that("alpha_weights from implicit_twfe_weights sum to 1 over post-treatment cells", {
     twfe_wts_gt <- twfe_wts_castle$twfe_gt
-    alpha_weight <- unlist(BMisc::getListElement(twfe_wts_gt, "alpha_weight"))
-    groups <- unlist(BMisc::getListElement(twfe_wts_gt, "g"))
-    time_periods <- unlist(BMisc::getListElement(twfe_wts_gt, "tp"))
+    alpha_weight <- unlist(BMisc::get_list_element(twfe_wts_gt, "alpha_weight"))
+    groups <- unlist(BMisc::get_list_element(twfe_wts_gt, "g"))
+    time_periods <- unlist(BMisc::get_list_element(twfe_wts_gt, "tp"))
     post <- time_periods >= groups
 
     expect_equal(sum(alpha_weight[post]), 1, tolerance = 1e-6)
@@ -353,7 +353,7 @@ test_that("twfe_cov_bal returns a decomposed_twfe with cov_bal_df in each gt ele
     tcb <- twfe_cov_bal(twfe_wts_two_period, ~l_prisoner)
 
     expect_s3_class(tcb, "decomposed_twfe")
-    cov_bal_list <- BMisc::getListElement(tcb$twfe_gt, "cov_bal_df")
+    cov_bal_list <- BMisc::get_list_element(tcb$twfe_gt, "cov_bal_df")
     # every gt element should now have a cov_bal_df
     expect_true(all(!sapply(cov_bal_list, is.null)))
     # each cov_bal_df should have expected columns
@@ -365,8 +365,8 @@ test_that("twfe_cov_bal with multiple covariates has one row per covariate", {
     tcb <- twfe_cov_bal(twfe_wts_two_period, ~l_prisoner + l_income)
 
     # check that the post-treatment cov_bal_df has 2 rows (one per covariate)
-    groups <- unlist(BMisc::getListElement(tcb$twfe_gt, "g"))
-    time_periods <- unlist(BMisc::getListElement(tcb$twfe_gt, "tp"))
+    groups <- unlist(BMisc::get_list_element(tcb$twfe_gt, "g"))
+    time_periods <- unlist(BMisc::get_list_element(tcb$twfe_gt, "tp"))
     post <- time_periods >= groups
     post_cov_bal <- tcb$twfe_gt[post][[1]]$cov_bal_df
     expect_equal(nrow(post_cov_bal), 2)

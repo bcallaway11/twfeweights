@@ -12,6 +12,9 @@ effective_sample_size(
 \arguments{
 \item{est_weights}{a numeric vector of weights coming from an estimation procedure,
 default is rep(1, length(n))}
+
+\item{sampling_weights}{a numeric vector of weights, default is
+\code{rep(1, length(x))}}
 }
 \value{
 a numeric value containing the effective sample size

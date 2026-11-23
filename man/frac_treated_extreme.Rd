@@ -17,6 +17,9 @@ frac_treated_extreme(
 
 \item{D}{a binary vector indicating treated and untreated group}
 
+\item{sampling_weights}{a numeric vector of weights, default is
+\code{rep(1, length(x))}}
+
 \item{alpha}{a numeric value between 0 and 1, default is 0.05}
 }
 \value{
