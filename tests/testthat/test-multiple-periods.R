@@ -371,3 +371,64 @@ test_that("implicit_aipw_weights returns a decomposed_aipw with expected fields"
   expect_true("aipw_gt" %in% names(aipw_wts_castle))
   expect_true(is.list(aipw_wts_castle$aipw_gt))
 })
+
+# ---------------------------------------------------------------------------
+# implicit_aipw_weights against did::att_gt()
+# ---------------------------------------------------------------------------
+
+# implicit_aipw_weights() should reproduce did::att_gt() with the
+# never-treated comparison group: each post-treatment ATT(g,t), and ATT^o
+# (did::aggte(type = "group")). AIPW with a non-trivial propensity score is
+# compared with est_method = "dr"; regression adjustment (pscore_formula = ~1)
+# with est_method = "reg".
+check_aipw_against_did <- function(pscore_formula, est_method, weightsname = NULL) {
+  aipw_wts <- suppressWarnings(implicit_aipw_weights(
+    yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+    xformula = ~l_police, pscore_formula = pscore_formula,
+    data = castle, weightsname = weightsname
+  ))
+  csdid_res <- suppressWarnings(did::att_gt(
+    yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+    xformla = ~l_police, data = castle, est_method = est_method,
+    control_group = "nevertreated", base_period = "universal",
+    weightsname = weightsname, bstrap = FALSE, cband = FALSE
+  ))
+
+  # match (g,t) cells: implicit_aipw_weights() reports them on a 1, 2, ...
+  # time scale
+  tlist <- sort(unique(castle$year))
+  g <- unlist(BMisc::get_list_element(aipw_wts$aipw_gt, "g"))
+  tp <- unlist(BMisc::get_list_element(aipw_wts$aipw_gt, "tp"))
+  est <- unlist(BMisc::get_list_element(aipw_wts$aipw_gt, "est"))
+  idx <- match(
+    paste(BMisc::t2orig(g, tlist), BMisc::t2orig(tp, tlist)),
+    paste(csdid_res$group, csdid_res$t)
+  )
+  expect_false(anyNA(idx))
+  expect_equal(unname(est), unname(csdid_res$att[idx]))
+
+  att_o <- suppressWarnings(did::aggte(csdid_res, type = "group", bstrap = FALSE))$overall.att
+  expect_equal(unname(aipw_wts$est), unname(att_o))
+
+  # in each cell, the implicit weights reproduce the estimate
+  recovered <- vapply(aipw_wts$aipw_gt, function(x) {
+    mean(x$weights[x$D == 1] * x$dy[x$D == 1]) - mean(x$weights[x$D == 0] * x$dy[x$D == 0])
+  }, numeric(1))
+  expect_equal(unname(recovered), unname(est))
+}
+
+test_that("multi-period AIPW with a propensity score matches did::att_gt", {
+  check_aipw_against_did(~l_police, "dr")
+})
+
+test_that("multi-period AIPW with a propensity score matches did::att_gt, sampling weights", {
+  check_aipw_against_did(~l_police, "dr", weightsname = "popwt")
+})
+
+test_that("multi-period regression adjustment matches did::att_gt", {
+  check_aipw_against_did(~1, "reg")
+})
+
+test_that("multi-period regression adjustment matches did::att_gt, sampling weights", {
+  check_aipw_against_did(~1, "reg", weightsname = "popwt")
+})

@@ -3,7 +3,7 @@
 # Description: Checks that the TWFE, ATT^O and ATT^simple weights reproduce feols and
 #   did::aggte, with and without sampling weights and with skipped periods.
 # Author: Brant Callaway
-# Last update: 2026-11-14
+# Last update: 2026-11-23
 # Date created: 2024-07-08
 # =============================================================================
 
@@ -344,6 +344,14 @@ test_that("attO weights with non-consecutive periods", {
   expect_equal(
     sum(attO_wts$attgt * attO_wts$weight),
     did::aggte(csdid_gaps, type = "group")$overall.att
+  )
+})
+
+test_that("att_simple weights with non-consecutive periods", {
+  att_simple_wts <- att_simple_weights(csdid_gaps)$weights_df
+  expect_equal(
+    sum(att_simple_wts$attgt * att_simple_wts$weight),
+    did::aggte(csdid_gaps, type = "simple")$overall.att
   )
 })
 

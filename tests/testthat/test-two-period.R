@@ -812,3 +812,47 @@ test_that("ggtwfeweights with plot_outcome = TRUE includes outcome row in data",
   expect_s3_class(p_without, "ggplot")
   expect_gt(nrow(p_with$data), nrow(p_without$data))
 })
+
+# ---------------------------------------------------------------------------
+# Covariate balance properties of the implicit weights (Caetano and Callaway)
+# ---------------------------------------------------------------------------
+
+# AIPW (and RA) weights balance every covariate in the outcome model exactly,
+# levels and changes. TWFE weights balance the changes in the time-varying
+# covariates exactly, but not their levels.
+check_balance_properties <- function(weightsname = NULL) {
+  aipw_res <- suppressWarnings(two_period_aipw_weights(
+    yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+    xformula = ~ l_police + unemployrt, d_covs_formula = ~l_police,
+    data = this_df, weightsname = weightsname
+  ))
+  aipw_bal <- aipw_res$cov_balance_df
+  aipw_model_covs <- c("d_l_police", "l_police_2000", "unemployrt_2000")
+  expect_true(all(aipw_model_covs %in% aipw_bal$covariate))
+  expect_equal(aipw_bal$weighted_diff[aipw_bal$covariate %in% aipw_model_covs],
+    rep(0, 3),
+    tolerance = 1e-10
+  )
+
+  reg_res <- two_period_reg_weights(
+    yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+    xformula = ~ l_police + unemployrt, data = this_df, weightsname = weightsname
+  )
+  reg_bal <- reg_res$cov_balance_df
+  changes <- c("d_l_police", "d_unemployrt")
+  levels <- c("l_police_2000", "unemployrt_2000")
+  expect_equal(reg_bal$weighted_diff[reg_bal$covariate %in% changes],
+    rep(0, 2),
+    tolerance = 1e-10
+  )
+  # levels are not balanced by TWFE (the point of the diagnostic)
+  expect_true(all(abs(reg_bal$weighted_diff[reg_bal$covariate %in% levels]) > 1e-3))
+}
+
+test_that("AIPW weights balance model covariates; TWFE weights balance changes only", {
+  check_balance_properties()
+})
+
+test_that("AIPW weights balance model covariates; TWFE weights balance changes only, sampling weights", {
+  check_balance_properties(weightsname = "popwt")
+})
