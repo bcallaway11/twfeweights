@@ -2,7 +2,7 @@
 % Please edit documentation in R/twfeweights.R
 \name{attO_weights}
 \alias{attO_weights}
-\title{attO_weights}
+\title{Weights behind the overall average treatment effect \eqn{ATT^o}}
 \usage{
 attO_weights(
   attgt_res,
@@ -12,22 +12,61 @@ attO_weights(
 )
 }
 \arguments{
-\item{attgt_res}{Results from did::att_gt function}
+\item{attgt_res}{The result of \code{\link[did:att_gt]{did::att_gt()}}.}
 
 \item{w}{Optional external unit-specific weights, one per row of
-\code{attgt_res$DIDparams$data}.  If \code{NULL} (the default), the weights come
+\code{attgt_res$DIDparams$data}. If \code{NULL} (the default), the weights come
 from \code{weightsname}.}
 
-\item{keep_untreated}{Logical.  If TRUE, keep untreated group in results}
+\item{keep_untreated}{Logical. If \code{TRUE}, keep rows for the never-treated
+group (whose weights and \eqn{ATT(g,t)} are zero) in the results. Default
+is \code{FALSE}.}
 
 \item{weightsname}{Name of the column holding time-invariant sampling
-weights.  Defaults to the \code{weightsname} passed to \code{\link[did:att_gt]{did::att_gt()}}.
-\code{NULL} means unweighted.  Ignored if \code{w} is supplied.}
+weights. Defaults to the \code{weightsname} passed to \code{\link[did:att_gt]{did::att_gt()}}.
+\code{NULL} means unweighted. Ignored if \code{w} is supplied.}
 }
 \value{
-a data.frame containing attO weights
+An object of class \code{mp_weights_obj}; see \code{\link[=twfe_weights]{twfe_weights()}}. Here
+\code{weight} holds the \eqn{ATT^o} weights.
 }
 \description{
-A function to compute weights on ATT(g,t) to deliver
-\eqn{ATT^O} as discussed in Callaway and Sant'Anna (2021)
+Computes the weights on each group-time average treatment
+effect, \eqn{ATT(g,t)}, that deliver the overall average treatment effect
+\eqn{ATT^o} of Callaway and Sant'Anna (2021): first average
+\eqn{ATT(g,t)} over each group's post-treatment periods, then average
+across groups by group size. This is the "group" aggregation in
+\code{\link[did:aggte]{did::aggte()}}.
+}
+\details{
+The weight on a post-treatment cell \eqn{(g,t)} is
+\eqn{P(G = g | G \neq 0)} divided by the number of post-treatment periods
+for group \eqn{g}; weights on pre-treatment cells are zero. All weights
+are non-negative and sum to one. Comparing these weights with
+\code{\link[=twfe_weights]{twfe_weights()}} shows how a TWFE regression reweights the same building
+blocks.
+}
+\examples{
+\dontshow{if (requireNamespace("did", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+data(mpdta, package = "did")
+attgt <- did::att_gt(
+  yname = "lemp", tname = "year", idname = "countyreal",
+  gname = "first.treat", data = mpdta,
+  control_group = "nevertreated", base_period = "universal",
+  bstrap = FALSE, cband = FALSE
+)
+wo <- attO_weights(attgt)
+sum(wo$weights_df$weight * wo$weights_df$attgt)
+
+# same as the group aggregation in did
+did::aggte(attgt, type = "group", bstrap = FALSE)$overall.att
+\dontshow{\}) # examplesIf}
+}
+\references{
+Callaway, Brantly and Pedro H. C. Sant'Anna. "Difference-in-Differences
+with Multiple Time Periods." Journal of Econometrics 225.2 (2021).
+\doi{10.1016/j.jeconom.2020.12.001}
+}
+\seealso{
+\code{\link[=twfe_weights]{twfe_weights()}}, \code{\link[=att_simple_weights]{att_simple_weights()}}
 }

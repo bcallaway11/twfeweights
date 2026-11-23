@@ -2,7 +2,7 @@
 % Please edit documentation in R/two_period_covs.R
 \name{two_period_aipw_weights}
 \alias{two_period_aipw_weights}
-\title{Two Period AIPW Weights}
+\title{Implicit weights from AIPW, regression adjustment or IPW with two periods}
 \usage{
 two_period_aipw_weights(
   yname,
@@ -22,68 +22,108 @@ two_period_aipw_weights(
 )
 }
 \arguments{
-\item{yname}{the name of the outcome variable}
+\item{yname}{Name of the outcome variable.}
 
-\item{tname}{the name of the time variable}
+\item{tname}{Name of the time period variable. The data must have exactly
+two periods.}
 
-\item{idname}{the name of the id variable}
+\item{idname}{Name of the unit identifier.}
 
-\item{gname}{the name of the group variable.  Units in the untreated group
-should have this coded to be 0.  For treated units, this can be any
-positive number though all treated units should have the same value of
-group.}
+\item{gname}{Name of the group variable: 0 for untreated units and a
+single positive value (typically the second period) for treated units.}
 
-\item{xformula}{a formula for the covariates to include in the model.
-This formula should include time-varying covariates only.  Time-invariant
-covariates should be included in the \code{time_invariant_x_formula} argument.}
+\item{xformula}{One-sided formula for covariates in the outcome model,
+entered through their level in the first period (time-invariant
+covariates can be included here too). Default \code{~1}.}
 
-\item{d_covs_formula}{a formula that includes time-varying covariates to
-be included in the form \eqn{X_t - X_{g-1}}, i.e., their change from the
-"base period" to the current period.  By default, covariates are not
-included in this way which is the same as in \code{did::att_gt}, but you can
-include them by passing a formula here.}
+\item{d_covs_formula}{One-sided formula for time-varying covariates in the
+outcome model entered through their change between the two periods.
+Default \code{NULL}.}
 
-\item{pscore_formula}{a formula that includes the covariates that you would
-like to include in the propensity score model.  By default, these covariates
-are the same as for the outcome regression which are provided in the earlier
-argument \code{xformula}.  This is a natural choice, but this argument allows
-these covariates to be different, if desired.
+\item{pscore_formula}{One-sided formula for covariates (first-period
+levels) in the propensity score model. Defaults to \code{xformula}.}
 
-Setting \code{pscore_formula} and \code{xformula} to be different allows for some
-important special cases to be handled by this function.  For one, providing
-covariates in \code{xformula} while setting \code{pscore_formula=~1} will deliver
-deliver "regression adjustment" estimates and decompositions.  For another,
-setting \code{pscore_formula} to include covariates while setting \code{xformula=~1}
-will deliver "inverse probability weighting" estimates and decompositions.}
+\item{pscore_d_covs_formula}{One-sided formula for covariate changes in the
+propensity score model. Defaults to \code{d_covs_formula}.}
 
-\item{pscore_d_covs_formula}{a formula that includes time-varying covariates
-to include as \eqn{X_t - X_{g-1}} in the propensity score model.  The default
-is to set these to be the same as the covariates in \code{d_covs_formula}.}
+\item{extra_balance_vars_formula}{One-sided formula for additional
+covariates to report balance for, without including them in the models.
+Time-varying covariates enter through their value in the first period.
+Default \code{NULL}.}
 
-\item{extra_balance_vars_formula}{additional covariates to include in the balance statistics
-that are not included in estimating the ATT.  For time-varying covariates,
-these are included in the balance statistics for the first period.}
+\item{extra_balance_d_vars_formula}{One-sided formula for additional
+time-varying covariates to report balance for through their second-period
+level or their change (see \code{balance_d_vars_post}). Default \code{NULL}.}
 
-\item{extra_balance_d_vars_formula}{additional covariates to include in the balance statistics
-by including their change over time.}
+\item{balance_d_vars_post}{For covariates in \code{extra_balance_d_vars_formula}:
+if \code{TRUE} (the default), report balance in their second-period level; if
+\code{FALSE}, in their change between the two periods.}
 
-\item{balance_d_vars_post}{For covariates passed in through
-\code{extra_balance_d_vars_formula}, whether to report balance for their levels in post-treatment
-period or to report balance in the change in the covariates over time.  The first option
-is selected when this argument is set to be TRUE, which is the default.}
+\item{data}{A balanced panel data.frame in long format.}
 
-\item{data}{the data frame}
+\item{weightsname}{Name of the column holding sampling weights, which must
+be constant over time within each unit. Default \code{NULL} (unweighted).}
 
-\item{weightsname}{optional name of the sampling weights variable}
-
-\item{...}{additional arguments, currently unused but allows same arguments
-as would be used in \code{did::att_gt}}
+\item{...}{Not used; allows the same arguments as \code{\link[did:att_gt]{did::att_gt()}}.}
 }
 \value{
-a \code{two_period_covs_obj} object that contains the aipw estimate
-of the ATT and the implicit weights.
+An object of class \code{two_period_covs_obj}; see
+\code{\link[=two_period_reg_weights]{two_period_reg_weights()}}. Here \code{est} is the AIPW (or regression
+adjustment / IPW) estimate of the ATT and \code{weights} the implicit AIPW
+weights.
 }
 \description{
-Computes implicit weights coming from AIPW estimation
-of ATT with two periods.
+Writes the augmented inverse probability weighting (AIPW)
+estimator of the average treatment effect on the treated, with two
+periods, as a reweighting estimator and reports how well the implicit
+weights balance covariates (Caetano and Callaway, 2024). Regression
+adjustment and inverse probability weighting are special cases.
+}
+\details{
+The outcome model is a linear regression of the change in the
+outcome on the covariates among untreated units; the propensity score is a
+logit. Different covariates can enter the two models:
+\itemize{
+\item regression adjustment: covariates in \code{xformula} and
+\code{d_covs_formula}, with \code{pscore_formula = ~1} and
+\code{pscore_d_covs_formula = ~1};
+\item inverse probability weighting: covariates in \code{pscore_formula},
+with \code{xformula = ~1}.
+}
+The implicit weights balance every covariate in the outcome model exactly
+(levels and changes), unlike TWFE regression weights
+(\code{\link[=two_period_reg_weights]{two_period_reg_weights()}}), which balance only the covariates that
+enter the regression. Without \code{d_covs_formula}, the estimate equals
+\code{\link[did:att_gt]{did::att_gt()}} with the same covariates (\code{est_method = "dr"}, \code{"reg"} or
+\code{"ipw"}). Comparison units
+with an estimated propensity score of 0.995 or more are trimmed, as in
+DRDID.
+}
+\examples{
+\dontshow{if (requireNamespace("causaldata", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+data(castle, package = "causaldata")
+castle <- as.data.frame(castle)
+castle2 <- subset(castle, year \%in\% c(2000, 2010))
+castle2$G <- BMisc::get_group(castle2, "sid", tname = "year", treatname = "post")
+
+# regression adjustment: no covariates in the propensity score
+ra <- two_period_aipw_weights(
+  yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+  xformula = ~ l_police + unemployrt, d_covs_formula = ~l_police,
+  pscore_formula = ~1, pscore_d_covs_formula = ~1, data = castle2
+)
+ra$est
+# every covariate in the outcome model is balanced exactly
+ra$cov_balance_df[, c("covariate", "unweighted_diff", "weighted_diff")]
+ggtwfeweights(ra)
+\dontshow{\}) # examplesIf}
+}
+\references{
+Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
+Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+\doi{10.48550/arXiv.2406.15288}
+}
+\seealso{
+\code{\link[=two_period_reg_weights]{two_period_reg_weights()}}, \code{\link[=implicit_aipw_weights]{implicit_aipw_weights()}} for more
+than two periods.
 }

@@ -2,19 +2,45 @@
 % Please edit documentation in R/twfeweights_mp.R
 \name{summary.decomposed_twfe}
 \alias{summary.decomposed_twfe}
-\title{summary.decomposed_twfe}
+\title{Summarize a TWFE decomposition}
 \usage{
 \method{summary}{decomposed_twfe}(object, ...)
 }
 \arguments{
-\item{object}{a decomposed_twfe object}
+\item{object}{A \code{decomposed_twfe} object.}
 
-\item{...}{extra arguments, not used here}
+\item{...}{Not used.}
 }
 \value{
-a summary of the decomposition
+A data.frame. Before \code{\link[=twfe_cov_bal]{twfe_cov_bal()}}: one row per \eqn{(g,t)}
+cell with \code{group}, \code{time.period}, \code{post}, \code{twfe_att_gt} (the weighted
+comparison) and \code{alpha_weight}. After: one row per covariate with
+unweighted and weighted means for the treated and comparison groups,
+their differences and the other balance statistics, averaged over
+post-treatment cells using the TWFE weights.
 }
 \description{
-summarizes a two-way fixed effects regression
-decomposition
+Prints the TWFE coefficient and its decomposition from
+\code{\link[=implicit_twfe_weights]{implicit_twfe_weights()}}, and returns either the \eqn{(g,t)}-level
+decomposition or, after \code{\link[=twfe_cov_bal]{twfe_cov_bal()}}, a covariate balance table.
+}
+\details{
+The printed lines are: the TWFE coefficient (\verb{alpha twfe}); the
+decomposition without remainder terms (\verb{alpha decomp}); the part from
+post-treatment comparisons only (\verb{alpha post only}); the contribution of
+pre-treatment comparisons (\verb{pta violations bias}); the remainder terms;
+and an effective sample size for the comparison group that combines the
+per-cell effective sample sizes across post-treatment cells.
+}
+\examples{
+\dontshow{if (requireNamespace("causaldata", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+data(castle, package = "causaldata")
+castle <- as.data.frame(castle)
+castle$G <- BMisc::get_group(castle, "sid", tname = "year", treatname = "post")
+tw <- implicit_twfe_weights(
+  yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+  xformula = ~l_police, base_period = "gmin1", data = castle
+)
+summary(tw)
+\dontshow{\}) # examplesIf}
 }

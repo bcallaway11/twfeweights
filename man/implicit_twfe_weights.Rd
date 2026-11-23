@@ -2,7 +2,7 @@
 % Please edit documentation in R/twfeweights_mp.R
 \name{implicit_twfe_weights}
 \alias{implicit_twfe_weights}
-\title{implicit_twfe_weights}
+\title{Implicit weights from a TWFE regression with covariates and staggered adoption}
 \usage{
 implicit_twfe_weights(
   yname,
@@ -16,74 +16,103 @@ implicit_twfe_weights(
 )
 }
 \arguments{
-\item{yname}{The name of the outcome variable}
+\item{yname}{Name of the outcome variable.}
 
-\item{tname}{The name of the column containing the time periods}
+\item{tname}{Name of the time period variable.}
 
-\item{idname}{The individual (cross-sectional unit) id name}
+\item{idname}{Name of the unit identifier.}
 
-\item{gname}{The name of the variable in \code{data} that
-contains the first period when a particular observation is treated.
-This should be a positive number for all observations in treated groups.
-It defines which "group" a unit belongs to.  It should be 0 for units
-in the untreated group.}
+\item{gname}{Name of the group variable: the first period a unit is
+treated, or 0 for never-treated units.}
 
-\item{base_period}{Whether to use a "varying" base period or a
-"universal" base period.  Either choice results in the same
-post-treatment estimates of ATT(g,t)'s.  In pre-treatment
-periods, using a varying base period amounts to computing a
-pseudo-ATT in each treatment period by comparing the change
-in outcomes for a particular group relative to its comparison
-group in the pre-treatment periods (i.e., in pre-treatment
-periods this setting computes changes from period t-1 to period
-t, but repeatedly changes the value of t)
+\item{base_period}{Base period for each comparison: \code{"first_period"} (the
+default) or \code{"gmin1"} (the period before group \eqn{g} is first treated).}
 
-A universal base period fixes the base period to always be
-(g-anticipation-1).  This does not compute
-pseudo-ATT(g,t)'s in pre-treatment periods, but rather
-reports average changes in outcomes from period t to
-(g-anticipation-1) for a particular group relative to its comparison
-group.  This is analogous to what is often reported in event
-study regressions.
+\item{xformula}{One-sided formula for the covariates in the TWFE regression,
+e.g. \code{~ x1 + x2}. Time-varying covariates enter in levels, as in the
+regression. Default \code{NULL} (no covariates).}
 
-Using a varying base period results in an estimate of
-ATT(g,t) being reported in the period immediately before
-treatment.  Using a universal base period normalizes the
-estimate in the period right before treatment (or earlier when
-the user allows for anticipation) to be equal to 0, but one
-extra estimate in an earlier period.}
+\item{data}{A panel data.frame in long format. Unbalanced panels are
+balanced first (with a warning about the rows dropped).}
 
-\item{xformula}{formula for covariates that are included in the
-TWFE regression.
-
-@return a gt_weights object}
-
-\item{data}{The name of the data.frame that contains the data}
-
-\item{weightsname}{The name of the column containing the sampling weights.
-If not set, all observations have same weight. When weights are
-time-invariant (constant within each unit across periods), all
-\code{fix_weights} options produce identical results and no special
-handling is needed.
-
-When weights vary across time (e.g., time-varying population sizes),
-the default behavior differs by panel type:
-\describe{
-\item{Balanced panel}{Each 2x2 DiD comparison uses the weight from the
-earlier of the two time periods involved. For post-treatment cells,
-this is the base period (g-1). For pre-treatment cells with
-\code{base_period="varying"}, this is the pre-treatment period itself.
-The panel DRDID estimators are used.}
-\item{Repeated cross sections and unbalanced panels}{Both periods'
-per-observation weights are passed directly to the RC DRDID estimators,
-so each observation carries its own period-specific weight.}
-}
-Use the \code{fix_weights} argument to override the default behavior.}
+\item{weightsname}{Name of the column holding sampling weights, which must
+be constant over time within each unit. Default \code{NULL} (unweighted).}
 }
 \value{
-a \code{decomposed_twfe} object
+An object of class \code{decomposed_twfe}: a list with
+\describe{
+\item{est}{the TWFE coefficient on the treatment indicator.}
+\item{decomposition_est}{\eqn{\sum w(g,t) \Delta(g,t)}, the estimate
+without the remainder terms.}
+\item{decomposition_remainder}{\eqn{\sum w(g,t) r(g,t)}.}
+\item{pt_violations_bias}{the contribution of pre-treatment
+comparisons, \eqn{\sum_{t < g} w(g,t) \Delta(g,t)}.}
+\item{twfe_gt}{a list with one element per \eqn{(g,t)} cell holding
+\code{g} and \code{tp} (on a 1, 2, ..., T scale), \code{alpha_weight},
+\code{weighted_outcome_diff}, \code{remainder}, the implicit weights for the
+treated and comparison units (\code{weights_treated},
+\code{weights_comparison}) and the comparison group's effective sample
+size \code{ess}.}
+\item{idname, tname, gname, weightsname, data}{inputs, kept for
+\code{\link[=twfe_cov_bal]{twfe_cov_bal()}}.}
+}
 }
 \description{
-a function to compute implicit TWFE weights when the TWFE
-model includes covariates.
+Decomposes the coefficient on the treatment indicator from a
+two-way fixed effects (TWFE) regression with covariates,
+\code{y ~ D + covariates | unit + time}, into weighted comparisons between each
+treated group and the never-treated group in each time period
+(Caetano and Callaway, 2024). The weights within each comparison show how
+the regression reweights units, and \code{\link[=twfe_cov_bal]{twfe_cov_bal()}} reports how well they
+balance covariates.
+}
+\details{
+For each treated group \eqn{g} and period \eqn{t} (including
+pre-treatment periods), the function computes a weighted average of the
+change in outcomes from a base period for group \eqn{g} minus the same for
+the never-treated group, with weights coming from the residual of a
+regression of the (double-demeaned) treatment on the (double-demeaned)
+covariates. The TWFE coefficient is
+\deqn{\alpha = \sum_{g,t} w(g,t) \big[ \Delta(g,t) + r(g,t) \big],}
+where \eqn{w(g,t)} is \code{alpha_weight}, \eqn{\Delta(g,t)} is
+\code{weighted_outcome_diff} and \eqn{r(g,t)} is \code{remainder} in each element of
+\code{twfe_gt}. Weights on post-treatment cells sum to one. Pre-treatment
+comparisons also enter the estimate; their contribution is reported as
+\code{pt_violations_bias}. With \code{base_period = "first_period"} the remainders
+are zero; with \code{base_period = "gmin1"} each comparison uses period
+\eqn{g-1} as the base period, like \code{\link[did:att_gt]{did::att_gt()}}, and the remainder
+terms are typically small.
+
+Covariates with collinear (double-demeaned) values are dropped; for
+example, time-invariant covariates drop out unless interacted with time,
+as in \code{~ x + as.factor(year) * as.factor(region)}. Without covariates
+(\code{xformula = ~1}) and with \code{base_period = "gmin1"}, each comparison
+equals \eqn{ATT(g,t)} from \code{\link[did:att_gt]{did::att_gt()}} (universal base period) and
+\code{alpha_weight} equals the weights from \code{\link[=twfe_weights]{twfe_weights()}}.
+}
+\examples{
+\dontshow{if (requireNamespace("causaldata", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+data(castle, package = "causaldata")
+castle <- as.data.frame(castle)
+castle$G <- BMisc::get_group(castle, "sid", tname = "year", treatname = "post")
+
+tw <- implicit_twfe_weights(
+  yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+  xformula = ~ l_police + unemployrt, base_period = "gmin1", data = castle
+)
+tw$est
+coef(fixest::feols(l_homicide ~ post + l_police + unemployrt | sid + year,
+  data = castle
+))["post"]
+summary(tw)
+\dontshow{\}) # examplesIf}
+}
+\references{
+Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
+Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+\doi{10.48550/arXiv.2406.15288}
+}
+\seealso{
+\code{\link[=twfe_cov_bal]{twfe_cov_bal()}}, \code{\link[=summary.decomposed_twfe]{summary.decomposed_twfe()}},
+\code{\link[=implicit_aipw_weights]{implicit_aipw_weights()}}, \code{\link[=two_period_reg_weights]{two_period_reg_weights()}} for two periods.
 }

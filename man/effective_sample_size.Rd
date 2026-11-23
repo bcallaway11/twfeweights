@@ -2,7 +2,7 @@
 % Please edit documentation in R/two_period_covs.R
 \name{effective_sample_size}
 \alias{effective_sample_size}
-\title{effective_sample_size}
+\title{Effective sample size of a set of weights}
 \usage{
 effective_sample_size(
   est_weights,
@@ -10,17 +10,29 @@ effective_sample_size(
 )
 }
 \arguments{
-\item{est_weights}{a numeric vector of weights coming from an estimation
-procedure (e.g., implicit regression or AIPW weights) for one group}
+\item{est_weights}{A numeric vector of weights from an estimation
+procedure (e.g., implicit regression or AIPW weights) for one group.}
 
-\item{sampling_weights}{a numeric vector of sampling weights for the same
-units, default is \code{rep(1, length(est_weights))}}
+\item{sampling_weights}{A numeric vector of sampling weights for the same
+units. Default \code{rep(1, length(est_weights))}.}
 }
 \value{
-a numeric value containing the effective sample size
+A number: the effective sample size.
 }
 \description{
-a helper function to compute an effective sample size given
-some estimation weights and sampling weights.  This function should be
-called separately for the treated group and the untreated group.
+Computes Kish's effective sample size,
+\eqn{(\sum_i w_i)^2 / \sum_i w_i^2}, for the estimation weights of one
+group (call it separately for the treated and untreated groups). It
+equals the number of units when all weights are equal and falls as the
+weights become more concentrated.
+}
+\details{
+\code{sampling_weights} are used only to normalize \code{est_weights} to
+have a (sampling-weighted) mean of one. Because the formula does not
+change when the weights are rescaled, the result does not depend on
+\code{sampling_weights}.
+}
+\examples{
+effective_sample_size(rep(1, 50)) # 50: equal weights
+effective_sample_size(c(rep(1, 45), rep(10, 5))) # concentrated weights
 }

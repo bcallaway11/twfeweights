@@ -2,7 +2,7 @@
 % Please edit documentation in R/two_period_covs.R
 \name{frac_treated_extreme}
 \alias{frac_treated_extreme}
-\title{frac_treated_extreme}
+\title{Fraction of treated units with extreme covariate values}
 \usage{
 frac_treated_extreme(
   x,
@@ -13,27 +13,37 @@ frac_treated_extreme(
 )
 }
 \arguments{
-\item{x}{a numeric vector}
+\item{x}{A numeric vector.}
 
-\item{D}{a binary vector indicating treated and untreated group}
+\item{D}{A binary vector, 1 for treated and 0 for untreated units.}
 
-\item{est_weights}{a numeric vector of weights coming from an estimation procedure
-(e.g., implicit regression or AIPW weights), default is \code{rep(1, length(x))}}
+\item{est_weights}{A numeric vector of weights from an estimation
+procedure (e.g., implicit regression or AIPW weights). Default
+\code{rep(1, length(x))} (unweighted).}
 
-\item{sampling_weights}{a numeric vector of weights, default is
-\code{rep(1, length(x))}}
+\item{sampling_weights}{A numeric vector of sampling weights. Default
+\code{rep(1, length(x))}.}
 
-\item{alpha}{a numeric value between 0 and 1, default is 0.05}
+\item{alpha}{A number between 0 and 1. Default 0.05.}
 }
 \value{
-a numeric value containing the fraction of treated units with extreme values
+A number between 0 and 1, or \code{NA} if \code{x} has fewer than three
+distinct values.
 }
 \description{
-a helper function to compute the fraction of treated units that have
-extreme values of a covariate relative to the untreated group.  The function
-calculates the (alpha/2) and (1-alpha/2) quantiles of the covariate for the
-untreated group and then computes the fraction of treated units that have
-values of the covariate that are less than the (alpha/2) quantile or greater
-than the (1-alpha/2) quantile.  This is a balance summary statistic that was
-discussed in Imbens and Rubin (2015).
+Computes the fraction of treated units whose value of a
+covariate lies outside the \eqn{(\alpha/2, 1-\alpha/2)} quantile range of
+that covariate in the untreated group, optionally after applying
+estimation weights (Imbens and Rubin, 2015). Large values indicate
+treated units with few comparable untreated units.
+}
+\examples{
+set.seed(1)
+D <- rep(c(1, 0), times = c(20, 80))
+x <- rnorm(100, mean = 2 * D)
+frac_treated_extreme(x, D)
+}
+\references{
+Imbens, Guido W. and Donald B. Rubin. Causal Inference for Statistics,
+Social, and Biomedical Sciences. Cambridge University Press (2015).
 }

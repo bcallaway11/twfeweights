@@ -7,12 +7,23 @@
 # Date created: 2024-05-28
 # =============================================================================
 
-#' @title ggtwfeweights
-#' @description a generic function to plot balance statistics
-#' @param x a `decomposed_twfe` object that comes from a
-#'  previous step of running either `twfe_cov_bal` or `aipw_cov_bal`.
-#' @param ... extra arguments, not used here
-#' @return a ggplot object
+#' @title Plot implicit weights or covariate balance
+#'
+#' @description Generic plotting function for the objects returned by this
+#'  package. Methods:
+#'  \itemize{
+#'    \item [ggtwfeweights.mp_weights_obj()]: weights on \eqn{ATT(g,t)} from
+#'      [twfe_weights()], [attO_weights()] or [att_simple_weights()];
+#'    \item [ggtwfeweights.two_period_covs_obj()]: covariate balance from
+#'      [two_period_reg_weights()] or [two_period_aipw_weights()];
+#'    \item [ggtwfeweights.decomposed_twfe()] and
+#'      [ggtwfeweights.decomposed_aipw()]: covariate balance from
+#'      [twfe_cov_bal()] or [aipw_cov_bal()].
+#'  }
+#'
+#' @param x An object returned by one of the functions above.
+#' @param ... Passed to the method.
+#' @return A ggplot object.
 #' @export
 ggtwfeweights <- function(x, ...) {
   UseMethod("ggtwfeweights")

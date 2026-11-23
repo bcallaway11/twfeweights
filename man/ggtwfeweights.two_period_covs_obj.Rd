@@ -2,7 +2,7 @@
 % Please edit documentation in R/two_period_covs.R
 \name{ggtwfeweights.two_period_covs_obj}
 \alias{ggtwfeweights.two_period_covs_obj}
-\title{ggtwfeweights.two_period_covs_obj}
+\title{Plot covariate balance for two-period implicit weights}
 \usage{
 \method{ggtwfeweights}{two_period_covs_obj}(
   x,
@@ -14,23 +14,43 @@
 )
 }
 \arguments{
-\item{x}{the object returned from the \code{two_period_covs} function}
+\item{x}{A \code{two_period_covs_obj} object.}
 
-\item{plot_outcome}{whether to include the outcome variable in the plot}
+\item{plot_outcome}{Whether to include the change in the outcome in the
+plot. Default \code{FALSE}.}
 
-\item{plot_relative_to_target}{whether to plot the differences relative to the target population.
-This adds an extra point to the plot.}
+\item{plot_relative_to_target}{If \code{TRUE}, plot the weighted treated group,
+the weighted untreated group and the unweighted untreated group relative
+to the (unweighted) treated group, which shows whether the weights move
+the treated group away from its own covariate distribution. This adds an
+extra point per covariate. Default \code{FALSE}.}
 
-\item{absolute_value}{whether to plot the absolute value of the standardized difference
-or just the value of the standardized difference, default is TRUE.}
+\item{absolute_value}{Whether to plot the absolute value of the
+differences. Default \code{TRUE}.}
 
-\item{standardize}{whether to standardize the differences by the standard deviation, default is TRUE.}
+\item{standardize}{Whether to divide the differences by the pooled
+standard deviation of each covariate (\code{\link[=pooled_sd]{pooled_sd()}}). Default \code{TRUE}.}
 
-\item{...}{additional arguments, not used here}
+\item{...}{Not used.}
 }
 \value{
-a ggplot object
+A ggplot object.
 }
 \description{
-a function to plot the balance statistics from the \code{two_period_covs} function
+Plots the difference in covariate means between the treated
+and untreated groups before and after applying the implicit weights from
+\code{\link[=two_period_reg_weights]{two_period_reg_weights()}} or \code{\link[=two_period_aipw_weights]{two_period_aipw_weights()}}.
+}
+\examples{
+\dontshow{if (requireNamespace("causaldata", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+data(castle, package = "causaldata")
+castle <- as.data.frame(castle)
+castle2 <- subset(castle, year \%in\% c(2000, 2010))
+castle2$G <- BMisc::get_group(castle2, "sid", tname = "year", treatname = "post")
+tw <- two_period_reg_weights(
+  yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+  xformula = ~ l_police + unemployrt, data = castle2
+)
+ggtwfeweights(tw, absolute_value = FALSE)
+\dontshow{\}) # examplesIf}
 }

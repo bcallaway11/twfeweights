@@ -256,12 +256,94 @@ twfe_treatment_residual <- function(data, idname, tname, gname, xformula, sampli
   list(ddotDit = ddotDit, resid = ddotDit - BMisc::mv_mult(ddotXit, gam))
 }
 
-#' @title implicit_twfe_weights
-#' @description a function to compute implicit TWFE weights when the TWFE
-#'  model includes covariates.
+#' @title Implicit weights from a TWFE regression with covariates and staggered adoption
 #'
-#' @inheritParams implicit_twfe_weights_gt
-#' @return a `decomposed_twfe` object
+#' @description Decomposes the coefficient on the treatment indicator from a
+#'  two-way fixed effects (TWFE) regression with covariates,
+#'  `y ~ D + covariates | unit + time`, into weighted comparisons between each
+#'  treated group and the never-treated group in each time period
+#'  (Caetano and Callaway, 2024). The weights within each comparison show how
+#'  the regression reweights units, and [twfe_cov_bal()] reports how well they
+#'  balance covariates.
+#'
+#' @details For each treated group \eqn{g} and period \eqn{t} (including
+#'  pre-treatment periods), the function computes a weighted average of the
+#'  change in outcomes from a base period for group \eqn{g} minus the same for
+#'  the never-treated group, with weights coming from the residual of a
+#'  regression of the (double-demeaned) treatment on the (double-demeaned)
+#'  covariates. The TWFE coefficient is
+#'  \deqn{\alpha = \sum_{g,t} w(g,t) \big[ \Delta(g,t) + r(g,t) \big],}
+#'  where \eqn{w(g,t)} is `alpha_weight`, \eqn{\Delta(g,t)} is
+#'  `weighted_outcome_diff` and \eqn{r(g,t)} is `remainder` in each element of
+#'  `twfe_gt`. Weights on post-treatment cells sum to one. Pre-treatment
+#'  comparisons also enter the estimate; their contribution is reported as
+#'  `pt_violations_bias`. With `base_period = "first_period"` the remainders
+#'  are zero; with `base_period = "gmin1"` each comparison uses period
+#'  \eqn{g-1} as the base period, like [did::att_gt()], and the remainder
+#'  terms are typically small.
+#'
+#'  Covariates with collinear (double-demeaned) values are dropped; for
+#'  example, time-invariant covariates drop out unless interacted with time,
+#'  as in `~ x + as.factor(year) * as.factor(region)`. Without covariates
+#'  (`xformula = ~1`) and with `base_period = "gmin1"`, each comparison
+#'  equals \eqn{ATT(g,t)} from [did::att_gt()] (universal base period) and
+#'  `alpha_weight` equals the weights from [twfe_weights()].
+#'
+#' @param yname Name of the outcome variable.
+#' @param tname Name of the time period variable.
+#' @param idname Name of the unit identifier.
+#' @param gname Name of the group variable: the first period a unit is
+#'  treated, or 0 for never-treated units.
+#' @param base_period Base period for each comparison: `"first_period"` (the
+#'  default) or `"gmin1"` (the period before group \eqn{g} is first treated).
+#' @param xformula One-sided formula for the covariates in the TWFE regression,
+#'  e.g. `~ x1 + x2`. Time-varying covariates enter in levels, as in the
+#'  regression. Default `NULL` (no covariates).
+#' @param data A panel data.frame in long format. Unbalanced panels are
+#'  balanced first (with a warning about the rows dropped).
+#' @param weightsname Name of the column holding sampling weights, which must
+#'  be constant over time within each unit. Default `NULL` (unweighted).
+#'
+#' @return An object of class `decomposed_twfe`: a list with
+#'  \describe{
+#'    \item{est}{the TWFE coefficient on the treatment indicator.}
+#'    \item{decomposition_est}{\eqn{\sum w(g,t) \Delta(g,t)}, the estimate
+#'      without the remainder terms.}
+#'    \item{decomposition_remainder}{\eqn{\sum w(g,t) r(g,t)}.}
+#'    \item{pt_violations_bias}{the contribution of pre-treatment
+#'      comparisons, \eqn{\sum_{t < g} w(g,t) \Delta(g,t)}.}
+#'    \item{twfe_gt}{a list with one element per \eqn{(g,t)} cell holding
+#'      `g` and `tp` (on a 1, 2, ..., T scale), `alpha_weight`,
+#'      `weighted_outcome_diff`, `remainder`, the implicit weights for the
+#'      treated and comparison units (`weights_treated`,
+#'      `weights_comparison`) and the comparison group's effective sample
+#'      size `ess`.}
+#'    \item{idname, tname, gname, weightsname, data}{inputs, kept for
+#'      [twfe_cov_bal()].}
+#'  }
+#'
+#' @references
+#'  Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
+#'  Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+#'  \doi{10.48550/arXiv.2406.15288}
+#'
+#' @seealso [twfe_cov_bal()], [summary.decomposed_twfe()],
+#'  [implicit_aipw_weights()], [two_period_reg_weights()] for two periods.
+#'
+#' @examplesIf requireNamespace("causaldata", quietly = TRUE)
+#' data(castle, package = "causaldata")
+#' castle <- as.data.frame(castle)
+#' castle$G <- BMisc::get_group(castle, "sid", tname = "year", treatname = "post")
+#'
+#' tw <- implicit_twfe_weights(
+#'   yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+#'   xformula = ~ l_police + unemployrt, base_period = "gmin1", data = castle
+#' )
+#' tw$est
+#' coef(fixest::feols(l_homicide ~ post + l_police + unemployrt | sid + year,
+#'   data = castle
+#' ))["post"]
+#' summary(tw)
 #' @export
 implicit_twfe_weights <- function(yname,
                                   tname,
@@ -334,12 +416,37 @@ implicit_twfe_weights <- function(yname,
   out
 }
 
-#' @title summary.decomposed_twfe
-#' @description summarizes a two-way fixed effects regression
-#'  decomposition
-#' @param object a decomposed_twfe object
-#' @param ... extra arguments, not used here
-#' @return a summary of the decomposition
+#' @title Summarize a TWFE decomposition
+#'
+#' @description Prints the TWFE coefficient and its decomposition from
+#'  [implicit_twfe_weights()], and returns either the \eqn{(g,t)}-level
+#'  decomposition or, after [twfe_cov_bal()], a covariate balance table.
+#'
+#' @details The printed lines are: the TWFE coefficient (`alpha twfe`); the
+#'  decomposition without remainder terms (`alpha decomp`); the part from
+#'  post-treatment comparisons only (`alpha post only`); the contribution of
+#'  pre-treatment comparisons (`pta violations bias`); the remainder terms;
+#'  and an effective sample size for the comparison group that combines the
+#'  per-cell effective sample sizes across post-treatment cells.
+#'
+#' @param object A `decomposed_twfe` object.
+#' @param ... Not used.
+#' @return A data.frame. Before [twfe_cov_bal()]: one row per \eqn{(g,t)}
+#'  cell with `group`, `time.period`, `post`, `twfe_att_gt` (the weighted
+#'  comparison) and `alpha_weight`. After: one row per covariate with
+#'  unweighted and weighted means for the treated and comparison groups,
+#'  their differences and the other balance statistics, averaged over
+#'  post-treatment cells using the TWFE weights.
+#'
+#' @examplesIf requireNamespace("causaldata", quietly = TRUE)
+#' data(castle, package = "causaldata")
+#' castle <- as.data.frame(castle)
+#' castle$G <- BMisc::get_group(castle, "sid", tname = "year", treatname = "post")
+#' tw <- implicit_twfe_weights(
+#'   yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+#'   xformula = ~l_police, base_period = "gmin1", data = castle
+#' )
+#' summary(tw)
 #' @export
 summary.decomposed_twfe <- function(object, ...) {
   object <- object$twfe_gt
@@ -375,26 +482,36 @@ summary.decomposed_twfe <- function(object, ...) {
   }
 }
 
-#' @title twfe_cov_balance
-#' @description A function to compute balance statistics inherited from
-#'  running a TWFE regression in a staggered treatment adoption setting.
+#' @title Covariate balance from the implicit weights of a TWFE regression
 #'
-#'  The function should be called after running `implicit_twfe_weights`, and
-#'  the it computes balance statistics for the average of each variable
-#'  passed in through the `extra_balance_vars_formula` argument across
-#'  all post-treatment periods.
-#' @param decomposed_twfe a `decomposed_twfe` object that comes from
-#'  running `implicit_twfe_weights` in a previous step.
-#' @param extra_balance_vars_formula a formula that includes the variables
-#'  that you would like to compute balance statistics for.  The formula
-#'  should be in the form of `~var1 + var2 + var3 + ...` where `var1`,
-#'  `var2`, and `var3` can be covariates whose values change over time.
-#'   `twfe_cov_bal` will average these covariates across all time periods,
-#'   and then compute balance statistics for each covariate where the
-#'   balance statistics come from the implicit weights inherited from the
-#'   TWFE regression.
-#' @return a `decomposed_twfe` object with the balance statistics added
-#'  to the `twfe_gt` list element.
+#' @description Computes how well the implicit weights from
+#'  [implicit_twfe_weights()] balance covariates between each treated group
+#'  and the never-treated group, for each \eqn{(g,t)} cell.
+#'
+#' @details Each covariate is first averaged over time within each unit, and
+#'  balance is assessed for these time averages (as in Caetano and Callaway,
+#'  2024). Use [summary.decomposed_twfe()] for a table averaged over
+#'  post-treatment cells and [ggtwfeweights()] to plot it.
+#'
+#' @param decomposed_twfe A `decomposed_twfe` object from
+#'  [implicit_twfe_weights()].
+#' @param extra_balance_vars_formula One-sided formula for the covariates to
+#'  report balance for, e.g. `~ x1 + x2 + region`. They do not need to be in
+#'  the TWFE regression.
+#' @return The `decomposed_twfe` object with a balance table `cov_bal_df`
+#'  added to each element of `twfe_gt`.
+#'
+#' @examplesIf requireNamespace("causaldata", quietly = TRUE)
+#' data(castle, package = "causaldata")
+#' castle <- as.data.frame(castle)
+#' castle$G <- BMisc::get_group(castle, "sid", tname = "year", treatname = "post")
+#' tw <- implicit_twfe_weights(
+#'   yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+#'   xformula = ~l_police, base_period = "gmin1", data = castle
+#' )
+#' tw <- twfe_cov_bal(tw, ~ l_police + unemployrt + poverty)
+#' summary(tw)
+#' ggtwfeweights(tw)
 #' @export
 twfe_cov_bal <- function(decomposed_twfe, extra_balance_vars_formula) {
   idname <- decomposed_twfe$idname
@@ -632,25 +749,35 @@ mp_covariate_bal_summary_helper <- function(decomposed_twfe_obj) {
 
 # TODO: possibly add the outcome to the plot, to make it the same as for the two period
 # case, though it is not 100% obvious what the easiest way to do this is
-#' @title ggtwfeweights.decomposed_twfe
-#' @description a function to plot the balance statistics for the covariates
-#'  that were passed into the `extra_balance_vars_formula` argument in either
-#'  `twfe_cov_bal` or `aipw_cov_bal`.
-#' @param x a `decomposed_twfe` object that comes from a
-#'  previous step of running either `twfe_cov_bal` or `aipw_cov_bal`.
-#' @inheritParams ggtwfeweights.two_period_covs_obj
-#' @param standardize a logical argument that determines whether the balance
-#'  statistics should be standardized by the weighted average of the
-#'  standard deviation of each covariate across post-treatment periods.
-#'  The default is `TRUE`.
+#' @title Plot covariate balance for TWFE or AIPW implicit weights
 #'
-#'  Because the (implicit) weights that combine estimates across groups and
-#'  time periods are different for TWFE and the overall average treatment
-#'  effect on the treated (as computed by `did::att_gt` or `implicit_aipw_weights`),
-#'  the "unweighted" covariate balance statistics can be different across
-#'  the two methods; however, these differences are typically relatively small.
-#' @param ... extra arguments, not used here
-#' @return a ggplot object
+#' @description Plots the difference in covariate means between treated and
+#'  comparison groups before and after applying the implicit weights,
+#'  averaged over post-treatment \eqn{(g,t)} cells, for the covariates passed
+#'  to [twfe_cov_bal()] (or [aipw_cov_bal()]).
+#'
+#' @details The "unweighted" differences are averaged over cells with the
+#'  same weights as the weighted ones, so they can differ slightly between
+#'  TWFE and AIPW, whose cell weights differ.
+#'
+#' @param x A `decomposed_twfe` object after [twfe_cov_bal()].
+#' @inheritParams ggtwfeweights.two_period_covs_obj
+#' @param standardize Whether to divide the differences by a pooled standard
+#'  deviation of each covariate, averaged over post-treatment cells. Default
+#'  `TRUE`.
+#' @param ... Not used.
+#' @return A ggplot object.
+#'
+#' @examplesIf requireNamespace("causaldata", quietly = TRUE)
+#' data(castle, package = "causaldata")
+#' castle <- as.data.frame(castle)
+#' castle$G <- BMisc::get_group(castle, "sid", tname = "year", treatname = "post")
+#' tw <- implicit_twfe_weights(
+#'   yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+#'   xformula = ~l_police, base_period = "gmin1", data = castle
+#' )
+#' tw <- twfe_cov_bal(tw, ~ l_police + unemployrt + poverty)
+#' ggtwfeweights(tw)
 #' @export
 ggtwfeweights.decomposed_twfe <- function(x,
                                           plot_relative_to_target = FALSE,
@@ -718,57 +845,85 @@ ggtwfeweights.decomposed_twfe <- function(x,
   #   scale_shape_discrete(labels = c("unweighted", "weighted"))
 }
 
-#' @title implicit_aipw_weights
-#' @description a function to compute implicit AIPW weights in a setting with
-#'  staggered treatment adoption.
-#' @param yname the name of the outcome variable
-#' @param tname the name of the time period variable
-#' @param idname the name of the id variable
-#' @param gname the name of the group variable
-#' @param xformula a formula that includes the covariates that you would like
-#'  to include in the AIPW regression.  Time-varying covariates provided in this
-#'  argument will be included by taking their level in "base period"
-#'  (which in this case is the period right before a particular group
-#'  become treated).  Time-invariant covariates can also be included in this
-#'  argument.  This is the same way that covariates are included
-#'  in `did::att_gt`.
-#' @param d_covs_formula a formula that includes time-varying covariates to
-#'  be included in the form \eqn{X_t - X_{g-1}}, i.e., their change from the
-#'  "base period" to the current period.  By default, covariates are not
-#'  included in this way which is the same as in `did::att_gt`, but you can
-#'  include them by passing a formula here.
-#' @param pscore_formula a formula that includes the covariates that you would
-#'  like to include in the propensity score model.  By default, these covariates
-#'  are the same as for the outcome regression which are provided in the earlier
-#'  argument `xformula`.  This is a natural choice, but this argument allows
-#'  these covariates to be different, if desired.
+#' @title Implicit weights from AIPW or regression adjustment with staggered adoption
 #'
-#'  Setting `pscore_formula` and `xformula` to be different allows for some
-#'  important special cases to be handled by this function.  For one, providing
-#'  covariates in `xformula` while setting `pscore_formula=~1` will deliver
-#'  deliver "regression adjustment" estimates and decompositions.  For another,
-#'  setting `pscore_formula` to include covariates while setting `xformula=~1`
-#'  will deliver "inverse probability weighting" estimates and decompositions.
-#' @param pscore_d_covs_formula a formula that includes time-varying covariates
-#'  to include as \eqn{X_t - X_{g-1}} in the propensity score model.  The default
-#'  is to set these to be the same as the covariates in `d_covs_formula`.
-#' @param extra_balance_vars_formula is currently ignored.  This argument
-#'  makes the arguments the same as for `two_period_aipw_weights`, but currently
-#'  covariate balance checking is done in a different way in the multiple
-#'  period case by calling `aipw_cov_bal` after running this function.
-#' @param extra_balance_d_vars_formula is currently ignored for the same
-#'  reason as `extra_balance_vars_formula`.
-#' @param balance_d_vars_post is currently ignored for the same reason as
+#' @description Estimates the overall average treatment effect on the treated,
+#'  \eqn{ATT^o}, by augmented inverse probability weighting (AIPW), regression
+#'  adjustment or inverse probability weighting, and writes each group-time
+#'  estimate as a reweighting estimator so that [aipw_cov_bal()] can report
+#'  how well the implicit weights balance covariates (Caetano and Callaway,
+#'  2024).
+#'
+#' @details For each treated group \eqn{g} and post-treatment period \eqn{t},
+#'  [two_period_aipw_weights()] is applied to group \eqn{g} and the
+#'  never-treated group in periods \eqn{g-1} and \eqn{t}. The \eqn{ATT(g,t)}
+#'  are then combined into \eqn{ATT^o} with the weights in [attO_weights()].
+#'  Without `d_covs_formula`, the results equal [did::att_gt()] with the
+#'  never-treated comparison group and the same covariates, aggregated with
+#'  `did::aggte(type = "group")`. Regression adjustment
+#'  (`pscore_formula = ~1`) is often preferable when groups are small, since
+#'  the propensity score can then be poorly estimated.
+#'
+#' @param yname Name of the outcome variable.
+#' @param tname Name of the time period variable.
+#' @param idname Name of the unit identifier.
+#' @param gname Name of the group variable: the first period a unit is
+#'  treated, or 0 for never-treated units.
+#' @param xformula One-sided formula for covariates in the outcome model.
+#'  Time-varying covariates enter through their level in the base period
+#'  (\eqn{g-1}), as in [did::att_gt()]; time-invariant covariates can also be
+#'  included. Default `~1`.
+#' @param d_covs_formula One-sided formula for time-varying covariates entered
+#'  through their change from the base period, \eqn{X_t - X_{g-1}}. Default
+#'  `NULL`.
+#' @param pscore_formula One-sided formula for covariates in the propensity
+#'  score model. Defaults to `xformula`. Use `~1` for regression adjustment;
+#'  use covariates here with `xformula = ~1` for inverse probability
+#'  weighting.
+#' @param pscore_d_covs_formula One-sided formula for covariate changes in the
+#'  propensity score model. Defaults to `d_covs_formula`.
+#' @param extra_balance_vars_formula Ignored; balance is computed afterwards
+#'  with [aipw_cov_bal()]. Present so the arguments match
+#'  [two_period_aipw_weights()].
+#' @param extra_balance_d_vars_formula Ignored, as for
 #'  `extra_balance_vars_formula`.
-#' @param data a panel data set.  This function is currently only guaranteed
-#'  to work with balanced and sorted panel data.  The function tries to
-#'  balance and sort, but it is recommended to do this before calling the
-#'  function.
-#' @param weightsname the name of the variable in the data set that contains
-#'  the sampling weights.  The default is `NULL` which means that all
-#'  observations are given equal weight.
-#' @param ... extra arguments, not used here
-#' @return a `decomposed_aipw` object
+#' @param balance_d_vars_post Ignored, as for `extra_balance_vars_formula`.
+#' @param data A panel data.frame in long format. Unbalanced panels are
+#'  balanced first (with a warning about the rows dropped).
+#' @param weightsname Name of the column holding sampling weights, which must
+#'  be constant over time within each unit. Default `NULL` (unweighted).
+#' @param ... Not used.
+#'
+#' @return An object of class `decomposed_aipw`: a list with `est` (the
+#'  estimate of \eqn{ATT^o}), `aipw_gt` (one element per post-treatment
+#'  \eqn{(g,t)} cell with `g` and `tp` on a 1, 2, ..., T scale, the estimate
+#'  `est`, the cell's weight in \eqn{ATT^o} `att_weight`, the implicit
+#'  `weights`, `dy`, `D` and the comparison group's effective sample size
+#'  `ess`), and the inputs needed by [aipw_cov_bal()].
+#'
+#' @references
+#'  Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
+#'  Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+#'  \doi{10.48550/arXiv.2406.15288}
+#'
+#'  Callaway, Brantly and Pedro H. C. Sant'Anna. "Difference-in-Differences
+#'  with Multiple Time Periods." Journal of Econometrics 225.2 (2021).
+#'  \doi{10.1016/j.jeconom.2020.12.001}
+#'
+#' @seealso [aipw_cov_bal()], [summary.decomposed_aipw()],
+#'  [implicit_twfe_weights()].
+#'
+#' @examplesIf requireNamespace("causaldata", quietly = TRUE)
+#' data(castle, package = "causaldata")
+#' castle <- as.data.frame(castle)
+#' castle$G <- BMisc::get_group(castle, "sid", tname = "year", treatname = "post")
+#'
+#' # regression adjustment
+#' ra <- implicit_aipw_weights(
+#'   yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+#'   xformula = ~l_police, pscore_formula = ~1, data = castle
+#' )
+#' ra$est
 #' @export
 implicit_aipw_weights <- function(yname,
                                   tname,
@@ -858,16 +1013,31 @@ implicit_aipw_weights <- function(yname,
   out
 }
 
-#' @title aipw_cov_bal
-#' @description A function to compute balance statistics inherited from
-#'  from estimating the overall average treatment effect on the treated
-#'  using augmented inverse probability weighting (AIPW) in a staggered
-#'  treatment adoption setting.
-#' @param decomposed_aipw a `decomposed_aipw` object that comes from
-#'  running `implicit_aipw_weights` in a previous step.
+#' @title Covariate balance from the implicit weights of AIPW or regression adjustment
+#'
+#' @description Computes how well the implicit weights from
+#'  [implicit_aipw_weights()] balance covariates between each treated group
+#'  and the never-treated group, for each post-treatment \eqn{(g,t)} cell. As
+#'  in [twfe_cov_bal()], each covariate is averaged over time within each
+#'  unit first, so the results can be compared with those for TWFE.
+#'
+#' @param decomposed_aipw A `decomposed_aipw` object from
+#'  [implicit_aipw_weights()].
 #' @inheritParams twfe_cov_bal
-#' @return a `decomposed_aipw` object with the balance statistics added
-#'  to the `aipw_gt` list element.
+#' @return The `decomposed_aipw` object with a balance table `cov_bal_df`
+#'  added to each element of `aipw_gt`.
+#'
+#' @examplesIf requireNamespace("causaldata", quietly = TRUE)
+#' data(castle, package = "causaldata")
+#' castle <- as.data.frame(castle)
+#' castle$G <- BMisc::get_group(castle, "sid", tname = "year", treatname = "post")
+#' ra <- implicit_aipw_weights(
+#'   yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+#'   xformula = ~l_police, pscore_formula = ~1, data = castle
+#' )
+#' ra <- aipw_cov_bal(ra, ~ l_police + unemployrt + poverty)
+#' summary(ra)
+#' ggtwfeweights(ra)
 #' @export
 aipw_cov_bal <- function(decomposed_aipw, extra_balance_vars_formula) {
   idname <- decomposed_aipw$idname
@@ -985,12 +1155,30 @@ aipw_cov_bal_gt <- function(g, tp, decomposed_aipw, X) {
 }
 
 
-#' @title summary.decomposed_aipw
-#' @description a function to summarize the results of running `implicit_aipw_weights`.
-#' @param object a `decomposed_aipw` object that comes from running
-#'  `implicit_aipw_weights` or `aipw_cov_bal`.
-#' @param ... extra arguments, not used here
-#' @return a summary of the decomposition
+#' @title Summarize AIPW or regression adjustment weights
+#'
+#' @description Prints the estimate of \eqn{ATT^o} from
+#'  [implicit_aipw_weights()] and an effective sample size for the comparison
+#'  group, and returns either the \eqn{(g,t)}-level estimates or, after
+#'  [aipw_cov_bal()], a covariate balance table.
+#'
+#' @param object A `decomposed_aipw` object.
+#' @param ... Not used.
+#' @return A data.frame. Before [aipw_cov_bal()]: one row per post-treatment
+#'  \eqn{(g,t)} cell with the estimate and its weight in \eqn{ATT^o}. After:
+#'  one row per covariate with unweighted and weighted means for the treated
+#'  and comparison groups, their differences and the other balance
+#'  statistics, averaged over cells using the \eqn{ATT^o} weights.
+#'
+#' @examplesIf requireNamespace("causaldata", quietly = TRUE)
+#' data(castle, package = "causaldata")
+#' castle <- as.data.frame(castle)
+#' castle$G <- BMisc::get_group(castle, "sid", tname = "year", treatname = "post")
+#' ra <- implicit_aipw_weights(
+#'   yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+#'   xformula = ~l_police, pscore_formula = ~1, data = castle
+#' )
+#' summary(ra)
 #' @export
 summary.decomposed_aipw <- function(object, ...) {
   object <- object$aipw_gt
@@ -1019,14 +1207,27 @@ summary.decomposed_aipw <- function(object, ...) {
   }
 }
 
-#' @title ggtwfeweights.decomposed_aipw
-#' @description a function to plot the balance statistics for the covariates
-#'  that were passed into the `extra_balance_vars_formula` argument in
-#'  `aipw_cov_bal`.
-#' @param x a `decomposed_aipw` object that comes from
-#'  running `aipw_cov_bal` in a previous step.
+#' @title Plot covariate balance for AIPW or regression adjustment weights
+#'
+#' @description Plots the difference in covariate means between treated and
+#'  comparison groups before and after applying the implicit AIPW weights,
+#'  averaged over post-treatment \eqn{(g,t)} cells, for the covariates passed
+#'  to [aipw_cov_bal()].
+#'
+#' @param x A `decomposed_aipw` object after [aipw_cov_bal()].
 #' @inheritParams ggtwfeweights.decomposed_twfe
-#' @return a ggplot object
+#' @return A ggplot object.
+#'
+#' @examplesIf requireNamespace("causaldata", quietly = TRUE)
+#' data(castle, package = "causaldata")
+#' castle <- as.data.frame(castle)
+#' castle$G <- BMisc::get_group(castle, "sid", tname = "year", treatname = "post")
+#' ra <- implicit_aipw_weights(
+#'   yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+#'   xformula = ~l_police, pscore_formula = ~1, data = castle
+#' )
+#' ra <- aipw_cov_bal(ra, ~ l_police + unemployrt + poverty)
+#' ggtwfeweights(ra)
 #' @export
 ggtwfeweights.decomposed_aipw <- function(
   x,

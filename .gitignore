@@ -6,3 +6,5 @@
 .quarto
 dev/
 /revdep/.cache.rds
+/doc/
+/Meta/

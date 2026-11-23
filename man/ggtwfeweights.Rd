@@ -2,19 +2,28 @@
 % Please edit documentation in R/generics.R
 \name{ggtwfeweights}
 \alias{ggtwfeweights}
-\title{ggtwfeweights}
+\title{Plot implicit weights or covariate balance}
 \usage{
 ggtwfeweights(x, ...)
 }
 \arguments{
-\item{x}{a \code{decomposed_twfe} object that comes from a
-previous step of running either \code{twfe_cov_bal} or \code{aipw_cov_bal}.}
+\item{x}{An object returned by one of the functions above.}
 
-\item{...}{extra arguments, not used here}
+\item{...}{Passed to the method.}
 }
 \value{
-a ggplot object
+A ggplot object.
 }
 \description{
-a generic function to plot balance statistics
+Generic plotting function for the objects returned by this
+package. Methods:
+\itemize{
+\item \code{\link[=ggtwfeweights.mp_weights_obj]{ggtwfeweights.mp_weights_obj()}}: weights on \eqn{ATT(g,t)} from
+\code{\link[=twfe_weights]{twfe_weights()}}, \code{\link[=attO_weights]{attO_weights()}} or \code{\link[=att_simple_weights]{att_simple_weights()}};
+\item \code{\link[=ggtwfeweights.two_period_covs_obj]{ggtwfeweights.two_period_covs_obj()}}: covariate balance from
+\code{\link[=two_period_reg_weights]{two_period_reg_weights()}} or \code{\link[=two_period_aipw_weights]{two_period_aipw_weights()}};
+\item \code{\link[=ggtwfeweights.decomposed_twfe]{ggtwfeweights.decomposed_twfe()}} and
+\code{\link[=ggtwfeweights.decomposed_aipw]{ggtwfeweights.decomposed_aipw()}}: covariate balance from
+\code{\link[=twfe_cov_bal]{twfe_cov_bal()}} or \code{\link[=aipw_cov_bal]{aipw_cov_bal()}}.
+}
 }

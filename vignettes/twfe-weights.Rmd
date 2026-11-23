@@ -1,0 +1,185 @@
+---
+title: "TWFE Weights without Covariates"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{TWFE Weights without Covariates}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<!--
+=============================================================================
+Title: Vignette: TWFE weights without covariates
+Description: TWFE weights on ATT(g,t) compared with ATT^o and ATT^simple weights,
+using the minimum wage data (did::mpdta).
+Author: Brant Callaway
+Last update: 2026-11-23
+Date created: 2026-11-23
+=============================================================================
+-->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 6,
+  fig.height = 4
+)
+```
+
+With staggered treatment adoption, the coefficient on the treatment indicator
+from a two-way fixed effects (TWFE) regression,
+
+$$Y_{it} = \theta_t + \eta_i + \alpha D_{it} + e_{it},$$
+
+is a weighted sum of group-time average treatment effects, $ATT(g,t)$, the
+average effect for units first treated in period $g$ (group $g$) in period
+$t$ (de Chaisemartin and D'Haultfoeuille, 2020; Goodman-Bacon, 2021). This
+vignette shows how to recover those weights with `twfe_weights()`, and how to
+compare them with the weights behind the overall average treatment effects of
+Callaway and Sant'Anna (2021), from `attO_weights()` and
+`att_simple_weights()`.
+
+## Data and group-time average treatment effects
+
+The example uses the county-level minimum wage data in the `did` package:
+`lemp` is log teen employment, and `first.treat` is the year a county's state
+first raised its minimum wage (0 for counties never treated in the sample).
+
+```{r, message = FALSE}
+library(twfeweights)
+library(did)
+data(mpdta, package = "did")
+```
+
+`twfe_weights()` takes the output of `did::att_gt()`. Two choices matter. The
+comparison group must be the never-treated group, and the base period must be
+`"universal"`: every $ATT(g,t)$, including pre-treatment ones, is then
+measured relative to period $g-1$, which is what makes the TWFE decomposition
+exact.
+
+```{r}
+attgt <- att_gt(
+  yname = "lemp", tname = "year", idname = "countyreal",
+  gname = "first.treat", data = mpdta,
+  control_group = "nevertreated", base_period = "universal",
+  bstrap = FALSE, cband = FALSE
+)
+```
+
+## TWFE weights
+
+```{r}
+tw <- twfe_weights(attgt)
+tw$weights_df
+```
+
+Each row is a group-time cell, with its TWFE weight, the estimated
+$ATT(g,t)$, and whether the cell is post-treatment. The weighted sum of the
+$ATT(g,t)$ reproduces the TWFE coefficient:
+
+```{r}
+sum(tw$weights_df$weight * tw$weights_df$attgt)
+
+mpdta$D <- 1 * (mpdta$year >= mpdta$first.treat & mpdta$first.treat > 0)
+coef(fixest::feols(lemp ~ D | countyreal + year, data = mpdta))
+```
+
+Three features of the weights are worth checking in any application.
+
+**Post-treatment weights sum to one, but some can be negative.** Here the
+cell for the 2004 group in 2007, its longest exposure, gets a negative
+weight:
+
+```{r}
+post <- tw$weights_df$post == 1
+sum(tw$weights_df$weight[post])
+tw$weights_df[post & tw$weights_df$weight < 0, ]
+```
+
+**Pre-treatment cells get non-zero weight.** Under parallel trends (and no
+anticipation), pre-treatment $ATT(g,t)$ are zero, so this part of the TWFE
+estimate should be close to zero. When parallel trends fails in
+pre-treatment periods, these terms feed directly into the TWFE estimate.
+
+```{r}
+c(
+  post_part = sum(tw$weights_df$weight[post] * tw$weights_df$attgt[post]),
+  pre_part = sum(tw$weights_df$weight[!post] * tw$weights_df$attgt[!post])
+)
+```
+
+**The weights depend on the timing of treatment, not on how much each cell
+matters for a target parameter.** `ggtwfeweights()` plots each cell's weight
+against its $ATT(g,t)$:
+
+```{r}
+ggtwfeweights(tw)
+```
+
+## Weights behind overall average treatment effects
+
+Callaway and Sant'Anna (2021) propose combining the $ATT(g,t)$ with weights
+chosen to target a specific parameter. `attO_weights()` gives the weights for
+$ATT^o$, which averages each group's post-treatment effects and then averages
+across groups by group size; `att_simple_weights()` gives the weights for
+$ATT^{simple}$, which weights every post-treatment cell by group size, so
+groups observed for more post-treatment periods count more. Both put zero
+weight on pre-treatment cells, and their weights are non-negative.
+
+```{r}
+wo <- attO_weights(attgt)
+ws <- att_simple_weights(attgt)
+
+c(
+  TWFE = sum(tw$weights_df$weight * tw$weights_df$attgt),
+  ATT_o = sum(wo$weights_df$weight * wo$weights_df$attgt),
+  ATT_simple = sum(ws$weights_df$weight * ws$weights_df$attgt)
+)
+```
+
+These match the `"group"` and `"simple"` aggregations in `did::aggte()`:
+
+```{r}
+aggte(attgt, type = "group", bstrap = FALSE)$overall.att
+aggte(attgt, type = "simple", bstrap = FALSE)$overall.att
+```
+
+Placing the weights side by side shows where the estimates differ: TWFE puts
+less weight on long exposures, negative weight on some cells, and non-zero
+weight on pre-treatment cells.
+
+```{r}
+comparison <- data.frame(
+  group = tw$weights_df$group,
+  time.period = tw$weights_df$time.period,
+  post = tw$weights_df$post,
+  attgt = tw$weights_df$attgt,
+  TWFE = tw$weights_df$weight,
+  ATT_o = wo$weights_df$weight,
+  ATT_simple = ws$weights_df$weight
+)
+comparison[comparison$post == 1, ]
+```
+
+```{r}
+ggtwfeweights(wo)
+```
+
+## Sampling weights
+
+If `did::att_gt()` is called with `weightsname`, all three functions use the
+same sampling weights by default, so `twfe_weights()` reproduces a weighted
+TWFE regression (e.g., `fixest::feols(..., weights = ~w)`).
+
+## References
+
+Callaway, Brantly and Pedro H. C. Sant'Anna. "Difference-in-Differences with
+Multiple Time Periods." *Journal of Econometrics* 225.2 (2021): 200-230.
+
+de Chaisemartin, Clement and Xavier D'Haultfoeuille. "Two-Way Fixed Effects
+Estimators with Heterogeneous Treatment Effects." *American Economic Review*
+110.9 (2020): 2964-2996.
+
+Goodman-Bacon, Andrew. "Difference-in-Differences with Variation in Treatment
+Timing." *Journal of Econometrics* 225.2 (2021): 254-277.

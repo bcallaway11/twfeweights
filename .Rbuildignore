@@ -1,9 +1,12 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^README\.Rmd$
-^README_files$
 ^docs$
 ^\.github$
 ^\.lintr$
 ^dev$
 ^revdep$
+^_pkgdown\.yml$
+^pkgdown$
+^doc$
+^Meta$

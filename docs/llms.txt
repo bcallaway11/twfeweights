@@ -1,0 +1,199 @@
+# twfeweights
+
+`twfeweights` computes the implicit weights that two-way fixed effects
+(TWFE) regressions and other difference-in-differences estimators place
+on underlying comparisons, so you can see how a regression combines them
+into a single number. It covers two settings:
+
+- **Staggered treatment adoption without covariates.** Recover the
+  weights a TWFE regression places on each group-time average treatment
+  effect, $`ATT(g,t)`$ (de Chaisemartin and D’Haultfoeuille, 2020;
+  Goodman-Bacon, 2021), and compare them with the weights behind the
+  overall average treatment effects of Callaway and Sant’Anna (2021).
+- **Covariates.** Write TWFE regressions, augmented inverse probability
+  weighting (AIPW) and regression adjustment as reweighting estimators,
+  and check how well their implicit weights balance covariates (Caetano
+  and Callaway, 2024).
+
+## Installation
+
+``` r
+# from CRAN
+install.packages("twfeweights")
+
+# development version from GitHub
+# install.packages("remotes")
+remotes::install_github("bcallaway11/twfeweights")
+```
+
+## TWFE weights on group-time average treatment effects
+
+Estimate the $`ATT(g,t)`$ with
+[`did::att_gt()`](https://bcallaway11.github.io/did/reference/att_gt.html),
+using the never-treated group and a universal base period, then pass the
+result to [`twfe_weights()`](reference/twfe_weights.md):
+
+``` r
+library(twfeweights)
+data(mpdta, package = "did")
+
+attgt <- did::att_gt(
+  yname = "lemp", tname = "year", idname = "countyreal",
+  gname = "first.treat", data = mpdta,
+  control_group = "nevertreated", base_period = "universal",
+  bstrap = FALSE, cband = FALSE
+)
+tw <- twfe_weights(attgt)
+
+# the weighted sum of ATT(g,t) is the TWFE coefficient
+sum(tw$weights_df$weight * tw$weights_df$attgt)
+#> [1] -0.03654894
+mpdta$D <- 1 * (mpdta$year >= mpdta$first.treat & mpdta$first.treat > 0)
+coef(fixest::feols(lemp ~ D | countyreal + year, data = mpdta))
+#>           D 
+#> -0.03654894
+
+ggtwfeweights(tw)
+```
+
+![](reference/figures/README-unnamed-chunk-2-1.png)
+
+Some post-treatment cells get negative weight, and pre-treatment cells
+get non-zero weight. [`attO_weights()`](reference/attO_weights.md) and
+[`att_simple_weights()`](reference/att_simple_weights.md) give the
+weights behind $`ATT^o`$ and $`ATT^{simple}`$ for comparison.
+
+## Covariate balance
+
+With covariates,
+[`implicit_twfe_weights()`](reference/implicit_twfe_weights.md)
+decomposes the TWFE coefficient into weighted comparisons, and
+[`twfe_cov_bal()`](reference/twfe_cov_bal.md) reports how well the
+implicit weights balance covariates (here, for the effect of
+stand-your-ground laws on homicides):
+
+``` r
+data(castle, package = "causaldata")
+castle <- as.data.frame(castle)
+castle$G <- BMisc::get_group(castle, "sid", tname = "year", treatname = "post")
+
+twm <- implicit_twfe_weights(
+  yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+  xformula = ~ l_police + unemployrt, base_period = "gmin1", data = castle
+)
+twm <- twfe_cov_bal(twm, ~ l_police + unemployrt + poverty + l_income)
+ggtwfeweights(twm)
+```
+
+![](reference/figures/README-unnamed-chunk-3-1.png)
+
+[`implicit_aipw_weights()`](reference/implicit_aipw_weights.md) and
+[`aipw_cov_bal()`](reference/aipw_cov_bal.md) do the same for AIPW and
+regression adjustment;
+[`two_period_reg_weights()`](reference/two_period_reg_weights.md) and
+[`two_period_aipw_weights()`](reference/two_period_aipw_weights.md)
+cover the two-period case.
+
+## Learn more
+
+- [`vignette("twfe-weights")`](articles/twfe-weights.md): TWFE weights
+  without covariates.
+- [`vignette("covariate-balance")`](articles/covariate-balance.md):
+  implicit weights and covariate balance with covariates.
+
+## References
+
+Caetano, Carolina and Brantly Callaway. “Difference-in-Differences when
+Parallel Trends Holds Conditional on Covariates.” Working paper (2024).
+[arXiv:2406.15288](https://arxiv.org/abs/2406.15288).
+
+Callaway, Brantly and Pedro H. C. Sant’Anna. “Difference-in-Differences
+with Multiple Time Periods.” *Journal of Econometrics* 225.2 (2021):
+200-230.
+
+de Chaisemartin, Clement and Xavier D’Haultfoeuille. “Two-Way Fixed
+Effects Estimators with Heterogeneous Treatment Effects.” *American
+Economic Review* 110.9 (2020): 2964-2996.
+
+Goodman-Bacon, Andrew. “Difference-in-Differences with Variation in
+Treatment Timing.” *Journal of Econometrics* 225.2 (2021): 254-277.
+
+# Package index
+
+## Staggered adoption without covariates
+
+Weights that a TWFE regression and the overall average treatment effects
+of Callaway and Sant’Anna (2021) place on group-time average treatment
+effects.
+
+- [`twfe_weights()`](twfe_weights.md) : TWFE regression weights on
+  group-time average treatment effects
+- [`attO_weights()`](attO_weights.md) : Weights behind the overall
+  average treatment effect \\ATT^o\\
+- [`att_simple_weights()`](att_simple_weights.md) : Weights behind the
+  simple overall average treatment effect
+
+## Covariates, two periods
+
+TWFE regressions, AIPW, regression adjustment and inverse probability
+weighting as reweighting estimators, with covariate balance.
+
+- [`two_period_reg_weights()`](two_period_reg_weights.md) : Implicit
+  weights from a two-period TWFE regression with covariates
+- [`two_period_aipw_weights()`](two_period_aipw_weights.md) : Implicit
+  weights from AIPW, regression adjustment or IPW with two periods
+
+## Covariates, staggered adoption
+
+- [`implicit_twfe_weights()`](implicit_twfe_weights.md) : Implicit
+  weights from a TWFE regression with covariates and staggered adoption
+- [`twfe_cov_bal()`](twfe_cov_bal.md) : Covariate balance from the
+  implicit weights of a TWFE regression
+- [`summary(`*`<decomposed_twfe>`*`)`](summary.decomposed_twfe.md) :
+  Summarize a TWFE decomposition
+- [`implicit_aipw_weights()`](implicit_aipw_weights.md) : Implicit
+  weights from AIPW or regression adjustment with staggered adoption
+- [`aipw_cov_bal()`](aipw_cov_bal.md) : Covariate balance from the
+  implicit weights of AIPW or regression adjustment
+- [`summary(`*`<decomposed_aipw>`*`)`](summary.decomposed_aipw.md) :
+  Summarize AIPW or regression adjustment weights
+
+## Plotting
+
+- [`ggtwfeweights()`](ggtwfeweights.md) : Plot implicit weights or
+  covariate balance
+- [`ggtwfeweights(`*`<decomposed_aipw>`*`)`](ggtwfeweights.decomposed_aipw.md)
+  : Plot covariate balance for AIPW or regression adjustment weights
+- [`ggtwfeweights(`*`<decomposed_twfe>`*`)`](ggtwfeweights.decomposed_twfe.md)
+  : Plot covariate balance for TWFE or AIPW implicit weights
+- [`ggtwfeweights(`*`<mp_weights_obj>`*`)`](ggtwfeweights.mp_weights_obj.md)
+  : Plot weights on group-time average treatment effects
+- [`ggtwfeweights(`*`<two_period_covs_obj>`*`)`](ggtwfeweights.two_period_covs_obj.md)
+  : Plot covariate balance for two-period implicit weights
+
+## Balance statistics
+
+Can be applied to any set of weights.
+
+- [`pooled_sd()`](pooled_sd.md) : Pooled standard deviation of a
+  covariate
+- [`log_ratio_sd()`](log_ratio_sd.md) : Log ratio of standard deviations
+- [`frac_treated_extreme()`](frac_treated_extreme.md) : Fraction of
+  treated units with extreme covariate values
+- [`effective_sample_size()`](effective_sample_size.md) : Effective
+  sample size of a set of weights
+
+## Package
+
+- [`twfeweights`](twfeweights-package.md)
+  [`twfeweights-package`](twfeweights-package.md) : twfeweights:
+  Implicit Weights and Covariate Balance for Difference-in-Differences
+  Estimators
+
+# Articles
+
+### Articles
+
+- [TWFE Weights without Covariates](twfe-weights.md):
+- [Covariates: Implicit Weights and Covariate
+  Balance](covariate-balance.md):

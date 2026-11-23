@@ -2,7 +2,7 @@
 % Please edit documentation in R/twfeweights_mp.R
 \name{implicit_aipw_weights}
 \alias{implicit_aipw_weights}
-\title{implicit_aipw_weights}
+\title{Implicit weights from AIPW or regression adjustment with staggered adoption}
 \usage{
 implicit_aipw_weights(
   yname,
@@ -22,71 +22,100 @@ implicit_aipw_weights(
 )
 }
 \arguments{
-\item{yname}{the name of the outcome variable}
+\item{yname}{Name of the outcome variable.}
 
-\item{tname}{the name of the time period variable}
+\item{tname}{Name of the time period variable.}
 
-\item{idname}{the name of the id variable}
+\item{idname}{Name of the unit identifier.}
 
-\item{gname}{the name of the group variable}
+\item{gname}{Name of the group variable: the first period a unit is
+treated, or 0 for never-treated units.}
 
-\item{xformula}{a formula that includes the covariates that you would like
-to include in the AIPW regression.  Time-varying covariates provided in this
-argument will be included by taking their level in "base period"
-(which in this case is the period right before a particular group
-become treated).  Time-invariant covariates can also be included in this
-argument.  This is the same way that covariates are included
-in \code{did::att_gt}.}
+\item{xformula}{One-sided formula for covariates in the outcome model.
+Time-varying covariates enter through their level in the base period
+(\eqn{g-1}), as in \code{\link[did:att_gt]{did::att_gt()}}; time-invariant covariates can also be
+included. Default \code{~1}.}
 
-\item{d_covs_formula}{a formula that includes time-varying covariates to
-be included in the form \eqn{X_t - X_{g-1}}, i.e., their change from the
-"base period" to the current period.  By default, covariates are not
-included in this way which is the same as in \code{did::att_gt}, but you can
-include them by passing a formula here.}
+\item{d_covs_formula}{One-sided formula for time-varying covariates entered
+through their change from the base period, \eqn{X_t - X_{g-1}}. Default
+\code{NULL}.}
 
-\item{pscore_formula}{a formula that includes the covariates that you would
-like to include in the propensity score model.  By default, these covariates
-are the same as for the outcome regression which are provided in the earlier
-argument \code{xformula}.  This is a natural choice, but this argument allows
-these covariates to be different, if desired.
+\item{pscore_formula}{One-sided formula for covariates in the propensity
+score model. Defaults to \code{xformula}. Use \code{~1} for regression adjustment;
+use covariates here with \code{xformula = ~1} for inverse probability
+weighting.}
 
-Setting \code{pscore_formula} and \code{xformula} to be different allows for some
-important special cases to be handled by this function.  For one, providing
-covariates in \code{xformula} while setting \code{pscore_formula=~1} will deliver
-deliver "regression adjustment" estimates and decompositions.  For another,
-setting \code{pscore_formula} to include covariates while setting \code{xformula=~1}
-will deliver "inverse probability weighting" estimates and decompositions.}
+\item{pscore_d_covs_formula}{One-sided formula for covariate changes in the
+propensity score model. Defaults to \code{d_covs_formula}.}
 
-\item{pscore_d_covs_formula}{a formula that includes time-varying covariates
-to include as \eqn{X_t - X_{g-1}} in the propensity score model.  The default
-is to set these to be the same as the covariates in \code{d_covs_formula}.}
+\item{extra_balance_vars_formula}{Ignored; balance is computed afterwards
+with \code{\link[=aipw_cov_bal]{aipw_cov_bal()}}. Present so the arguments match
+\code{\link[=two_period_aipw_weights]{two_period_aipw_weights()}}.}
 
-\item{extra_balance_vars_formula}{is currently ignored.  This argument
-makes the arguments the same as for \code{two_period_aipw_weights}, but currently
-covariate balance checking is done in a different way in the multiple
-period case by calling \code{aipw_cov_bal} after running this function.}
-
-\item{extra_balance_d_vars_formula}{is currently ignored for the same
-reason as \code{extra_balance_vars_formula}.}
-
-\item{balance_d_vars_post}{is currently ignored for the same reason as
+\item{extra_balance_d_vars_formula}{Ignored, as for
 \code{extra_balance_vars_formula}.}
 
-\item{data}{a panel data set.  This function is currently only guaranteed
-to work with balanced and sorted panel data.  The function tries to
-balance and sort, but it is recommended to do this before calling the
-function.}
+\item{balance_d_vars_post}{Ignored, as for \code{extra_balance_vars_formula}.}
 
-\item{weightsname}{the name of the variable in the data set that contains
-the sampling weights.  The default is \code{NULL} which means that all
-observations are given equal weight.}
+\item{data}{A panel data.frame in long format. Unbalanced panels are
+balanced first (with a warning about the rows dropped).}
 
-\item{...}{extra arguments, not used here}
+\item{weightsname}{Name of the column holding sampling weights, which must
+be constant over time within each unit. Default \code{NULL} (unweighted).}
+
+\item{...}{Not used.}
 }
 \value{
-a \code{decomposed_aipw} object
+An object of class \code{decomposed_aipw}: a list with \code{est} (the
+estimate of \eqn{ATT^o}), \code{aipw_gt} (one element per post-treatment
+\eqn{(g,t)} cell with \code{g} and \code{tp} on a 1, 2, ..., T scale, the estimate
+\code{est}, the cell's weight in \eqn{ATT^o} \code{att_weight}, the implicit
+\code{weights}, \code{dy}, \code{D} and the comparison group's effective sample size
+\code{ess}), and the inputs needed by \code{\link[=aipw_cov_bal]{aipw_cov_bal()}}.
 }
 \description{
-a function to compute implicit AIPW weights in a setting with
-staggered treatment adoption.
+Estimates the overall average treatment effect on the treated,
+\eqn{ATT^o}, by augmented inverse probability weighting (AIPW), regression
+adjustment or inverse probability weighting, and writes each group-time
+estimate as a reweighting estimator so that \code{\link[=aipw_cov_bal]{aipw_cov_bal()}} can report
+how well the implicit weights balance covariates (Caetano and Callaway,
+2024).
+}
+\details{
+For each treated group \eqn{g} and post-treatment period \eqn{t},
+\code{\link[=two_period_aipw_weights]{two_period_aipw_weights()}} is applied to group \eqn{g} and the
+never-treated group in periods \eqn{g-1} and \eqn{t}. The \eqn{ATT(g,t)}
+are then combined into \eqn{ATT^o} with the weights in \code{\link[=attO_weights]{attO_weights()}}.
+Without \code{d_covs_formula}, the results equal \code{\link[did:att_gt]{did::att_gt()}} with the
+never-treated comparison group and the same covariates, aggregated with
+\code{did::aggte(type = "group")}. Regression adjustment
+(\code{pscore_formula = ~1}) is often preferable when groups are small, since
+the propensity score can then be poorly estimated.
+}
+\examples{
+\dontshow{if (requireNamespace("causaldata", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+data(castle, package = "causaldata")
+castle <- as.data.frame(castle)
+castle$G <- BMisc::get_group(castle, "sid", tname = "year", treatname = "post")
+
+# regression adjustment
+ra <- implicit_aipw_weights(
+  yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+  xformula = ~l_police, pscore_formula = ~1, data = castle
+)
+ra$est
+\dontshow{\}) # examplesIf}
+}
+\references{
+Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
+Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+\doi{10.48550/arXiv.2406.15288}
+
+Callaway, Brantly and Pedro H. C. Sant'Anna. "Difference-in-Differences
+with Multiple Time Periods." Journal of Econometrics 225.2 (2021).
+\doi{10.1016/j.jeconom.2020.12.001}
+}
+\seealso{
+\code{\link[=aipw_cov_bal]{aipw_cov_bal()}}, \code{\link[=summary.decomposed_aipw]{summary.decomposed_aipw()}},
+\code{\link[=implicit_twfe_weights]{implicit_twfe_weights()}}.
 }

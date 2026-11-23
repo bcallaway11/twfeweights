@@ -17,6 +17,12 @@
 	  their results visibly, so they print when called at the console.
 	* Clearer error and warning messages, which name the function, the
 	  requirement and an alternative where there is one.
+	* New vignettes: `vignette("twfe-weights")` (TWFE weights without
+	  covariates) and `vignette("covariate-balance")` (implicit weights and
+	  covariate balance with covariates).
+	* Every exported function now has examples, and the documentation has been
+	  rewritten to describe what each function computes and returns.
+	* `two_period_reg_weights()$est` is now an unnamed number.
 
 	* `twfe_weights()`, `attO_weights()` and `att_simple_weights()` now support
 	  sampling weights. By default they use the `weightsname` passed to

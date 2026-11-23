@@ -2,7 +2,7 @@
 % Please edit documentation in R/twfeweights_mp.R
 \name{ggtwfeweights.decomposed_aipw}
 \alias{ggtwfeweights.decomposed_aipw}
-\title{ggtwfeweights.decomposed_aipw}
+\title{Plot covariate balance for AIPW or regression adjustment weights}
 \usage{
 \method{ggtwfeweights}{decomposed_aipw}(
   x,
@@ -13,33 +13,42 @@
 )
 }
 \arguments{
-\item{x}{a \code{decomposed_aipw} object that comes from
-running \code{aipw_cov_bal} in a previous step.}
+\item{x}{A \code{decomposed_aipw} object after \code{\link[=aipw_cov_bal]{aipw_cov_bal()}}.}
 
-\item{plot_relative_to_target}{whether to plot the differences relative to the target population.
-This adds an extra point to the plot.}
+\item{plot_relative_to_target}{If \code{TRUE}, plot the weighted treated group,
+the weighted untreated group and the unweighted untreated group relative
+to the (unweighted) treated group, which shows whether the weights move
+the treated group away from its own covariate distribution. This adds an
+extra point per covariate. Default \code{FALSE}.}
 
-\item{absolute_value}{whether to plot the absolute value of the standardized difference
-or just the value of the standardized difference, default is TRUE.}
+\item{absolute_value}{Whether to plot the absolute value of the
+differences. Default \code{TRUE}.}
 
-\item{standardize}{a logical argument that determines whether the balance
-statistics should be standardized by the weighted average of the
-standard deviation of each covariate across post-treatment periods.
-The default is \code{TRUE}.
+\item{standardize}{Whether to divide the differences by a pooled standard
+deviation of each covariate, averaged over post-treatment cells. Default
+\code{TRUE}.}
 
-Because the (implicit) weights that combine estimates across groups and
-time periods are different for TWFE and the overall average treatment
-effect on the treated (as computed by \code{did::att_gt} or \code{implicit_aipw_weights}),
-the "unweighted" covariate balance statistics can be different across
-the two methods; however, these differences are typically relatively small.}
-
-\item{...}{extra arguments, not used here}
+\item{...}{Not used.}
 }
 \value{
-a ggplot object
+A ggplot object.
 }
 \description{
-a function to plot the balance statistics for the covariates
-that were passed into the \code{extra_balance_vars_formula} argument in
-\code{aipw_cov_bal}.
+Plots the difference in covariate means between treated and
+comparison groups before and after applying the implicit AIPW weights,
+averaged over post-treatment \eqn{(g,t)} cells, for the covariates passed
+to \code{\link[=aipw_cov_bal]{aipw_cov_bal()}}.
+}
+\examples{
+\dontshow{if (requireNamespace("causaldata", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+data(castle, package = "causaldata")
+castle <- as.data.frame(castle)
+castle$G <- BMisc::get_group(castle, "sid", tname = "year", treatname = "post")
+ra <- implicit_aipw_weights(
+  yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+  xformula = ~l_police, pscore_formula = ~1, data = castle
+)
+ra <- aipw_cov_bal(ra, ~ l_police + unemployrt + poverty)
+ggtwfeweights(ra)
+\dontshow{\}) # examplesIf}
 }

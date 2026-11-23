@@ -2,30 +2,40 @@
 % Please edit documentation in R/twfeweights_mp.R
 \name{aipw_cov_bal}
 \alias{aipw_cov_bal}
-\title{aipw_cov_bal}
+\title{Covariate balance from the implicit weights of AIPW or regression adjustment}
 \usage{
 aipw_cov_bal(decomposed_aipw, extra_balance_vars_formula)
 }
 \arguments{
-\item{decomposed_aipw}{a \code{decomposed_aipw} object that comes from
-running \code{implicit_aipw_weights} in a previous step.}
+\item{decomposed_aipw}{A \code{decomposed_aipw} object from
+\code{\link[=implicit_aipw_weights]{implicit_aipw_weights()}}.}
 
-\item{extra_balance_vars_formula}{a formula that includes the variables
-that you would like to compute balance statistics for.  The formula
-should be in the form of \code{~var1 + var2 + var3 + ...} where \code{var1},
-\code{var2}, and \code{var3} can be covariates whose values change over time.
-\code{twfe_cov_bal} will average these covariates across all time periods,
-and then compute balance statistics for each covariate where the
-balance statistics come from the implicit weights inherited from the
-TWFE regression.}
+\item{extra_balance_vars_formula}{One-sided formula for the covariates to
+report balance for, e.g. \code{~ x1 + x2 + region}. They do not need to be in
+the TWFE regression.}
 }
 \value{
-a \code{decomposed_aipw} object with the balance statistics added
-to the \code{aipw_gt} list element.
+The \code{decomposed_aipw} object with a balance table \code{cov_bal_df}
+added to each element of \code{aipw_gt}.
 }
 \description{
-A function to compute balance statistics inherited from
-from estimating the overall average treatment effect on the treated
-using augmented inverse probability weighting (AIPW) in a staggered
-treatment adoption setting.
+Computes how well the implicit weights from
+\code{\link[=implicit_aipw_weights]{implicit_aipw_weights()}} balance covariates between each treated group
+and the never-treated group, for each post-treatment \eqn{(g,t)} cell. As
+in \code{\link[=twfe_cov_bal]{twfe_cov_bal()}}, each covariate is averaged over time within each
+unit first, so the results can be compared with those for TWFE.
+}
+\examples{
+\dontshow{if (requireNamespace("causaldata", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+data(castle, package = "causaldata")
+castle <- as.data.frame(castle)
+castle$G <- BMisc::get_group(castle, "sid", tname = "year", treatname = "post")
+ra <- implicit_aipw_weights(
+  yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+  xformula = ~l_police, pscore_formula = ~1, data = castle
+)
+ra <- aipw_cov_bal(ra, ~ l_police + unemployrt + poverty)
+summary(ra)
+ggtwfeweights(ra)
+\dontshow{\}) # examplesIf}
 }

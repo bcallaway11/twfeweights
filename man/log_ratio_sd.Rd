@@ -2,7 +2,7 @@
 % Please edit documentation in R/two_period_covs.R
 \name{log_ratio_sd}
 \alias{log_ratio_sd}
-\title{log_ratio_sd}
+\title{Log ratio of standard deviations}
 \usage{
 log_ratio_sd(
   x,
@@ -12,22 +12,34 @@ log_ratio_sd(
 )
 }
 \arguments{
-\item{x}{a numeric vector}
+\item{x}{A numeric vector.}
 
-\item{D}{a binary vector indicating treated and untreated group}
+\item{D}{A binary vector, 1 for treated and 0 for untreated units.}
 
-\item{est_weights}{a numeric vector of weights coming from an estimation procedure
-(e.g., implicit regression or AIPW weights), default is \code{rep(1, length(x))}}
+\item{est_weights}{A numeric vector of weights from an estimation
+procedure (e.g., implicit regression or AIPW weights). Default
+\code{rep(1, length(x))} (unweighted).}
 
-\item{sampling_weights}{a numeric vector of weights, default is
-\code{rep(1, length(x))}}
+\item{sampling_weights}{A numeric vector of sampling weights. Default
+\code{rep(1, length(x))}.}
 }
 \value{
-a numeric value containing the log ratio of standard deviations
+A number: \eqn{\log(sd_1) - \log(sd_0)}.
 }
 \description{
-a helper function to compute the log ratio of standard deviations with
-treated and untreated group.  This is unit-free balance summary statistic that compares
-the spread of the distribution of the covariate for the treated group relative to the
-untreated group.  This is a balance summary statistic that was discussed in Imbens and Rubin (2015).
+Computes the log of the ratio of the standard deviation of a
+covariate for the treated group to its standard deviation for the
+untreated group, optionally after applying estimation weights. This
+unit-free balance statistic compares the spread of the two distributions
+(Imbens and Rubin, 2015); it is zero when the spreads are equal.
+}
+\examples{
+set.seed(1)
+D <- rep(c(1, 0), times = c(20, 80))
+x <- rnorm(100, sd = 1 + D)
+log_ratio_sd(x, D)
+}
+\references{
+Imbens, Guido W. and Donald B. Rubin. Causal Inference for Statistics,
+Social, and Biomedical Sciences. Cambridge University Press (2015).
 }

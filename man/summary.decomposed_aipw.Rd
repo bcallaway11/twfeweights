@@ -2,19 +2,37 @@
 % Please edit documentation in R/twfeweights_mp.R
 \name{summary.decomposed_aipw}
 \alias{summary.decomposed_aipw}
-\title{summary.decomposed_aipw}
+\title{Summarize AIPW or regression adjustment weights}
 \usage{
 \method{summary}{decomposed_aipw}(object, ...)
 }
 \arguments{
-\item{object}{a \code{decomposed_aipw} object that comes from running
-\code{implicit_aipw_weights} or \code{aipw_cov_bal}.}
+\item{object}{A \code{decomposed_aipw} object.}
 
-\item{...}{extra arguments, not used here}
+\item{...}{Not used.}
 }
 \value{
-a summary of the decomposition
+A data.frame. Before \code{\link[=aipw_cov_bal]{aipw_cov_bal()}}: one row per post-treatment
+\eqn{(g,t)} cell with the estimate and its weight in \eqn{ATT^o}. After:
+one row per covariate with unweighted and weighted means for the treated
+and comparison groups, their differences and the other balance
+statistics, averaged over cells using the \eqn{ATT^o} weights.
 }
 \description{
-a function to summarize the results of running \code{implicit_aipw_weights}.
+Prints the estimate of \eqn{ATT^o} from
+\code{\link[=implicit_aipw_weights]{implicit_aipw_weights()}} and an effective sample size for the comparison
+group, and returns either the \eqn{(g,t)}-level estimates or, after
+\code{\link[=aipw_cov_bal]{aipw_cov_bal()}}, a covariate balance table.
+}
+\examples{
+\dontshow{if (requireNamespace("causaldata", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+data(castle, package = "causaldata")
+castle <- as.data.frame(castle)
+castle$G <- BMisc::get_group(castle, "sid", tname = "year", treatname = "post")
+ra <- implicit_aipw_weights(
+  yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+  xformula = ~l_police, pscore_formula = ~1, data = castle
+)
+summary(ra)
+\dontshow{\}) # examplesIf}
 }

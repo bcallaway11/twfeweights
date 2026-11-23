@@ -2,7 +2,7 @@
 % Please edit documentation in R/two_period_covs.R
 \name{two_period_reg_weights}
 \alias{two_period_reg_weights}
-\title{Two Period TWFE with Covariates as Re-weighting}
+\title{Implicit weights from a two-period TWFE regression with covariates}
 \usage{
 two_period_reg_weights(
   yname,
@@ -20,46 +20,109 @@ two_period_reg_weights(
 )
 }
 \arguments{
-\item{yname}{the name of the outcome variable}
+\item{yname}{Name of the outcome variable.}
 
-\item{tname}{the name of the time variable}
+\item{tname}{Name of the time period variable. The data must have exactly
+two periods.}
 
-\item{idname}{the name of the id variable}
+\item{idname}{Name of the unit identifier.}
 
-\item{gname}{the name of the group variable.  Units in the untreated group
-should have this coded to be 0.  For treated units, this can be any
-positive number though all treated units should have the same value of
-group.}
+\item{gname}{Name of the group variable: 0 for untreated units and a
+single positive value (typically the second period) for treated units.}
 
-\item{xformula}{a formula for the covariates to include in the model.
-This formula should include time-varying covariates only.  Time-invariant
-covariates should be included in the \code{time_invariant_x_formula} argument.}
+\item{xformula}{One-sided formula for the time-varying covariates in the
+TWFE regression (which enter through their change between the two
+periods), e.g. \code{~ x1 + x2}. Default \code{~1} (no covariates).}
 
-\item{time_invariant_x_formula}{a formula for the time-invariant covariates
-to include in the TWFE regression.  These will effectively have a
-time-varying coefficient so that they do not drop out of the model.}
+\item{time_invariant_x_formula}{One-sided formula for time-invariant
+covariates to include with time-varying coefficients (so they do not drop
+out of the regression), e.g. \code{~ region}. Default \code{NULL}.}
 
-\item{extra_balance_vars_formula}{additional covariates to include in the balance statistics
-that are not included in the TWFE regression.  For time-varying covariates,
-the function uses their value in the first first time period.}
+\item{extra_balance_vars_formula}{One-sided formula for additional
+covariates to report balance for, without including them in the
+regression. Time-varying covariates enter through their value in the
+first period. Default \code{NULL}.}
 
-\item{extra_balance_d_vars_formula}{additional time-varying covariates
-to include in the balance statistics by including their change over time.}
+\item{extra_balance_d_vars_formula}{One-sided formula for additional
+time-varying covariates to report balance for through their second-period
+level or their change (see \code{balance_d_vars_post}). Default \code{NULL}.}
 
-\item{balance_d_vars_post}{For time-varying covariates passed in through
-\code{extra_balance_d_vars_formula}, whether to report balance for their levels
-in post-treatment periods or to report balance in the change in the covariates
-over time.  The first option is selected when this argument is set to be TRUE,
-which is the default.}
+\item{balance_d_vars_post}{For covariates in \code{extra_balance_d_vars_formula}:
+if \code{TRUE} (the default), report balance in their second-period level; if
+\code{FALSE}, in their change between the two periods.}
 
-\item{data}{the data frame}
+\item{data}{A balanced panel data.frame in long format.}
 
-\item{weightsname}{optional name of the sampling weights variable}
+\item{weightsname}{Name of the column holding sampling weights, which must
+be constant over time within each unit. Default \code{NULL} (unweighted).}
 
-\item{...}{additional arguments, currently unused but allows same arguments
-as would be used in \code{did::att_gt}}
+\item{...}{Not used; allows the same arguments as \code{\link[did:att_gt]{did::att_gt()}}.}
+}
+\value{
+An object of class \code{two_period_covs_obj}: a list with
+\describe{
+\item{est}{the TWFE coefficient on the treatment indicator.}
+\item{weights}{the implicit regression weights, one per unit.}
+\item{dy}{the change in the outcome for each unit.}
+\item{D}{the treatment indicator for each unit.}
+\item{cov_balance_df}{a data.frame with one row per variable (the
+change in the outcome first, then the covariates). Columns:
+\code{covariate}; unweighted and weighted means for the treated and
+untreated groups and their differences (\code{unweighted_treat},
+\code{unweighted_untreat}, \code{unweighted_diff}, \code{weighted_treat},
+\code{weighted_untreat}, \code{weighted_diff}); the pooled standard deviation
+\code{sd} (\code{\link[=pooled_sd]{pooled_sd()}}); and unweighted and weighted versions of the
+log ratio of standard deviations (\code{\link[=log_ratio_sd]{log_ratio_sd()}}) and the fraction
+of treated units with extreme values (\code{\link[=frac_treated_extreme]{frac_treated_extreme()}}).}
+\item{ess}{the effective sample size of the untreated group
+(\code{\link[=effective_sample_size]{effective_sample_size()}}).}
+}
 }
 \description{
-A function that computes implicit weights from a TWFE
-regression with two periods and covariates.
+With two periods, a TWFE regression with time-varying
+covariates is the regression of the change in the outcome on the
+treatment indicator and the change in the covariates. This function
+writes its coefficient on the treatment as a reweighting estimator
+(comparing weighted averages of the change in outcomes for the treated
+and untreated groups) and reports how well the implicit weights balance
+covariates (Caetano and Callaway, 2024).
+}
+\details{
+The implicit regression weights balance the means of the
+covariates that enter the regression (here, the changes in the
+time-varying covariates and any time-invariant covariates in
+\code{time_invariant_x_formula}) between the treated and untreated groups by
+construction. They do not, in general, balance the levels of the
+time-varying covariates or other covariates; the balance table and
+\code{\link[=ggtwfeweights]{ggtwfeweights()}} show by how much. When parallel trends holds
+conditional on covariates that the regression does not balance, the TWFE
+estimate can be biased even if all treatment effects are the same.
+}
+\examples{
+\dontshow{if (requireNamespace("causaldata", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+data(castle, package = "causaldata")
+castle <- as.data.frame(castle)
+# two periods: 2000 (before any state adopted) and 2010
+castle2 <- subset(castle, year \%in\% c(2000, 2010))
+castle2$G <- BMisc::get_group(castle2, "sid", tname = "year", treatname = "post")
+
+tw <- two_period_reg_weights(
+  yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+  xformula = ~ l_police + unemployrt, data = castle2
+)
+tw$est
+# changes in the covariates are balanced; their 2000 levels are not
+tw$cov_balance_df[, c("covariate", "unweighted_diff", "weighted_diff")]
+ggtwfeweights(tw)
+\dontshow{\}) # examplesIf}
+}
+\references{
+Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
+Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+\doi{10.48550/arXiv.2406.15288}
+}
+\seealso{
+\code{\link[=two_period_aipw_weights]{two_period_aipw_weights()}} for AIPW, regression adjustment and
+inverse probability weighting; \code{\link[=implicit_twfe_weights]{implicit_twfe_weights()}} for more than
+two periods.
 }

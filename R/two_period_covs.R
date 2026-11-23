@@ -41,39 +41,96 @@ two_period_covs_obj <- function(est,
 }
 
 
-#' @title Two Period TWFE with Covariates as Re-weighting
+#' @title Implicit weights from a two-period TWFE regression with covariates
 #'
-#' @description A function that computes implicit weights from a TWFE
-#' regression with two periods and covariates.
+#' @description With two periods, a TWFE regression with time-varying
+#'  covariates is the regression of the change in the outcome on the
+#'  treatment indicator and the change in the covariates. This function
+#'  writes its coefficient on the treatment as a reweighting estimator
+#'  (comparing weighted averages of the change in outcomes for the treated
+#'  and untreated groups) and reports how well the implicit weights balance
+#'  covariates (Caetano and Callaway, 2024).
 #'
-#' @param yname the name of the outcome variable
-#' @param tname the name of the time variable
-#' @param idname the name of the id variable
-#' @param gname the name of the group variable.  Units in the untreated group
-#'  should have this coded to be 0.  For treated units, this can be any
-#'  positive number though all treated units should have the same value of
-#'  group.
-#' @param xformula a formula for the covariates to include in the model.
-#'  This formula should include time-varying covariates only.  Time-invariant
-#'  covariates should be included in the `time_invariant_x_formula` argument.
-#' @param time_invariant_x_formula a formula for the time-invariant covariates
-#'  to include in the TWFE regression.  These will effectively have a
-#'  time-varying coefficient so that they do not drop out of the model.
-#' @param extra_balance_vars_formula additional covariates to include in the balance statistics
-#'  that are not included in the TWFE regression.  For time-varying covariates,
-#'  the function uses their value in the first first time period.
-#' @param extra_balance_d_vars_formula additional time-varying covariates
-#'  to include in the balance statistics by including their change over time.
-#' @param balance_d_vars_post For time-varying covariates passed in through
-#'  `extra_balance_d_vars_formula`, whether to report balance for their levels
-#'  in post-treatment periods or to report balance in the change in the covariates
-#'  over time.  The first option is selected when this argument is set to be TRUE,
-#'  which is the default.
-#' @param data the data frame
-#' @param weightsname optional name of the sampling weights variable
-#' @param ... additional arguments, currently unused but allows same arguments
-#'  as would be used in `did::att_gt`
+#' @details The implicit regression weights balance the means of the
+#'  covariates that enter the regression (here, the changes in the
+#'  time-varying covariates and any time-invariant covariates in
+#'  `time_invariant_x_formula`) between the treated and untreated groups by
+#'  construction. They do not, in general, balance the levels of the
+#'  time-varying covariates or other covariates; the balance table and
+#'  [ggtwfeweights()] show by how much. When parallel trends holds
+#'  conditional on covariates that the regression does not balance, the TWFE
+#'  estimate can be biased even if all treatment effects are the same.
 #'
+#' @param yname Name of the outcome variable.
+#' @param tname Name of the time period variable. The data must have exactly
+#'  two periods.
+#' @param idname Name of the unit identifier.
+#' @param gname Name of the group variable: 0 for untreated units and a
+#'  single positive value (typically the second period) for treated units.
+#' @param xformula One-sided formula for the time-varying covariates in the
+#'  TWFE regression (which enter through their change between the two
+#'  periods), e.g. `~ x1 + x2`. Default `~1` (no covariates).
+#' @param time_invariant_x_formula One-sided formula for time-invariant
+#'  covariates to include with time-varying coefficients (so they do not drop
+#'  out of the regression), e.g. `~ region`. Default `NULL`.
+#' @param extra_balance_vars_formula One-sided formula for additional
+#'  covariates to report balance for, without including them in the
+#'  regression. Time-varying covariates enter through their value in the
+#'  first period. Default `NULL`.
+#' @param extra_balance_d_vars_formula One-sided formula for additional
+#'  time-varying covariates to report balance for through their second-period
+#'  level or their change (see `balance_d_vars_post`). Default `NULL`.
+#' @param balance_d_vars_post For covariates in `extra_balance_d_vars_formula`:
+#'  if `TRUE` (the default), report balance in their second-period level; if
+#'  `FALSE`, in their change between the two periods.
+#' @param data A balanced panel data.frame in long format.
+#' @param weightsname Name of the column holding sampling weights, which must
+#'  be constant over time within each unit. Default `NULL` (unweighted).
+#' @param ... Not used; allows the same arguments as [did::att_gt()].
+#'
+#' @return An object of class `two_period_covs_obj`: a list with
+#'  \describe{
+#'    \item{est}{the TWFE coefficient on the treatment indicator.}
+#'    \item{weights}{the implicit regression weights, one per unit.}
+#'    \item{dy}{the change in the outcome for each unit.}
+#'    \item{D}{the treatment indicator for each unit.}
+#'    \item{cov_balance_df}{a data.frame with one row per variable (the
+#'      change in the outcome first, then the covariates). Columns:
+#'      `covariate`; unweighted and weighted means for the treated and
+#'      untreated groups and their differences (`unweighted_treat`,
+#'      `unweighted_untreat`, `unweighted_diff`, `weighted_treat`,
+#'      `weighted_untreat`, `weighted_diff`); the pooled standard deviation
+#'      `sd` ([pooled_sd()]); and unweighted and weighted versions of the
+#'      log ratio of standard deviations ([log_ratio_sd()]) and the fraction
+#'      of treated units with extreme values ([frac_treated_extreme()]).}
+#'    \item{ess}{the effective sample size of the untreated group
+#'      ([effective_sample_size()]).}
+#'  }
+#'
+#' @references
+#'  Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
+#'  Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+#'  \doi{10.48550/arXiv.2406.15288}
+#'
+#' @seealso [two_period_aipw_weights()] for AIPW, regression adjustment and
+#'  inverse probability weighting; [implicit_twfe_weights()] for more than
+#'  two periods.
+#'
+#' @examplesIf requireNamespace("causaldata", quietly = TRUE)
+#' data(castle, package = "causaldata")
+#' castle <- as.data.frame(castle)
+#' # two periods: 2000 (before any state adopted) and 2010
+#' castle2 <- subset(castle, year %in% c(2000, 2010))
+#' castle2$G <- BMisc::get_group(castle2, "sid", tname = "year", treatname = "post")
+#'
+#' tw <- two_period_reg_weights(
+#'   yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+#'   xformula = ~ l_police + unemployrt, data = castle2
+#' )
+#' tw$est
+#' # changes in the covariates are balanced; their 2000 levels are not
+#' tw$cov_balance_df[, c("covariate", "unweighted_diff", "weighted_diff")]
+#' ggtwfeweights(tw)
 #' @export
 two_period_reg_weights <- function(yname,
                                    tname,
@@ -162,7 +219,7 @@ two_period_reg_weights <- function(yname,
   twfe_reg <- lm(BMisc::toformula(paste0("d_", yname), c(".D", BMisc::rhs_vars(reg_xformula))),
     data = .df_wide, weights = .sampling_weights
   )
-  twfe_alp <- coef(twfe_reg)[2]
+  twfe_alp <- unname(coef(twfe_reg)[2])
   .regression_weights <- dresid / weighted.mean(dresid^2, w = sampling_weights) # from FWL
   # +1 for treated, -1 for untreated: the untreated regression weights are
   # negative, so this flips their sign when computing weighted balance below
@@ -297,19 +354,38 @@ two_period_reg_weights <- function(yname,
   out
 }
 
-#' @title ggtwfeweights.two_period_covs_obj
-#' @description a function to plot the balance statistics from the `two_period_covs` function
+#' @title Plot covariate balance for two-period implicit weights
 #'
-#' @param x the object returned from the `two_period_covs` function
-#' @param plot_outcome whether to include the outcome variable in the plot
-#' @param plot_relative_to_target whether to plot the differences relative to the target population.
-#'  This adds an extra point to the plot.
-#' @param absolute_value whether to plot the absolute value of the standardized difference
-#'  or just the value of the standardized difference, default is TRUE.
-#' @param standardize whether to standardize the differences by the standard deviation, default is TRUE.
-#' @param ... additional arguments, not used here
-#' @return a ggplot object
+#' @description Plots the difference in covariate means between the treated
+#'  and untreated groups before and after applying the implicit weights from
+#'  [two_period_reg_weights()] or [two_period_aipw_weights()].
 #'
+#' @param x A `two_period_covs_obj` object.
+#' @param plot_outcome Whether to include the change in the outcome in the
+#'  plot. Default `FALSE`.
+#' @param plot_relative_to_target If `TRUE`, plot the weighted treated group,
+#'  the weighted untreated group and the unweighted untreated group relative
+#'  to the (unweighted) treated group, which shows whether the weights move
+#'  the treated group away from its own covariate distribution. This adds an
+#'  extra point per covariate. Default `FALSE`.
+#' @param absolute_value Whether to plot the absolute value of the
+#'  differences. Default `TRUE`.
+#' @param standardize Whether to divide the differences by the pooled
+#'  standard deviation of each covariate ([pooled_sd()]). Default `TRUE`.
+#' @param ... Not used.
+#'
+#' @return A ggplot object.
+#'
+#' @examplesIf requireNamespace("causaldata", quietly = TRUE)
+#' data(castle, package = "causaldata")
+#' castle <- as.data.frame(castle)
+#' castle2 <- subset(castle, year %in% c(2000, 2010))
+#' castle2$G <- BMisc::get_group(castle2, "sid", tname = "year", treatname = "post")
+#' tw <- two_period_reg_weights(
+#'   yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+#'   xformula = ~ l_police + unemployrt, data = castle2
+#' )
+#' ggtwfeweights(tw, absolute_value = FALSE)
 #' @export
 ggtwfeweights.two_period_covs_obj <- function(
   x,
@@ -399,24 +475,78 @@ stack_balance_cols <- function(cov_balance_df, cols) {
 }
 
 
-#' @title Two Period AIPW Weights
+#' @title Implicit weights from AIPW, regression adjustment or IPW with two periods
 #'
-#' @description Computes implicit weights coming from AIPW estimation
-#'  of ATT with two periods.
+#' @description Writes the augmented inverse probability weighting (AIPW)
+#'  estimator of the average treatment effect on the treated, with two
+#'  periods, as a reweighting estimator and reports how well the implicit
+#'  weights balance covariates (Caetano and Callaway, 2024). Regression
+#'  adjustment and inverse probability weighting are special cases.
+#'
+#' @details The outcome model is a linear regression of the change in the
+#'  outcome on the covariates among untreated units; the propensity score is a
+#'  logit. Different covariates can enter the two models:
+#'  \itemize{
+#'    \item regression adjustment: covariates in `xformula` and
+#'      `d_covs_formula`, with `pscore_formula = ~1` and
+#'      `pscore_d_covs_formula = ~1`;
+#'    \item inverse probability weighting: covariates in `pscore_formula`,
+#'      with `xformula = ~1`.
+#'  }
+#'  The implicit weights balance every covariate in the outcome model exactly
+#'  (levels and changes), unlike TWFE regression weights
+#'  ([two_period_reg_weights()]), which balance only the covariates that
+#'  enter the regression. Without `d_covs_formula`, the estimate equals
+#'  [did::att_gt()] with the same covariates (`est_method = "dr"`, `"reg"` or
+#'  `"ipw"`). Comparison units
+#'  with an estimated propensity score of 0.995 or more are trimmed, as in
+#'  DRDID.
 #'
 #' @inheritParams two_period_reg_weights
-#' @inheritParams implicit_aipw_weights
-#' @param extra_balance_vars_formula additional covariates to include in the balance statistics
-#'  that are not included in estimating the ATT.  For time-varying covariates,
-#'  these are included in the balance statistics for the first period.
-#' @param extra_balance_d_vars_formula additional covariates to include in the balance statistics
-#'  by including their change over time.
-#' @param balance_d_vars_post For covariates passed in through
-#'  `extra_balance_d_vars_formula`, whether to report balance for their levels in post-treatment
-#'  period or to report balance in the change in the covariates over time.  The first option
-#'  is selected when this argument is set to be TRUE, which is the default.
-#' @return a `two_period_covs_obj` object that contains the aipw estimate
-#'  of the ATT and the implicit weights.
+#' @param xformula One-sided formula for covariates in the outcome model,
+#'  entered through their level in the first period (time-invariant
+#'  covariates can be included here too). Default `~1`.
+#' @param d_covs_formula One-sided formula for time-varying covariates in the
+#'  outcome model entered through their change between the two periods.
+#'  Default `NULL`.
+#' @param pscore_formula One-sided formula for covariates (first-period
+#'  levels) in the propensity score model. Defaults to `xformula`.
+#' @param pscore_d_covs_formula One-sided formula for covariate changes in the
+#'  propensity score model. Defaults to `d_covs_formula`.
+#' @param extra_balance_vars_formula One-sided formula for additional
+#'  covariates to report balance for, without including them in the models.
+#'  Time-varying covariates enter through their value in the first period.
+#'  Default `NULL`.
+#'
+#' @return An object of class `two_period_covs_obj`; see
+#'  [two_period_reg_weights()]. Here `est` is the AIPW (or regression
+#'  adjustment / IPW) estimate of the ATT and `weights` the implicit AIPW
+#'  weights.
+#'
+#' @references
+#'  Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
+#'  Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+#'  \doi{10.48550/arXiv.2406.15288}
+#'
+#' @seealso [two_period_reg_weights()], [implicit_aipw_weights()] for more
+#'  than two periods.
+#'
+#' @examplesIf requireNamespace("causaldata", quietly = TRUE)
+#' data(castle, package = "causaldata")
+#' castle <- as.data.frame(castle)
+#' castle2 <- subset(castle, year %in% c(2000, 2010))
+#' castle2$G <- BMisc::get_group(castle2, "sid", tname = "year", treatname = "post")
+#'
+#' # regression adjustment: no covariates in the propensity score
+#' ra <- two_period_aipw_weights(
+#'   yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+#'   xformula = ~ l_police + unemployrt, d_covs_formula = ~l_police,
+#'   pscore_formula = ~1, pscore_d_covs_formula = ~1, data = castle2
+#' )
+#' ra$est
+#' # every covariate in the outcome model is balanced exactly
+#' ra$cov_balance_df[, c("covariate", "unweighted_diff", "weighted_diff")]
+#' ggtwfeweights(ra)
 #' @export
 two_period_aipw_weights <- function(yname,
                                     tname,
@@ -765,26 +895,34 @@ two_period_aipw_weights <- function(yname,
 }
 
 
-#' @title pooled_sd
-#' @description a helper function to compute pooled standard deviations with treated and
-#' untreated group
+#' @title Pooled standard deviation of a covariate
 #'
-#' @details This function computes pooled standard deviations which are what is what is used
-#'  to compute normalized difference, where the pooled standard deviation comes from computing
-#'  the variance of `x` separately for the treated group and the untreated group, computing
-#'  a weighted average of these by their relative sizes, and then taking the square root.
-#'  One can make a case for reporting a different version of a normalized difference.
-#'  In particular, this isn't the same formula as in Imbens and Rubin (2015) (which directly
-#'  averages the two variances and then takes the square root).  There is also a case to be made for
-#'  using only the treated group to compute the standard deviation.  However, the
-#'  reason that we use the pooled standard deviation is that there are many applications
-#'  where the treated group is very small and the standard deviation is not well estimated
+#' @description Computes the pooled standard deviation of a covariate across
+#'  the treated and untreated groups, used to standardize differences in
+#'  covariate means.
 #'
-#' @param x a numeric vector
-#' @param D a binary vector indicating treated and untreated group
-#' @param sampling_weights a numeric vector of weights, default is
-#'  `rep(1, length(x))`
-#' @return a numeric value containing the pooled standard deviation
+#' @details The variance of `x` is computed separately for the treated and
+#'  untreated groups, the two are combined as in the usual pooled variance
+#'  (weighting each by its group size minus one), and the square root is
+#'  taken. This differs from Imbens and Rubin (2015), who average the two
+#'  variances with equal weights; weighting by group size is more stable when
+#'  the treated group is small.
+#'
+#' @param x A numeric vector.
+#' @param D A binary vector, 1 for treated and 0 for untreated units.
+#' @param sampling_weights A numeric vector of sampling weights. Default
+#'  `rep(1, length(x))`.
+#' @return A number: the pooled standard deviation.
+#'
+#' @references
+#'  Imbens, Guido W. and Donald B. Rubin. Causal Inference for Statistics,
+#'  Social, and Biomedical Sciences. Cambridge University Press (2015).
+#'
+#' @examples
+#' set.seed(1)
+#' D <- rep(c(1, 0), times = c(20, 80))
+#' x <- rnorm(100, mean = D)
+#' pooled_sd(x, D)
 #' @export
 pooled_sd <- function(x, D, sampling_weights = rep(1, length(x))) {
   sampling_weights <- sampling_weights / mean(sampling_weights)
@@ -806,15 +944,29 @@ pooled_sd <- function(x, D, sampling_weights = rep(1, length(x))) {
   pooled_sd
 }
 
-#' @title log_ratio_sd
-#' @description a helper function to compute the log ratio of standard deviations with
-#'  treated and untreated group.  This is unit-free balance summary statistic that compares
-#'  the spread of the distribution of the covariate for the treated group relative to the
-#'  untreated group.  This is a balance summary statistic that was discussed in Imbens and Rubin (2015).
+#' @title Log ratio of standard deviations
+#'
+#' @description Computes the log of the ratio of the standard deviation of a
+#'  covariate for the treated group to its standard deviation for the
+#'  untreated group, optionally after applying estimation weights. This
+#'  unit-free balance statistic compares the spread of the two distributions
+#'  (Imbens and Rubin, 2015); it is zero when the spreads are equal.
+#'
 #' @inheritParams pooled_sd
-#' @param est_weights a numeric vector of weights coming from an estimation procedure
-#'  (e.g., implicit regression or AIPW weights), default is `rep(1, length(x))`
-#' @return a numeric value containing the log ratio of standard deviations
+#' @param est_weights A numeric vector of weights from an estimation
+#'  procedure (e.g., implicit regression or AIPW weights). Default
+#'  `rep(1, length(x))` (unweighted).
+#' @return A number: \eqn{\log(sd_1) - \log(sd_0)}.
+#'
+#' @references
+#'  Imbens, Guido W. and Donald B. Rubin. Causal Inference for Statistics,
+#'  Social, and Biomedical Sciences. Cambridge University Press (2015).
+#'
+#' @examples
+#' set.seed(1)
+#' D <- rep(c(1, 0), times = c(20, 80))
+#' x <- rnorm(100, sd = 1 + D)
+#' log_ratio_sd(x, D)
 #' @export
 log_ratio_sd <- function(x, D, est_weights = rep(1, length(x)), sampling_weights = rep(1, length(x))) {
   # normalize sampling weights
@@ -842,17 +994,28 @@ log_ratio_sd <- function(x, D, est_weights = rep(1, length(x)), sampling_weights
   log(sd1) - log(sd2)
 }
 
-#' @title frac_treated_extreme
-#' @description a helper function to compute the fraction of treated units that have
-#'  extreme values of a covariate relative to the untreated group.  The function
-#'  calculates the (alpha/2) and (1-alpha/2) quantiles of the covariate for the
-#'  untreated group and then computes the fraction of treated units that have
-#'  values of the covariate that are less than the (alpha/2) quantile or greater
-#'  than the (1-alpha/2) quantile.  This is a balance summary statistic that was
-#'  discussed in Imbens and Rubin (2015).
+#' @title Fraction of treated units with extreme covariate values
+#'
+#' @description Computes the fraction of treated units whose value of a
+#'  covariate lies outside the \eqn{(\alpha/2, 1-\alpha/2)} quantile range of
+#'  that covariate in the untreated group, optionally after applying
+#'  estimation weights (Imbens and Rubin, 2015). Large values indicate
+#'  treated units with few comparable untreated units.
+#'
 #' @inheritParams log_ratio_sd
-#' @param alpha a numeric value between 0 and 1, default is 0.05
-#' @return a numeric value containing the fraction of treated units with extreme values
+#' @param alpha A number between 0 and 1. Default 0.05.
+#' @return A number between 0 and 1, or `NA` if `x` has fewer than three
+#'  distinct values.
+#'
+#' @references
+#'  Imbens, Guido W. and Donald B. Rubin. Causal Inference for Statistics,
+#'  Social, and Biomedical Sciences. Cambridge University Press (2015).
+#'
+#' @examples
+#' set.seed(1)
+#' D <- rep(c(1, 0), times = c(20, 80))
+#' x <- rnorm(100, mean = 2 * D)
+#' frac_treated_extreme(x, D)
 #' @export
 frac_treated_extreme <- function(x, D, est_weights = rep(1, length(x)),
                                  sampling_weights = rep(1, length(x)), alpha = 0.05) {
@@ -876,15 +1039,28 @@ frac_treated_extreme <- function(x, D, est_weights = rep(1, length(x)),
   fte
 }
 
-#' @title effective_sample_size
-#' @description a helper function to compute an effective sample size given
-#'  some estimation weights and sampling weights.  This function should be
-#'  called separately for the treated group and the untreated group.
-#' @param est_weights a numeric vector of weights coming from an estimation
-#'  procedure (e.g., implicit regression or AIPW weights) for one group
-#' @param sampling_weights a numeric vector of sampling weights for the same
-#'  units, default is `rep(1, length(est_weights))`
-#' @return a numeric value containing the effective sample size
+#' @title Effective sample size of a set of weights
+#'
+#' @description Computes Kish's effective sample size,
+#'  \eqn{(\sum_i w_i)^2 / \sum_i w_i^2}, for the estimation weights of one
+#'  group (call it separately for the treated and untreated groups). It
+#'  equals the number of units when all weights are equal and falls as the
+#'  weights become more concentrated.
+#'
+#' @details `sampling_weights` are used only to normalize `est_weights` to
+#'  have a (sampling-weighted) mean of one. Because the formula does not
+#'  change when the weights are rescaled, the result does not depend on
+#'  `sampling_weights`.
+#'
+#' @param est_weights A numeric vector of weights from an estimation
+#'  procedure (e.g., implicit regression or AIPW weights) for one group.
+#' @param sampling_weights A numeric vector of sampling weights for the same
+#'  units. Default `rep(1, length(est_weights))`.
+#' @return A number: the effective sample size.
+#'
+#' @examples
+#' effective_sample_size(rep(1, 50)) # 50: equal weights
+#' effective_sample_size(c(rep(1, 45), rep(10, 5))) # concentrated weights
 #' @export
 effective_sample_size <- function(est_weights, sampling_weights = rep(1, length(est_weights))) {
   # normalize sampling weights

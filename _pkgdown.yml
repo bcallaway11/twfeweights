@@ -1,0 +1,65 @@
+# =============================================================================
+# Title: pkgdown site configuration
+# Description: Reference index groups and articles for the pkgdown site.
+#   Add `url: https://bcallaway11.github.io/twfeweights/` (here and in the
+#   DESCRIPTION URL field) once GitHub Pages is enabled for the repo.
+# Author: Brant Callaway
+# Last update: 2026-11-23
+# Date created: 2026-11-23
+# =============================================================================
+
+template:
+  bootstrap: 5
+  bootswatch: cerulean
+
+reference:
+  - title: Staggered adoption without covariates
+    desc: >
+      Weights that a TWFE regression and the overall average treatment
+      effects of Callaway and Sant'Anna (2021) place on group-time average
+      treatment effects.
+    contents:
+      - twfe_weights
+      - attO_weights
+      - att_simple_weights
+
+  - title: Covariates, two periods
+    desc: >
+      TWFE regressions, AIPW, regression adjustment and inverse probability
+      weighting as reweighting estimators, with covariate balance.
+    contents:
+      - two_period_reg_weights
+      - two_period_aipw_weights
+
+  - title: Covariates, staggered adoption
+    contents:
+      - implicit_twfe_weights
+      - twfe_cov_bal
+      - summary.decomposed_twfe
+      - implicit_aipw_weights
+      - aipw_cov_bal
+      - summary.decomposed_aipw
+
+  - title: Plotting
+    contents:
+      - ggtwfeweights
+      - starts_with("ggtwfeweights.")
+
+  - title: Balance statistics
+    desc: Can be applied to any set of weights.
+    contents:
+      - pooled_sd
+      - log_ratio_sd
+      - frac_treated_extreme
+      - effective_sample_size
+
+  - title: Package
+    contents:
+      - twfeweights-package
+
+articles:
+  - title: Articles
+    navbar: ~
+    contents:
+      - twfe-weights
+      - covariate-balance

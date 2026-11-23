@@ -2,34 +2,41 @@
 % Please edit documentation in R/two_period_covs.R
 \name{pooled_sd}
 \alias{pooled_sd}
-\title{pooled_sd}
+\title{Pooled standard deviation of a covariate}
 \usage{
 pooled_sd(x, D, sampling_weights = rep(1, length(x)))
 }
 \arguments{
-\item{x}{a numeric vector}
+\item{x}{A numeric vector.}
 
-\item{D}{a binary vector indicating treated and untreated group}
+\item{D}{A binary vector, 1 for treated and 0 for untreated units.}
 
-\item{sampling_weights}{a numeric vector of weights, default is
-\code{rep(1, length(x))}}
+\item{sampling_weights}{A numeric vector of sampling weights. Default
+\code{rep(1, length(x))}.}
 }
 \value{
-a numeric value containing the pooled standard deviation
+A number: the pooled standard deviation.
 }
 \description{
-a helper function to compute pooled standard deviations with treated and
-untreated group
+Computes the pooled standard deviation of a covariate across
+the treated and untreated groups, used to standardize differences in
+covariate means.
 }
 \details{
-This function computes pooled standard deviations which are what is what is used
-to compute normalized difference, where the pooled standard deviation comes from computing
-the variance of \code{x} separately for the treated group and the untreated group, computing
-a weighted average of these by their relative sizes, and then taking the square root.
-One can make a case for reporting a different version of a normalized difference.
-In particular, this isn't the same formula as in Imbens and Rubin (2015) (which directly
-averages the two variances and then takes the square root).  There is also a case to be made for
-using only the treated group to compute the standard deviation.  However, the
-reason that we use the pooled standard deviation is that there are many applications
-where the treated group is very small and the standard deviation is not well estimated
+The variance of \code{x} is computed separately for the treated and
+untreated groups, the two are combined as in the usual pooled variance
+(weighting each by its group size minus one), and the square root is
+taken. This differs from Imbens and Rubin (2015), who average the two
+variances with equal weights; weighting by group size is more stable when
+the treated group is small.
+}
+\examples{
+set.seed(1)
+D <- rep(c(1, 0), times = c(20, 80))
+x <- rnorm(100, mean = D)
+pooled_sd(x, D)
+}
+\references{
+Imbens, Guido W. and Donald B. Rubin. Causal Inference for Statistics,
+Social, and Biomedical Sciences. Cambridge University Press (2015).
 }

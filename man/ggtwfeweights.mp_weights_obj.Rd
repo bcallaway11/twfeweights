@@ -2,15 +2,33 @@
 % Please edit documentation in R/twfeweights.R
 \name{ggtwfeweights.mp_weights_obj}
 \alias{ggtwfeweights.mp_weights_obj}
-\title{ggtwfeweights.mp_weights_obj}
+\title{Plot weights on group-time average treatment effects}
 \usage{
 \method{ggtwfeweights}{mp_weights_obj}(x, ...)
 }
 \arguments{
-\item{x}{An object of class mp_weights_obj}
+\item{x}{An object of class \code{mp_weights_obj}.}
 
-\item{...}{Additional arguments to be passed to ggplot}
+\item{...}{Not used.}
+}
+\value{
+A ggplot object.
 }
 \description{
-A function to plot weights on group-time average treatment effects
+Scatter plot of the weights from \code{\link[=twfe_weights]{twfe_weights()}},
+\code{\link[=attO_weights]{attO_weights()}} or \code{\link[=att_simple_weights]{att_simple_weights()}} (horizontal axis) against the
+estimated \eqn{ATT(g,t)} (vertical axis), with pre- and post-treatment
+cells in different colors.
+}
+\examples{
+\dontshow{if (requireNamespace("did", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+data(mpdta, package = "did")
+attgt <- did::att_gt(
+  yname = "lemp", tname = "year", idname = "countyreal",
+  gname = "first.treat", data = mpdta,
+  control_group = "nevertreated", base_period = "universal",
+  bstrap = FALSE, cband = FALSE
+)
+ggtwfeweights(twfe_weights(attgt))
+\dontshow{\}) # examplesIf}
 }
