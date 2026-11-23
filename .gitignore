@@ -5,3 +5,4 @@
 .DS_Store
 .quarto
 dev/
+/revdep/.cache.rds
