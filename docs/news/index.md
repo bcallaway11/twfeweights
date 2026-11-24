@@ -72,6 +72,22 @@ First CRAN release.
 - fix: the number of post-treatment periods is now the number of
   observed periods at or after `g`, not `max(t) - g + 1`. Weights were
   wrong when periods were skipped.
+- fix:
+  [`log_ratio_sd()`](https://bcallaway11.github.io/twfeweights/reference/log_ratio_sd.md)
+  now returns the log ratio of the (weighted) sample standard
+  deviations. Previously it was biased when the groups differed in size,
+  and with weights it used the spread of `x * w` instead of the weighted
+  spread of `x`. It returns `NA` when a standard deviation is not
+  defined (e.g., a single treated unit), and the staggered-adoption
+  balance summaries average it over the cells where it is defined; for
+  [`aipw_cov_bal()`](https://bcallaway11.github.io/twfeweights/reference/aipw_cov_bal.md)
+  it was previously not computed and reported as 0.
+- fix: with estimation weights,
+  [`frac_treated_extreme()`](https://bcallaway11.github.io/twfeweights/reference/frac_treated_extreme.md)
+  now uses the weighted distribution of `x` instead of the distribution
+  of `x * w` (unweighted results are unchanged).
+  [`aipw_cov_bal()`](https://bcallaway11.github.io/twfeweights/reference/aipw_cov_bal.md)
+  now computes it; previously it was reported as 0.
 - [`twfe_weights()`](https://bcallaway11.github.io/twfeweights/reference/twfe_weights.md),
   [`attO_weights()`](https://bcallaway11.github.io/twfeweights/reference/attO_weights.md)
   and

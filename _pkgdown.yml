@@ -11,7 +11,10 @@ url: https://bcallaway11.github.io/twfeweights/
 
 template:
   bootstrap: 5
-  bootswatch: yeti
+  bootswatch: minty
+
+navbar:
+  bg: primary
 
 reference:
   - title: Staggered adoption without covariates

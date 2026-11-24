@@ -81,6 +81,8 @@ with Multiple Time Periods." Journal of Econometrics 225.2 (2021).
 
 Useful links:
 
+- <https://bcallaway11.github.io/twfeweights/>
+
 - <https://github.com/bcallaway11/twfeweights>
 
 - Report bugs at <https://github.com/bcallaway11/twfeweights/issues>

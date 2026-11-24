@@ -4,7 +4,7 @@
 #   and IPW) weights with two periods, plus covariate balance statistics and
 #   the balance plot.
 # Author: Brant Callaway
-# Last update: 2026-11-23
+# Last update: 2026-11-24
 # Date created: 2024-05-28
 # =============================================================================
 
@@ -952,11 +952,25 @@ pooled_sd <- function(x, D, sampling_weights = rep(1, length(x))) {
 #'  unit-free balance statistic compares the spread of the two distributions
 #'  (Imbens and Rubin, 2015); it is zero when the spreads are equal.
 #'
+#' @details Within each group, each unit is weighted by the product of its
+#'  estimation weight and its sampling weight, and the standard deviation is
+#'  the weighted standard deviation with the usual small-sample correction
+#'  for weights, \eqn{\sum_i w_i (x_i - \bar{x}_w)^2 / (\sum_i w_i - \sum_i
+#'  w_i^2 / \sum_i w_i)}. With equal weights this is the ordinary sample
+#'  standard deviation, so the unweighted statistic is the one in Imbens and
+#'  Rubin (2015). The result does not depend on the scale of the weights.
+#'
+#'  The statistic is `NA` when either standard deviation is not defined:
+#'  for example, when a group has a single unit, when a covariate is constant
+#'  within a group, or when negative estimation weights (which implicit
+#'  regression and AIPW weights can have) make the weighted variance
+#'  negative.
+#'
 #' @inheritParams pooled_sd
 #' @param est_weights A numeric vector of weights from an estimation
 #'  procedure (e.g., implicit regression or AIPW weights). Default
 #'  `rep(1, length(x))` (unweighted).
-#' @return A number: \eqn{\log(sd_1) - \log(sd_0)}.
+#' @return A number, \eqn{\log(sd_1) - \log(sd_0)}, or `NA` (see Details).
 #'
 #' @references
 #'  Imbens, Guido W. and Donald B. Rubin. Causal Inference for Statistics,
@@ -966,32 +980,39 @@ pooled_sd <- function(x, D, sampling_weights = rep(1, length(x))) {
 #' set.seed(1)
 #' D <- rep(c(1, 0), times = c(20, 80))
 #' x <- rnorm(100, sd = 1 + D)
-#' log_ratio_sd(x, D)
+#' log_ratio_sd(x, D) # about log(2)
 #' @export
 log_ratio_sd <- function(x, D, est_weights = rep(1, length(x)), sampling_weights = rep(1, length(x))) {
-  # normalize sampling weights
-  sampling_weights <- sampling_weights / mean(sampling_weights)
-  # normalize estimation weights within group
-  est_weights[D == 1] <- est_weights[D == 1] / weighted.mean(est_weights[D == 1], w = sampling_weights[D == 1])
-  est_weights[D == 0] <- est_weights[D == 0] / weighted.mean(est_weights[D == 0], w = sampling_weights[D == 0])
-
-  # Function to compute weighted variance
-  weighted_var <- function(x, est_weights, sampling_weights) {
-    weighted.mean((x * est_weights - weighted.mean(x * est_weights, w = sampling_weights))^2, w = sampling_weights)
+  # The weight a unit gets in its group's (weighted) distribution of x is the
+  # product of its estimation and sampling weights.
+  w <- est_weights * sampling_weights
+  sd1 <- weighted_sd(x[D == 1], w[D == 1])
+  sd0 <- weighted_sd(x[D == 0], w[D == 0])
+  if (is.na(sd1) || is.na(sd0) || sd1 == 0 || sd0 == 0) {
+    return(NA_real_)
   }
+  log(sd1) - log(sd0)
+}
 
-  # Compute weighted variances
-  var1 <- weighted_var(x[D == 1], est_weights[D == 1], sampling_weights[D == 1])
-  var0 <- weighted_var(x[D == 0], est_weights[D == 0], sampling_weights[D == 0])
-
-  # Compute sample sizes (using weights sum)
-  n1 <- sum(sampling_weights[D == 1])
-  n0 <- sum(sampling_weights[D == 0])
-
-  sd1 <- sqrt(n1 - 1) * sqrt(var1)
-  sd2 <- sqrt(n0 - 1) * sqrt(var0)
-
-  log(sd1) - log(sd2)
+# Weighted standard deviation with the small-sample correction for
+# "reliability" weights: sum(w * (x - xbar_w)^2) / (V1 - V2 / V1), where
+# V1 = sum(w) and V2 = sum(w^2). It equals stats::sd(x) when all weights are
+# equal and does not depend on the scale of w. Returns NA when it is not
+# defined: fewer than two effective observations (Kish's V1^2 / V2 <= 1) or a
+# negative weighted variance, which can happen with negative weights.
+#   x: numeric vector; w: numeric vector of weights, same length.
+weighted_sd <- function(x, w) {
+  V1 <- sum(w)
+  V2 <- sum(w^2)
+  if (length(x) < 2 || !is.finite(V1) || V1 == 0 || V1^2 / V2 <= 1) {
+    return(NA_real_)
+  }
+  xbar <- sum(w * x) / V1
+  v <- sum(w * (x - xbar)^2) / (V1 - V2 / V1)
+  if (!is.finite(v) || v < 0) {
+    return(NA_real_)
+  }
+  sqrt(v)
 }
 
 #' @title Fraction of treated units with extreme covariate values
@@ -1002,10 +1023,23 @@ log_ratio_sd <- function(x, D, est_weights = rep(1, length(x)), sampling_weights
 #'  estimation weights (Imbens and Rubin, 2015). Large values indicate
 #'  treated units with few comparable untreated units.
 #'
+#' @details Within each group, each unit is weighted by the product of its
+#'  estimation weight and its sampling weight. With \eqn{F_1} and \eqn{F_0}
+#'  the weighted distribution functions of `x` among treated and untreated
+#'  units, the statistic is \eqn{1 - F_1(q_{1-\alpha/2}) + F_1(q_{\alpha/2})},
+#'  where \eqn{q_p} is the smallest value of `x` at which \eqn{F_0} reaches
+#'  \eqn{p}, as in Imbens and Rubin (2015). The result does not depend on the
+#'  scale of the weights.
+#'
+#'  Implicit regression and AIPW weights can be negative. The statistic is
+#'  still computed from the weighted distribution functions, but it is then
+#'  a signed weighted share and can fall outside \eqn{[0, 1]}.
+#'
 #' @inheritParams log_ratio_sd
 #' @param alpha A number between 0 and 1. Default 0.05.
-#' @return A number between 0 and 1, or `NA` if `x` has fewer than three
-#'  distinct values.
+#' @return A number (between 0 and 1 when all weights are non-negative), or
+#'  `NA` if `x` has fewer than three distinct values or the weights in a
+#'  group sum to zero.
 #'
 #' @references
 #'  Imbens, Guido W. and Donald B. Rubin. Causal Inference for Statistics,
@@ -1019,24 +1053,45 @@ log_ratio_sd <- function(x, D, est_weights = rep(1, length(x)), sampling_weights
 #' @export
 frac_treated_extreme <- function(x, D, est_weights = rep(1, length(x)),
                                  sampling_weights = rep(1, length(x)), alpha = 0.05) {
+  # not enough variation for the quantiles to be informative (e.g., a binary
+  # covariate)
   if (length(unique(x)) < 3) {
-    return(NA)
-  } # not enough variation to compute quantiles
+    return(NA_real_)
+  }
 
-  # normalize sampling weights
-  sampling_weights <- sampling_weights / mean(sampling_weights)
-  # normalize estimation weights within group
-  est_weights[D == 1] <- est_weights[D == 1] / weighted.mean(est_weights[D == 1], w = sampling_weights[D == 1])
-  est_weights[D == 0] <- est_weights[D == 0] / weighted.mean(est_weights[D == 0], w = sampling_weights[D == 0])
+  # The weight a unit gets in its group's (weighted) distribution of x is the
+  # product of its estimation and sampling weights.
+  w <- est_weights * sampling_weights
+  x1 <- x[D == 1]
+  w1 <- w[D == 1]
+  x0 <- x[D == 0]
+  w0 <- w[D == 0]
+  if (sum(w1) == 0 || sum(w0) == 0) {
+    return(NA_real_)
+  }
 
-  untreated_dist_func <- BMisc::weighted_ecdf(est_weights[D == 0] * x[D == 0], weights = sampling_weights[D == 0])
-  uq <- quantile(untreated_dist_func, 1 - alpha / 2)
-  lq <- quantile(untreated_dist_func, alpha / 2)
+  uq <- weighted_quantile(x0, w0, 1 - alpha / 2)
+  lq <- weighted_quantile(x0, w0, alpha / 2)
 
-  treated_dist_func <- BMisc::weighted_ecdf(est_weights[D == 1] * x[D == 1], weights = sampling_weights[D == 1])
+  # weighted share of treated units above the upper or at/below the lower
+  # quantile: 1 - F_1(uq) + F_1(lq)
+  sum(w1[x1 > uq | x1 <= lq]) / sum(w1)
+}
 
-  fte <- 1 - treated_dist_func(uq) + treated_dist_func(lq)
-  fte
+# Weighted quantile: the smallest value of x at which the weighted
+# distribution function, F(t) = sum(w[x <= t]) / sum(w), reaches p (as for
+# quantile type 1). Allows negative weights (F is then a signed cumulative
+# share). The 1e-12 tolerance guards against rounding in the cumulative sum.
+#   x: numeric vector; w: numeric vector of weights; p: probability.
+weighted_quantile <- function(x, w, p) {
+  o <- order(x)
+  x <- x[o]
+  cdf <- cumsum(w[o]) / sum(w)
+  # F at each distinct value is its value at the last tied observation
+  last <- !duplicated(x, fromLast = TRUE)
+  x <- x[last]
+  cdf <- cdf[last]
+  x[which(cdf >= p - 1e-12)[1]]
 }
 
 #' @title Effective sample size of a set of weights

@@ -47,6 +47,7 @@ with Multiple Time Periods." Journal of Econometrics 225.2 (2021).
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://bcallaway11.github.io/twfeweights/}
   \item \url{https://github.com/bcallaway11/twfeweights}
   \item Report bugs at \url{https://github.com/bcallaway11/twfeweights/issues}
 }

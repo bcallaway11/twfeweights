@@ -27,8 +27,9 @@ procedure (e.g., implicit regression or AIPW weights). Default
 \item{alpha}{A number between 0 and 1. Default 0.05.}
 }
 \value{
-A number between 0 and 1, or \code{NA} if \code{x} has fewer than three
-distinct values.
+A number (between 0 and 1 when all weights are non-negative), or
+\code{NA} if \code{x} has fewer than three distinct values or the weights in a
+group sum to zero.
 }
 \description{
 Computes the fraction of treated units whose value of a
@@ -36,6 +37,19 @@ covariate lies outside the \eqn{(\alpha/2, 1-\alpha/2)} quantile range of
 that covariate in the untreated group, optionally after applying
 estimation weights (Imbens and Rubin, 2015). Large values indicate
 treated units with few comparable untreated units.
+}
+\details{
+Within each group, each unit is weighted by the product of its
+estimation weight and its sampling weight. With \eqn{F_1} and \eqn{F_0}
+the weighted distribution functions of \code{x} among treated and untreated
+units, the statistic is \eqn{1 - F_1(q_{1-\alpha/2}) + F_1(q_{\alpha/2})},
+where \eqn{q_p} is the smallest value of \code{x} at which \eqn{F_0} reaches
+\eqn{p}, as in Imbens and Rubin (2015). The result does not depend on the
+scale of the weights.
+
+Implicit regression and AIPW weights can be negative. The statistic is
+still computed from the weighted distribution functions, but it is then
+a signed weighted share and can fall outside \eqn{[0, 1]}.
 }
 \examples{
 set.seed(1)

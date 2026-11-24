@@ -3,7 +3,7 @@
 # Description: Implicit TWFE regression weights and implicit AIPW weights on
 #   ATT(g,t) with covariates, covariate balance, summaries and plots.
 # Author: Brant Callaway
-# Last update: 2026-11-23
+# Last update: 2026-11-24
 # Date created: 2023-06-09
 # =============================================================================
 
@@ -711,21 +711,34 @@ mp_covariate_bal_summary_helper <- function(decomposed_twfe_obj) {
     cov_bal_list,
     function(x) sum(post * alpha_weight * x$weighted_covs_comparison)
   ))
+  # The log ratio of standard deviations and the fraction of treated units
+  # with extreme values are NA in cells where they are not defined (e.g., a
+  # group with a single treated unit), so average them over the
+  # post-treatment cells where they are defined, rescaling their weights to
+  # sum to the same total. NA if defined in no post-treatment cell.
+  avg_defined <- function(v) {
+    pw <- post * alpha_weight
+    ok <- !is.na(v) & post == 1
+    if (!any(ok) || sum(pw[ok]) == 0) {
+      return(NA_real_)
+    }
+    sum(pw[ok] * v[ok]) * sum(pw) / sum(pw[ok])
+  }
   unweighted_log_ratio_sd_diff <- unlist(lapply(
     cov_bal_list,
-    function(x) sum(post * alpha_weight * x$unweighted_log_ratio_sd_diff)
+    function(x) avg_defined(x$unweighted_log_ratio_sd_diff)
   ))
   weighted_log_ratio_sd_diff <- unlist(lapply(
     cov_bal_list,
-    function(x) sum(post * alpha_weight * x$weighted_log_ratio_sd_diff)
+    function(x) avg_defined(x$weighted_log_ratio_sd_diff)
   ))
   unweighted_frac_treated_extreme <- unlist(lapply(
     cov_bal_list,
-    function(x) sum(post * alpha_weight * x$unweighted_frac_treated_extreme)
+    function(x) avg_defined(x$unweighted_frac_treated_extreme)
   ))
   weighted_frac_treated_extreme <- unlist(lapply(
     cov_bal_list,
-    function(x) sum(post * alpha_weight * x$weighted_frac_treated_extreme)
+    function(x) avg_defined(x$weighted_frac_treated_extreme)
   ))
   # sanity check: for twfe should balance across all periods, b/c time-invariant - ok
   # lapply(cov_bal_list, function(x) sum(alpha_weight*x$weighted_diff))
@@ -1142,6 +1155,28 @@ aipw_cov_bal_gt <- function(g, tp, decomposed_aipw, X) {
     pooled_sd(x[both_idx], D = D, sampling_weights = sampling_weights[both_idx])
   })
 
+  # log ratio of standard deviations and fraction of treated units with
+  # extreme values; the AIPW weights already include the
+  # sampling weights, so they are passed alone as estimation weights. Like
+  # the means above, this relies on the rows of the (g,t) data being in the
+  # same (id) order as the rows of data at period tp.
+  treat_long <- 1 * treated_idx
+  est_weights <- rep(NA, nrow(data))
+  est_weights[treated_idx] <- weights_treated
+  est_weights[comparison_idx] <- weights_comparison
+  unweighted_lr_sd <- apply(X, 2, function(x) {
+    log_ratio_sd(x[both_idx], D = treat_long[both_idx], sampling_weights = sampling_weights[both_idx])
+  })
+  weighted_lr_sd <- apply(X, 2, function(x) {
+    log_ratio_sd(x[both_idx], D = treat_long[both_idx], est_weights = est_weights[both_idx])
+  })
+  unweighted_treated_extreme <- apply(X, 2, function(x) {
+    frac_treated_extreme(x[both_idx], D = treat_long[both_idx], sampling_weights = sampling_weights[both_idx])
+  })
+  weighted_treated_extreme <- apply(X, 2, function(x) {
+    frac_treated_extreme(x[both_idx], D = treat_long[both_idx], est_weights = est_weights[both_idx])
+  })
+
   # return data frame that contains the weighted covariates for the treated and comparison groups
   cbind.data.frame(
     unweighted_covs_treated,
@@ -1150,7 +1185,11 @@ aipw_cov_bal_gt <- function(g, tp, decomposed_aipw, X) {
     weighted_covs_treated,
     weighted_covs_comparison,
     weighted_diff,
-    sd
+    sd,
+    unweighted_log_ratio_sd_diff = unweighted_lr_sd,
+    weighted_log_ratio_sd_diff = weighted_lr_sd,
+    unweighted_frac_treated_extreme = unweighted_treated_extreme,
+    weighted_frac_treated_extreme = weighted_treated_extreme
   )
 }
 

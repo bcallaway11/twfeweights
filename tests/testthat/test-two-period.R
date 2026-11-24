@@ -3,7 +3,7 @@
 # Description: Two-period TWFE, AIPW, RA and IPW weights reproduce feols and
 #   did::att_gt(); covariate balance output; input validation errors.
 # Author: Brant Callaway
-# Last update: 2026-11-23
+# Last update: 2026-11-24
 # Date created: 2024-07-08
 # =============================================================================
 
@@ -786,6 +786,72 @@ test_that("log_ratio_sd is 0 for equal-variance groups", {
   d_ind <- c(rep(1, 4), rep(0, 4))
   result <- log_ratio_sd(x, d_ind)
   expect_equal(result, 0, tolerance = 1e-6)
+})
+
+test_that("log_ratio_sd matches sample sds with unequal group sizes", {
+  # previously each sd was scaled by sqrt(n - 1), biasing the statistic by
+  # 0.5 * log((n1 - 1) / (n0 - 1)) when group sizes differ
+  set.seed(123)
+  D <- rep(c(1, 0), times = c(20, 80))
+  x <- rnorm(100, sd = 1 + D)
+  expect_equal(log_ratio_sd(x, D), log(sd(x[D == 1])) - log(sd(x[D == 0])))
+})
+
+test_that("log_ratio_sd uses weighted sds of x, not sds of x * w", {
+  set.seed(456)
+  D <- rep(c(1, 0), times = c(30, 70))
+  x <- rnorm(100, mean = 5)
+  ew <- runif(100, 0.5, 2)
+  sw <- runif(100, 0.5, 2)
+  wsd <- function(x, w) sqrt(stats::cov.wt(matrix(x), wt = w / sum(w))$cov[1, 1])
+  w <- ew * sw
+  expected <- log(wsd(x[D == 1], w[D == 1])) - log(wsd(x[D == 0], w[D == 0]))
+  expect_equal(log_ratio_sd(x, D, est_weights = ew, sampling_weights = sw), expected)
+  # only the product of the weights matters, and not its scale
+  expect_equal(log_ratio_sd(x, D, est_weights = 3 * w), expected)
+  # shifting x does not change the spread (the old version used x * w)
+  expect_equal(log_ratio_sd(x + 100, D, est_weights = ew, sampling_weights = sw), expected)
+})
+
+test_that("frac_treated_extreme matches the Imbens-Rubin definition", {
+  set.seed(789)
+  D <- rep(c(1, 0), times = c(40, 60))
+  x <- round(rnorm(100, mean = D), 1) # rounded, so there are ties
+  # unweighted: quantiles of the untreated ecdf (type 1), then
+  # 1 - F_1(uq) + F_1(lq)
+  uq <- quantile(x[D == 0], 0.975, type = 1, names = FALSE)
+  lq <- quantile(x[D == 0], 0.025, type = 1, names = FALSE)
+  F1 <- ecdf(x[D == 1])
+  expect_equal(frac_treated_extreme(x, D), 1 - F1(uq) + F1(lq))
+})
+
+test_that("frac_treated_extreme uses the weighted distribution of x, not of x * w", {
+  set.seed(321)
+  D <- rep(c(1, 0), times = c(30, 70))
+  x <- rnorm(100, mean = 5 + D)
+  # integer weights act like repeating each unit
+  w <- sample(1:4, 100, replace = TRUE)
+  rep_idx <- rep(seq_along(x), times = w)
+  expected <- frac_treated_extreme(x[rep_idx], D[rep_idx])
+  expect_equal(frac_treated_extreme(x, D, est_weights = w), expected)
+  expect_equal(frac_treated_extreme(x, D, sampling_weights = w), expected)
+  # only the product of the weights matters, and not its scale
+  ew <- runif(100, 0.5, 2)
+  sw <- runif(100, 0.5, 2)
+  expect_equal(
+    frac_treated_extreme(x, D, est_weights = ew, sampling_weights = sw),
+    frac_treated_extreme(x, D, est_weights = 5 * ew * sw)
+  )
+  # shifting x does not change the result (the old version used x * w)
+  expect_equal(
+    frac_treated_extreme(x + 100, D, est_weights = ew, sampling_weights = sw),
+    frac_treated_extreme(x, D, est_weights = ew, sampling_weights = sw)
+  )
+})
+
+test_that("log_ratio_sd is NA when a standard deviation is not defined", {
+  expect_true(is.na(log_ratio_sd(c(1, 2, 3, 4), c(1, 0, 0, 0)))) # one treated unit
+  expect_true(is.na(log_ratio_sd(c(1, 1, 3, 4), c(1, 1, 0, 0)))) # constant in a group
 })
 
 # ---------------------------------------------------------------------------

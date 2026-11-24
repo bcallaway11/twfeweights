@@ -4,7 +4,7 @@
 #   feols and did::att_gt(), including sampling weights, region-by-year terms
 #   and the no-covariate case; covariate balance and structure of results.
 # Author: Brant Callaway
-# Last update: 2026-11-23
+# Last update: 2026-11-24
 # Date created: 2024-07-08
 # =============================================================================
 
@@ -370,6 +370,30 @@ test_that("implicit_aipw_weights returns a decomposed_aipw with expected fields"
   expect_s3_class(aipw_wts_castle, "decomposed_aipw")
   expect_true("aipw_gt" %in% names(aipw_wts_castle))
   expect_true(is.list(aipw_wts_castle$aipw_gt))
+})
+
+test_that("staggered balance tables report the log ratio of sds and extreme fractions", {
+  # castle has timing groups with a single treated state, where the log
+  # ratio is not defined; the summary averages over cells where it is.
+  # Previously TWFE gave NaN and AIPW (which did not compute it) gave 0.
+  covs <- ~ l_prisoner + l_income
+  twfe_full <- implicit_twfe_weights(
+    yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
+    xformula = ~l_police, base_period = "gmin1", data = castle
+  )
+  twfe_bal <- twfeweights:::mp_covariate_bal_summary_helper(twfe_cov_bal(twfe_full, covs)$twfe_gt)
+  aipw_bal <- twfeweights:::mp_covariate_bal_summary_helper(aipw_cov_bal(aipw_wts_castle, covs)$aipw_gt)
+  for (bal in list(twfe_bal, aipw_bal)) {
+    lr <- c(bal$unweighted_log_ratio_sd_diff, bal$weighted_log_ratio_sd_diff)
+    expect_true(all(is.finite(lr)))
+    expect_true(all(lr != 0))
+    fte <- c(bal$unweighted_frac_treated_extreme, bal$weighted_frac_treated_extreme)
+    expect_true(all(is.finite(fte)))
+  }
+  # AIPW cells now compute the fraction of treated units with extreme values
+  # (previously missing, and reported as 0)
+  aipw_cell <- aipw_cov_bal(aipw_wts_castle, covs)$aipw_gt[[1]]$cov_bal_df
+  expect_true("weighted_frac_treated_extreme" %in% colnames(aipw_cell))
 })
 
 # ---------------------------------------------------------------------------

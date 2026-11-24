@@ -44,8 +44,23 @@ frac_treated_extreme(
 
 ## Value
 
-A number between 0 and 1, or `NA` if `x` has fewer than three distinct
-values.
+A number (between 0 and 1 when all weights are non-negative), or `NA` if
+`x` has fewer than three distinct values or the weights in a group sum
+to zero.
+
+## Details
+
+Within each group, each unit is weighted by the product of its
+estimation weight and its sampling weight. With \\F_1\\ and \\F_0\\ the
+weighted distribution functions of `x` among treated and untreated
+units, the statistic is \\1 - F_1(q\_{1-\alpha/2}) +
+F_1(q\_{\alpha/2})\\, where \\q_p\\ is the smallest value of `x` at
+which \\F_0\\ reaches \\p\\, as in Imbens and Rubin (2015). The result
+does not depend on the scale of the weights.
+
+Implicit regression and AIPW weights can be negative. The statistic is
+still computed from the weighted distribution functions, but it is then
+a signed weighted share and can fall outside \\\[0, 1\]\\.
 
 ## References
 

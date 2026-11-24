@@ -24,7 +24,7 @@ procedure (e.g., implicit regression or AIPW weights). Default
 \code{rep(1, length(x))}.}
 }
 \value{
-A number: \eqn{\log(sd_1) - \log(sd_0)}.
+A number, \eqn{\log(sd_1) - \log(sd_0)}, or \code{NA} (see Details).
 }
 \description{
 Computes the log of the ratio of the standard deviation of a
@@ -33,11 +33,26 @@ untreated group, optionally after applying estimation weights. This
 unit-free balance statistic compares the spread of the two distributions
 (Imbens and Rubin, 2015); it is zero when the spreads are equal.
 }
+\details{
+Within each group, each unit is weighted by the product of its
+estimation weight and its sampling weight, and the standard deviation is
+the weighted standard deviation with the usual small-sample correction
+for weights, \eqn{\sum_i w_i (x_i - \bar{x}_w)^2 / (\sum_i w_i - \sum_i
+ w_i^2 / \sum_i w_i)}. With equal weights this is the ordinary sample
+standard deviation, so the unweighted statistic is the one in Imbens and
+Rubin (2015). The result does not depend on the scale of the weights.
+
+The statistic is \code{NA} when either standard deviation is not defined:
+for example, when a group has a single unit, when a covariate is constant
+within a group, or when negative estimation weights (which implicit
+regression and AIPW weights can have) make the weighted variance
+negative.
+}
 \examples{
 set.seed(1)
 D <- rep(c(1, 0), times = c(20, 80))
 x <- rnorm(100, sd = 1 + D)
-log_ratio_sd(x, D)
+log_ratio_sd(x, D) # about log(2)
 }
 \references{
 Imbens, Guido W. and Donald B. Rubin. Causal Inference for Statistics,

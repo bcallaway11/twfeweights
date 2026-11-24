@@ -89,7 +89,22 @@ procedure (e.g., implicit regression or AIPW weights). Default
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A number: \(\log(sd_1) - \log(sd_0)\).</p>
+    <p>A number, \(\log(sd_1) - \log(sd_0)\), or <code>NA</code> (see Details).</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Within each group, each unit is weighted by the product of its
+estimation weight and its sampling weight, and the standard deviation is
+the weighted standard deviation with the usual small-sample correction
+for weights, \(\sum_i w_i (x_i - \bar{x}_w)^2 / (\sum_i w_i - \sum_i
+ w_i^2 / \sum_i w_i)\). With equal weights this is the ordinary sample
+standard deviation, so the unweighted statistic is the one in Imbens and
+Rubin (2015). The result does not depend on the scale of the weights.</p>
+<p>The statistic is <code>NA</code> when either standard deviation is not defined:
+for example, when a group has a single unit, when a covariate is constant
+within a group, or when negative estimation weights (which implicit
+regression and AIPW weights can have) make the weighted variance
+negative.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -102,7 +117,7 @@ Social, and Biomedical Sciences. Cambridge University Press (2015).</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">D</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">80</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>, sd <span class="op">=</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">D</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">log_ratio_sd</span><span class="op">(</span><span class="va">x</span>, <span class="va">D</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">log_ratio_sd</span><span class="op">(</span><span class="va">x</span>, <span class="va">D</span><span class="op">)</span> <span class="co"># about log(2)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.02304912</span>
 </code></pre></div>
     </div>

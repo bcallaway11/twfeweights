@@ -39,6 +39,17 @@ First CRAN release.
 * fix: the number of post-treatment periods is now the number of observed
   periods at or after `g`, not `max(t) - g + 1`. Weights were wrong when
   periods were skipped.
+* fix: `log_ratio_sd()` now returns the log ratio of the (weighted) sample
+  standard deviations. Previously it was biased when the groups differed in
+  size, and with weights it used the spread of `x * w` instead of the
+  weighted spread of `x`. It returns `NA` when a standard deviation is not
+  defined (e.g., a single treated unit), and the staggered-adoption balance
+  summaries average it over the cells where it is defined; for
+  `aipw_cov_bal()` it was previously not computed and reported as 0.
+* fix: with estimation weights, `frac_treated_extreme()` now uses the
+  weighted distribution of `x` instead of the distribution of `x * w`
+  (unweighted results are unchanged). `aipw_cov_bal()` now computes it;
+  previously it was reported as 0.
 * `twfe_weights()`, `attO_weights()` and `att_simple_weights()` now return
   their results visibly, so they print when called at the console.
 * `two_period_reg_weights()$est` is now an unnamed number.
