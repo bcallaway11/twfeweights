@@ -88,6 +88,16 @@ First CRAN release.
   of `x * w` (unweighted results are unchanged).
   [`aipw_cov_bal()`](https://bcallaway11.github.io/twfeweights/reference/aipw_cov_bal.md)
   now computes it; previously it was reported as 0.
+- fix:
+  [`effective_sample_size()`](https://bcallaway11.github.io/twfeweights/reference/effective_sample_size.md)
+  now applies Kish’s formula to the estimation weights times the
+  sampling weights. Previously the sampling weights had no effect, so
+  with sampling weights the effective sample size reported for TWFE
+  ([`two_period_reg_weights()`](https://bcallaway11.github.io/twfeweights/reference/two_period_reg_weights.md),
+  [`implicit_twfe_weights()`](https://bcallaway11.github.io/twfeweights/reference/implicit_twfe_weights.md))
+  ignored them, while the one for AIPW and regression adjustment
+  included them. Results without sampling weights, and all AIPW and
+  regression adjustment results, are unchanged.
 - [`twfe_weights()`](https://bcallaway11.github.io/twfeweights/reference/twfe_weights.md),
   [`attO_weights()`](https://bcallaway11.github.io/twfeweights/reference/attO_weights.md)
   and

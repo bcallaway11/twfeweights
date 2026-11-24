@@ -50,6 +50,13 @@ First CRAN release.
   weighted distribution of `x` instead of the distribution of `x * w`
   (unweighted results are unchanged). `aipw_cov_bal()` now computes it;
   previously it was reported as 0.
+* fix: `effective_sample_size()` now applies Kish's formula to the
+  estimation weights times the sampling weights. Previously the sampling
+  weights had no effect, so with sampling weights the effective sample size
+  reported for TWFE (`two_period_reg_weights()`, `implicit_twfe_weights()`)
+  ignored them, while the one for AIPW and regression adjustment included
+  them. Results without sampling weights, and all AIPW and regression
+  adjustment results, are unchanged.
 * `twfe_weights()`, `attO_weights()` and `att_simple_weights()` now return
   their results visibly, so they print when called at the console.
 * `two_period_reg_weights()$est` is now an unnamed number.

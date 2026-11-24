@@ -761,6 +761,21 @@ test_that("effective_sample_size is lower for concentrated weights", {
   expect_gt(ess_uniform, ess_concentrated)
 })
 
+test_that("effective_sample_size uses estimation x sampling weights", {
+  set.seed(99)
+  ew <- runif(40, 0.2, 3)
+  sw <- runif(40, 0.5, 2)
+  a <- ew * sw
+  expect_equal(effective_sample_size(ew, sw), sum(a)^2 / sum(a^2))
+  # same as passing weights that already include the sampling weights
+  expect_equal(effective_sample_size(ew, sw), effective_sample_size(a))
+  # equal estimation weights: the effective sample size of the sampling weights
+  expect_equal(effective_sample_size(rep(2, 40), sw), sum(sw)^2 / sum(sw^2))
+  # n / (variance of the mean-one weights + 1), with divisor n
+  a1 <- a / mean(a)
+  expect_equal(effective_sample_size(ew, sw), 40 / (mean((a1 - 1)^2) + 1))
+})
+
 test_that("frac_treated_extreme returns NA for binary covariate", {
   x <- c(1, 1, 0, 0, 1, 0, 1, 0)
   d_ind <- c(1, 1, 1, 1, 0, 0, 0, 0)
