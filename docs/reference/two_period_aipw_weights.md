@@ -103,9 +103,9 @@ two_period_aipw_weights(
 ## Value
 
 An object of class `two_period_covs_obj`; see
-[`two_period_reg_weights()`](two_period_reg_weights.md). Here `est` is
-the AIPW (or regression adjustment / IPW) estimate of the ATT and
-`weights` the implicit AIPW weights.
+[`two_period_reg_weights()`](https://bcallaway11.github.io/twfeweights/reference/two_period_reg_weights.md).
+Here `est` is the AIPW (or regression adjustment / IPW) estimate of the
+ATT and `weights` the implicit AIPW weights.
 
 ## Details
 
@@ -121,9 +121,9 @@ Different covariates can enter the two models:
 
 The implicit weights balance every covariate in the outcome model
 exactly (levels and changes), unlike TWFE regression weights
-([`two_period_reg_weights()`](two_period_reg_weights.md)), which balance
-only the covariates that enter the regression. Without `d_covs_formula`,
-the estimate equals
+([`two_period_reg_weights()`](https://bcallaway11.github.io/twfeweights/reference/two_period_reg_weights.md)),
+which balance only the covariates that enter the regression. Without
+`d_covs_formula`, the estimate equals
 [`did::att_gt()`](https://bcallaway11.github.io/did/reference/att_gt.html)
 with the same covariates (`est_method = "dr"`, `"reg"` or `"ipw"`).
 Comparison units with an estimated propensity score of 0.995 or more are
@@ -137,9 +137,9 @@ Parallel Trends Holds Conditional on Covariates." Working paper (2024).
 
 ## See also
 
-[`two_period_reg_weights()`](two_period_reg_weights.md),
-[`implicit_aipw_weights()`](implicit_aipw_weights.md) for more than two
-periods.
+[`two_period_reg_weights()`](https://bcallaway11.github.io/twfeweights/reference/two_period_reg_weights.md),
+[`implicit_aipw_weights()`](https://bcallaway11.github.io/twfeweights/reference/implicit_aipw_weights.md)
+for more than two periods.
 
 ## Examples
 
@@ -155,6 +155,84 @@ ra <- two_period_aipw_weights(
   xformula = ~ l_police + unemployrt, d_covs_formula = ~l_police,
   pscore_formula = ~1, pscore_d_covs_formula = ~1, data = castle2
 )
+#> Warning: 'BMisc::makeBalancedPanel' is deprecated.
+#> Use 'make_balanced_panel' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
 ra$est
 #> [1] 0.1216572
 # every covariate in the outcome model is balanced exactly

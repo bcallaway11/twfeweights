@@ -59,5 +59,11 @@ set.seed(1)
 D <- rep(c(1, 0), times = c(20, 80))
 x <- rnorm(100, mean = 2 * D)
 frac_treated_extreme(x, D)
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
 #> [1] 0.65
 ```

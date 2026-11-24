@@ -31,7 +31,8 @@ remotes::install_github("bcallaway11/twfeweights")
 Estimate the $`ATT(g,t)`$ with
 [`did::att_gt()`](https://bcallaway11.github.io/did/reference/att_gt.html),
 using the never-treated group and a universal base period, then pass the
-result to [`twfe_weights()`](reference/twfe_weights.md):
+result to
+[`twfe_weights()`](https://bcallaway11.github.io/twfeweights/reference/twfe_weights.md):
 
 ``` r
 library(twfeweights)
@@ -59,18 +60,20 @@ ggtwfeweights(tw)
 ![](reference/figures/README-unnamed-chunk-2-1.png)
 
 Some post-treatment cells get negative weight, and pre-treatment cells
-get non-zero weight. [`attO_weights()`](reference/attO_weights.md) and
-[`att_simple_weights()`](reference/att_simple_weights.md) give the
-weights behind $`ATT^o`$ and $`ATT^{simple}`$ for comparison.
+get non-zero weight.
+[`attO_weights()`](https://bcallaway11.github.io/twfeweights/reference/attO_weights.md)
+and
+[`att_simple_weights()`](https://bcallaway11.github.io/twfeweights/reference/att_simple_weights.md)
+give the weights behind $`ATT^o`$ and $`ATT^{simple}`$ for comparison.
 
 ## Covariate balance
 
 With covariates,
-[`implicit_twfe_weights()`](reference/implicit_twfe_weights.md)
+[`implicit_twfe_weights()`](https://bcallaway11.github.io/twfeweights/reference/implicit_twfe_weights.md)
 decomposes the TWFE coefficient into weighted comparisons, and
-[`twfe_cov_bal()`](reference/twfe_cov_bal.md) reports how well the
-implicit weights balance covariates (here, for the effect of
-stand-your-ground laws on homicides):
+[`twfe_cov_bal()`](https://bcallaway11.github.io/twfeweights/reference/twfe_cov_bal.md)
+reports how well the implicit weights balance covariates (here, for the
+effect of stand-your-ground laws on homicides):
 
 ``` r
 data(castle, package = "causaldata")
@@ -87,18 +90,20 @@ ggtwfeweights(twm)
 
 ![](reference/figures/README-unnamed-chunk-3-1.png)
 
-[`implicit_aipw_weights()`](reference/implicit_aipw_weights.md) and
-[`aipw_cov_bal()`](reference/aipw_cov_bal.md) do the same for AIPW and
-regression adjustment;
-[`two_period_reg_weights()`](reference/two_period_reg_weights.md) and
-[`two_period_aipw_weights()`](reference/two_period_aipw_weights.md)
+[`implicit_aipw_weights()`](https://bcallaway11.github.io/twfeweights/reference/implicit_aipw_weights.md)
+and
+[`aipw_cov_bal()`](https://bcallaway11.github.io/twfeweights/reference/aipw_cov_bal.md)
+do the same for AIPW and regression adjustment;
+[`two_period_reg_weights()`](https://bcallaway11.github.io/twfeweights/reference/two_period_reg_weights.md)
+and
+[`two_period_aipw_weights()`](https://bcallaway11.github.io/twfeweights/reference/two_period_aipw_weights.md)
 cover the two-period case.
 
 ## Learn more
 
-- [`vignette("twfe-weights")`](articles/twfe-weights.md): TWFE weights
-  without covariates.
-- [`vignette("covariate-balance")`](articles/covariate-balance.md):
+- [`vignette("twfe-weights")`](https://bcallaway11.github.io/twfeweights/articles/twfe-weights.md):
+  TWFE weights without covariates.
+- [`vignette("covariate-balance")`](https://bcallaway11.github.io/twfeweights/articles/covariate-balance.md):
   implicit weights and covariate balance with covariates.
 
 ## References

@@ -2,8 +2,9 @@
 
 Plots the difference in covariate means between the treated and
 untreated groups before and after applying the implicit weights from
-[`two_period_reg_weights()`](two_period_reg_weights.md) or
-[`two_period_aipw_weights()`](two_period_aipw_weights.md).
+[`two_period_reg_weights()`](https://bcallaway11.github.io/twfeweights/reference/two_period_reg_weights.md)
+or
+[`two_period_aipw_weights()`](https://bcallaway11.github.io/twfeweights/reference/two_period_aipw_weights.md).
 
 ## Usage
 
@@ -45,7 +46,9 @@ ggtwfeweights(
 - standardize:
 
   Whether to divide the differences by the pooled standard deviation of
-  each covariate ([`pooled_sd()`](pooled_sd.md)). Default `TRUE`.
+  each covariate
+  ([`pooled_sd()`](https://bcallaway11.github.io/twfeweights/reference/pooled_sd.md)).
+  Default `TRUE`.
 
 - ...:
 
@@ -66,5 +69,86 @@ tw <- two_period_reg_weights(
   yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
   xformula = ~ l_police + unemployrt, data = castle2
 )
+#> Warning: 'BMisc::makeBalancedPanel' is deprecated.
+#> Use 'make_balanced_panel' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
 ggtwfeweights(tw, absolute_value = FALSE)
 ```

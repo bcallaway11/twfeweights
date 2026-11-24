@@ -1,46 +1,49 @@
 # twfeweights 1.0.0
 
-	* The package is now licensed under GPL-3 (previously MIT).
-	* Removed the unfinished `did_post_lasso()` and the unused `post_lasso`
-	  argument of `two_period_aipw_weights()`.
-	* Internal helpers are no longer exported: `gt_weights()`,
-	  `mp_weights_obj()`, `two_period_covs_obj()`,
-	  `mp_covariate_bal_summary_helper()`, `combine_twfe_weights_gt()`,
-	  `twfe_cov_bal_gt()` and `aipw_cov_bal_gt()`.
-	* Fewer dependencies: dplyr, tidyr, magrittr, rlang and DRDID are no
-	  longer required. caret is now a required (rather than suggested)
-	  package, because `implicit_twfe_weights()` needs it through BMisc.
-	* fix: `implicit_twfe_weights()` works without covariates
-	  (`xformula = ~1` or `NULL`). Previously this crashed R. Without
-	  covariates its weights now match `twfe_weights()`.
-	* `twfe_weights()`, `attO_weights()` and `att_simple_weights()` now return
-	  their results visibly, so they print when called at the console.
-	* Clearer error and warning messages, which name the function, the
-	  requirement and an alternative where there is one.
-	* New vignettes: `vignette("twfe-weights")` (TWFE weights without
-	  covariates) and `vignette("covariate-balance")` (implicit weights and
-	  covariate balance with covariates).
-	* Every exported function now has examples, and the documentation has been
-	  rewritten to describe what each function computes and returns.
-	* `two_period_reg_weights()$est` is now an unnamed number.
+First CRAN release.
 
-	* `twfe_weights()`, `attO_weights()` and `att_simple_weights()` now support
-	  sampling weights. By default they use the `weightsname` passed to
-	  `did::att_gt()`, so the TWFE weights reproduce a weighted TWFE regression.
-	* fix: the number of post-treatment periods is now the number of observed
-	  periods at or after `g`, not `max(t) - g + 1`. Weights were wrong when
-	  periods were skipped (e.g., a panel observed in only some years).
-	* allow for multiple periods
-	* allow for gaps between periods not equal to 1 (though
-	  periods must still be equally spaced)
-	* calculate att^O weights
-	* calculate att^simple weights
-	* add results for AIPW for two period case
-	* generalized AIPW to cover regression adjustment and ipw
-	* add results for AIPW for multiple period case
+## Functionality
 
-# twfeweights 0.0.0.9000
+* Staggered adoption without covariates: `twfe_weights()` recovers the
+  weights that a TWFE regression places on each group-time average treatment
+  effect, ATT(g,t), from the output of `did::att_gt()`. `attO_weights()` and
+  `att_simple_weights()` give the weights behind the overall ATT^o and
+  ATT^simple of Callaway and Sant'Anna (2021). All three support sampling
+  weights, gaps between periods, and panels observed in only some periods.
+* Covariates, two periods: `two_period_reg_weights()` and
+  `two_period_aipw_weights()` write a TWFE regression and AIPW, regression
+  adjustment or inverse probability weighting as reweighting estimators and
+  report covariate balance, following Caetano and Callaway (2024).
+* Covariates, staggered adoption: `implicit_twfe_weights()` and
+  `implicit_aipw_weights()` decompose the estimate into weighted group-time
+  comparisons; `twfe_cov_bal()` and `aipw_cov_bal()` add balance statistics,
+  with `summary()` and `ggtwfeweights()` methods.
+* Balance statistics that can be applied to any weights: `pooled_sd()`,
+  `log_ratio_sd()`, `frac_treated_extreme()` and `effective_sample_size()`.
 
-	* First version
-	* implicit two-way fixed effects regression weights
-	* covers the case with exactly two periods
+## Changes since the GitHub development version
+
+* The package is now licensed under GPL-3 (previously MIT).
+* Removed the unfinished `did_post_lasso()` and the unused `post_lasso`
+  argument of `two_period_aipw_weights()`.
+* Internal helpers are no longer exported: `gt_weights()`,
+  `mp_weights_obj()`, `two_period_covs_obj()`,
+  `mp_covariate_bal_summary_helper()`, `combine_twfe_weights_gt()`,
+  `twfe_cov_bal_gt()` and `aipw_cov_bal_gt()`.
+* Fewer dependencies: dplyr, tidyr, magrittr, rlang and DRDID are no longer
+  required. caret is now required (rather than suggested), because
+  `implicit_twfe_weights()` needs it through BMisc.
+* fix: `implicit_twfe_weights()` works without covariates (`xformula = ~1`
+  or `NULL`). Previously this crashed R. Without covariates its weights now
+  match `twfe_weights()`.
+* fix: the number of post-treatment periods is now the number of observed
+  periods at or after `g`, not `max(t) - g + 1`. Weights were wrong when
+  periods were skipped.
+* `twfe_weights()`, `attO_weights()` and `att_simple_weights()` now return
+  their results visibly, so they print when called at the console.
+* `two_period_reg_weights()$est` is now an unnamed number.
+* Clearer error and warning messages, which name the function, the
+  requirement and an alternative where there is one.
+* New vignettes: `vignette("twfe-weights")` and
+  `vignette("covariate-balance")`. Every exported function now has examples,
+  and the documentation describes what each function computes and returns.

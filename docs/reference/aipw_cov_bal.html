@@ -89,57 +89,903 @@ added to each element of <code>aipw_gt</code>.</p>
 <span class="r-in"><span>  yname <span class="op">=</span> <span class="st">"l_homicide"</span>, tname <span class="op">=</span> <span class="st">"year"</span>, idname <span class="op">=</span> <span class="st">"sid"</span>, gname <span class="op">=</span> <span class="st">"G"</span>,</span></span>
 <span class="r-in"><span>  xformula <span class="op">=</span> <span class="op">~</span><span class="va">l_police</span>, pscore_formula <span class="op">=</span> <span class="op">~</span><span class="fl">1</span>, data <span class="op">=</span> <span class="va">castle</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::makeBalancedPanel' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'make_balanced_panel' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::makeBalancedPanel' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'make_balanced_panel' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::addCovToFormla' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'add_cov_to_formula' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::makeBalancedPanel' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'make_balanced_panel' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::addCovToFormla' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'add_cov_to_formula' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::makeBalancedPanel' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'make_balanced_panel' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::addCovToFormla' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'add_cov_to_formula' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::makeBalancedPanel' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'make_balanced_panel' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::addCovToFormla' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'add_cov_to_formula' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::makeBalancedPanel' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'make_balanced_panel' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::addCovToFormla' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'add_cov_to_formula' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::makeBalancedPanel' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'make_balanced_panel' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::addCovToFormla' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'add_cov_to_formula' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::makeBalancedPanel' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'make_balanced_panel' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::addCovToFormla' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'add_cov_to_formula' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::makeBalancedPanel' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'make_balanced_panel' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::addCovToFormla' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'add_cov_to_formula' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::makeBalancedPanel' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'make_balanced_panel' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::addCovToFormla' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'add_cov_to_formula' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::makeBalancedPanel' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'make_balanced_panel' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::addCovToFormla' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'add_cov_to_formula' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::makeBalancedPanel' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'make_balanced_panel' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::addCovToFormla' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'add_cov_to_formula' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::makeBalancedPanel' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'make_balanced_panel' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::addCovToFormla' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'add_cov_to_formula' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::makeBalancedPanel' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'make_balanced_panel' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::addCovToFormla' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'add_cov_to_formula' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::makeBalancedPanel' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'make_balanced_panel' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::addCovToFormla' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'add_cov_to_formula' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::makeBalancedPanel' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'make_balanced_panel' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::rhs.vars' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'rhs_vars' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::addCovToFormla' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'add_cov_to_formula' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getWeightedDf' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'weighted_ecdf' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
 <span class="r-in"><span><span class="va">ra</span> <span class="op">&lt;-</span> <span class="fu">aipw_cov_bal</span><span class="op">(</span><span class="va">ra</span>, <span class="op">~</span> <span class="va">l_police</span> <span class="op">+</span> <span class="va">unemployrt</span> <span class="op">+</span> <span class="va">poverty</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::addCovToFormla' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'add_cov_to_formula' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">ra</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> overall att:            0.0513 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ess:                    353.0851 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> summary of aipw covariate balance:</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 unweighted_treat unweighted_untreat unweighted_diff</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> mean_l_police            5.75012           5.716611      0.03350882</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> mean_unemployrt          5.74632           5.305329      0.44099118</span>
@@ -157,6 +1003,18 @@ added to each element of <code>aipw_gt</code>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> mean_unemployrt                               0                             0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> mean_poverty                                  0                             0</span>
 <span class="r-in"><span><span class="fu"><a href="ggtwfeweights.html">ggtwfeweights</a></span><span class="op">(</span><span class="va">ra</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'BMisc::getListElement' is deprecated.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use 'get_list_element' instead.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> See help("Deprecated")</span>
 <span class="r-plt img"><img src="aipw_cov_bal-1.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>

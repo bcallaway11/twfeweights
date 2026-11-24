@@ -45,7 +45,8 @@ An object of class `mp_weights_obj`: a list with element `weights_df`, a
 data.frame with one row per group-time cell and columns `group`,
 `time.period`, `weight` (the TWFE weight), `attgt` (the estimated
 \\ATT(g,t)\\) and `post` (a factor, 1 for post-treatment cells). Plot it
-with [`ggtwfeweights()`](ggtwfeweights.md).
+with
+[`ggtwfeweights()`](https://bcallaway11.github.io/twfeweights/reference/ggtwfeweights.md).
 
 ## Details
 
@@ -62,7 +63,7 @@ not zero, so violations of parallel trends in pre-treatment periods feed
 into the TWFE estimate.
 
 For covariates in the TWFE regression, use
-[`implicit_twfe_weights()`](implicit_twfe_weights.md).
+[`implicit_twfe_weights()`](https://bcallaway11.github.io/twfeweights/reference/implicit_twfe_weights.md).
 
 ## References
 
@@ -81,9 +82,10 @@ Treatment Timing." Journal of Econometrics 225.2 (2021).
 
 ## See also
 
-[`attO_weights()`](attO_weights.md) and
-[`att_simple_weights()`](att_simple_weights.md) for the weights behind
-overall average treatment effect parameters.
+[`attO_weights()`](https://bcallaway11.github.io/twfeweights/reference/attO_weights.md)
+and
+[`att_simple_weights()`](https://bcallaway11.github.io/twfeweights/reference/att_simple_weights.md)
+for the weights behind overall average treatment effect parameters.
 
 ## Examples
 

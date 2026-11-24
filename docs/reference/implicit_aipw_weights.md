@@ -4,8 +4,9 @@ Estimates the overall average treatment effect on the treated,
 \\ATT^o\\, by augmented inverse probability weighting (AIPW), regression
 adjustment or inverse probability weighting, and writes each group-time
 estimate as a reweighting estimator so that
-[`aipw_cov_bal()`](aipw_cov_bal.md) can report how well the implicit
-weights balance covariates (Caetano and Callaway, 2024).
+[`aipw_cov_bal()`](https://bcallaway11.github.io/twfeweights/reference/aipw_cov_bal.md)
+can report how well the implicit weights balance covariates (Caetano and
+Callaway, 2024).
 
 ## Usage
 
@@ -75,8 +76,9 @@ implicit_aipw_weights(
 - extra_balance_vars_formula:
 
   Ignored; balance is computed afterwards with
-  [`aipw_cov_bal()`](aipw_cov_bal.md). Present so the arguments match
-  [`two_period_aipw_weights()`](two_period_aipw_weights.md).
+  [`aipw_cov_bal()`](https://bcallaway11.github.io/twfeweights/reference/aipw_cov_bal.md).
+  Present so the arguments match
+  [`two_period_aipw_weights()`](https://bcallaway11.github.io/twfeweights/reference/two_period_aipw_weights.md).
 
 - extra_balance_d_vars_formula:
 
@@ -107,16 +109,18 @@ An object of class `decomposed_aipw`: a list with `est` (the estimate of
 with `g` and `tp` on a 1, 2, ..., T scale, the estimate `est`, the
 cell's weight in \\ATT^o\\ `att_weight`, the implicit `weights`, `dy`,
 `D` and the comparison group's effective sample size `ess`), and the
-inputs needed by [`aipw_cov_bal()`](aipw_cov_bal.md).
+inputs needed by
+[`aipw_cov_bal()`](https://bcallaway11.github.io/twfeweights/reference/aipw_cov_bal.md).
 
 ## Details
 
 For each treated group \\g\\ and post-treatment period \\t\\,
-[`two_period_aipw_weights()`](two_period_aipw_weights.md) is applied to
-group \\g\\ and the never-treated group in periods \\g-1\\ and \\t\\.
-The \\ATT(g,t)\\ are then combined into \\ATT^o\\ with the weights in
-[`attO_weights()`](attO_weights.md). Without `d_covs_formula`, the
-results equal
+[`two_period_aipw_weights()`](https://bcallaway11.github.io/twfeweights/reference/two_period_aipw_weights.md)
+is applied to group \\g\\ and the never-treated group in periods \\g-1\\
+and \\t\\. The \\ATT(g,t)\\ are then combined into \\ATT^o\\ with the
+weights in
+[`attO_weights()`](https://bcallaway11.github.io/twfeweights/reference/attO_weights.md).
+Without `d_covs_formula`, the results equal
 [`did::att_gt()`](https://bcallaway11.github.io/did/reference/att_gt.html)
 with the never-treated comparison group and the same covariates,
 aggregated with `did::aggte(type = "group")`. Regression adjustment
@@ -135,9 +139,9 @@ with Multiple Time Periods." Journal of Econometrics 225.2 (2021).
 
 ## See also
 
-[`aipw_cov_bal()`](aipw_cov_bal.md),
-[`summary.decomposed_aipw()`](summary.decomposed_aipw.md),
-[`implicit_twfe_weights()`](implicit_twfe_weights.md).
+[`aipw_cov_bal()`](https://bcallaway11.github.io/twfeweights/reference/aipw_cov_bal.md),
+[`summary.decomposed_aipw()`](https://bcallaway11.github.io/twfeweights/reference/summary.decomposed_aipw.md),
+[`implicit_twfe_weights()`](https://bcallaway11.github.io/twfeweights/reference/implicit_twfe_weights.md).
 
 ## Examples
 
@@ -151,51 +155,771 @@ ra <- implicit_aipw_weights(
   yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
   xformula = ~l_police, pscore_formula = ~1, data = castle
 )
-#> Warning: pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.
-#>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.
-#>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.
-#> Warning: pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.
-#>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.
-#>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.
-#> Warning: pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.
-#>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.
-#>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.
-#> Warning: pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.
-#>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.
-#>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.
-#> Warning: pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.
-#>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.
-#>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.
-#> Warning: pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.
-#>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.
-#>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.
-#> Warning: pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.
-#>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.
-#>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.
-#> Warning: pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.
-#>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.
-#>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.
-#> Warning: pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.
-#>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.
-#>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.
-#> Warning: pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.
-#>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.
-#>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.
-#> Warning: pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.
-#>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.
-#>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.
-#> Warning: pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.
-#>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.
-#>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.
-#> Warning: pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.
-#>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.
-#>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.
-#> Warning: pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.
-#>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.
-#>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.
-#> Warning: pscore_d_covs_formula = NULL means no covariate changes are used in the propensity score.
-#>   * To use the outcome-regression covariates, set pscore_d_covs_formula = d_covs_formula.
-#>   * To use no covariates without this warning, set pscore_d_covs_formula = ~1.
+#> Warning: 'BMisc::makeBalancedPanel' is deprecated.
+#> Use 'make_balanced_panel' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::makeBalancedPanel' is deprecated.
+#> Use 'make_balanced_panel' instead.
+#> See help("Deprecated")
+#> Warning: setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.
+#> 
+#>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula
+#> 
+#>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::makeBalancedPanel' is deprecated.
+#> Use 'make_balanced_panel' instead.
+#> See help("Deprecated")
+#> Warning: setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.
+#> 
+#>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula
+#> 
+#>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::makeBalancedPanel' is deprecated.
+#> Use 'make_balanced_panel' instead.
+#> See help("Deprecated")
+#> Warning: setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.
+#> 
+#>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula
+#> 
+#>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::makeBalancedPanel' is deprecated.
+#> Use 'make_balanced_panel' instead.
+#> See help("Deprecated")
+#> Warning: setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.
+#> 
+#>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula
+#> 
+#>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::makeBalancedPanel' is deprecated.
+#> Use 'make_balanced_panel' instead.
+#> See help("Deprecated")
+#> Warning: setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.
+#> 
+#>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula
+#> 
+#>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::makeBalancedPanel' is deprecated.
+#> Use 'make_balanced_panel' instead.
+#> See help("Deprecated")
+#> Warning: setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.
+#> 
+#>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula
+#> 
+#>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::makeBalancedPanel' is deprecated.
+#> Use 'make_balanced_panel' instead.
+#> See help("Deprecated")
+#> Warning: setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.
+#> 
+#>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula
+#> 
+#>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::makeBalancedPanel' is deprecated.
+#> Use 'make_balanced_panel' instead.
+#> See help("Deprecated")
+#> Warning: setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.
+#> 
+#>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula
+#> 
+#>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::makeBalancedPanel' is deprecated.
+#> Use 'make_balanced_panel' instead.
+#> See help("Deprecated")
+#> Warning: setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.
+#> 
+#>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula
+#> 
+#>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::makeBalancedPanel' is deprecated.
+#> Use 'make_balanced_panel' instead.
+#> See help("Deprecated")
+#> Warning: setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.
+#> 
+#>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula
+#> 
+#>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::makeBalancedPanel' is deprecated.
+#> Use 'make_balanced_panel' instead.
+#> See help("Deprecated")
+#> Warning: setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.
+#> 
+#>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula
+#> 
+#>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::makeBalancedPanel' is deprecated.
+#> Use 'make_balanced_panel' instead.
+#> See help("Deprecated")
+#> Warning: setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.
+#> 
+#>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula
+#> 
+#>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::makeBalancedPanel' is deprecated.
+#> Use 'make_balanced_panel' instead.
+#> See help("Deprecated")
+#> Warning: setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.
+#> 
+#>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula
+#> 
+#>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::makeBalancedPanel' is deprecated.
+#> Use 'make_balanced_panel' instead.
+#> See help("Deprecated")
+#> Warning: setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.
+#> 
+#>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula
+#> 
+#>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::makeBalancedPanel' is deprecated.
+#> Use 'make_balanced_panel' instead.
+#> See help("Deprecated")
+#> Warning: setting pscore_d_covs_formula=NULL results in no covariates being used in the propensity score.
+#> 
+#>      * to use the same covariates as for the outcome regression, set pscore_d_covs_formula=d_covs_formula
+#> 
+#>      * to use no covariates and avoid this warnings, set pscore_d_covs_formula=~1
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getListElement' is deprecated.
+#> Use 'get_list_element' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getListElement' is deprecated.
+#> Use 'get_list_element' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getListElement' is deprecated.
+#> Use 'get_list_element' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getListElement' is deprecated.
+#> Use 'get_list_element' instead.
+#> See help("Deprecated")
 ra$est
 #> [1] 0.05128711
 ```

@@ -78,7 +78,7 @@
 </h2>
 <p>Estimate the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>T</mi><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo>,</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">ATT(g,t)</annotation></semantics></math> with <code><a href="https://bcallaway11.github.io/did/reference/att_gt.html" class="external-link">did::att_gt()</a></code>, using the never-treated group and a universal base period, then pass the result to <code><a href="reference/twfe_weights.html">twfe_weights()</a></code>:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bcallaway11/twfeweights" class="external-link">twfeweights</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">twfeweights</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">mpdta</span>, package <span class="op">=</span> <span class="st">"did"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">attgt</span> <span class="op">&lt;-</span> <span class="fu">did</span><span class="fu">::</span><span class="fu"><a href="https://bcallaway11.github.io/did/reference/att_gt.html" class="external-link">att_gt</a></span><span class="op">(</span></span>

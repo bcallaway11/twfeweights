@@ -6,8 +6,8 @@ fixed effects (TWFE) regression with covariates,
 each treated group and the never-treated group in each time period
 (Caetano and Callaway, 2024). The weights within each comparison show
 how the regression reweights units, and
-[`twfe_cov_bal()`](twfe_cov_bal.md) reports how well they balance
-covariates.
+[`twfe_cov_bal()`](https://bcallaway11.github.io/twfeweights/reference/twfe_cov_bal.md)
+reports how well they balance covariates.
 
 ## Usage
 
@@ -95,7 +95,8 @@ An object of class `decomposed_twfe`: a list with
 
 - idname, tname, gname, weightsname, data:
 
-  inputs, kept for [`twfe_cov_bal()`](twfe_cov_bal.md).
+  inputs, kept for
+  [`twfe_cov_bal()`](https://bcallaway11.github.io/twfeweights/reference/twfe_cov_bal.md).
 
 ## Details
 
@@ -123,7 +124,7 @@ as in `~ x + as.factor(year) * as.factor(region)`. Without covariates
 equals \\ATT(g,t)\\ from
 [`did::att_gt()`](https://bcallaway11.github.io/did/reference/att_gt.html)
 (universal base period) and `alpha_weight` equals the weights from
-[`twfe_weights()`](twfe_weights.md).
+[`twfe_weights()`](https://bcallaway11.github.io/twfeweights/reference/twfe_weights.md).
 
 ## References
 
@@ -133,10 +134,11 @@ Parallel Trends Holds Conditional on Covariates." Working paper (2024).
 
 ## See also
 
-[`twfe_cov_bal()`](twfe_cov_bal.md),
-[`summary.decomposed_twfe()`](summary.decomposed_twfe.md),
-[`implicit_aipw_weights()`](implicit_aipw_weights.md),
-[`two_period_reg_weights()`](two_period_reg_weights.md) for two periods.
+[`twfe_cov_bal()`](https://bcallaway11.github.io/twfeweights/reference/twfe_cov_bal.md),
+[`summary.decomposed_twfe()`](https://bcallaway11.github.io/twfeweights/reference/summary.decomposed_twfe.md),
+[`implicit_aipw_weights()`](https://bcallaway11.github.io/twfeweights/reference/implicit_aipw_weights.md),
+[`two_period_reg_weights()`](https://bcallaway11.github.io/twfeweights/reference/two_period_reg_weights.md)
+for two periods.
 
 ## Examples
 
@@ -149,6 +151,354 @@ tw <- implicit_twfe_weights(
   yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
   xformula = ~ l_police + unemployrt, base_period = "gmin1", data = castle
 )
+#> Warning: 'BMisc::makeBalancedPanel' is deprecated.
+#> Use 'make_balanced_panel' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::addCovToFormla' is deprecated.
+#> Use 'add_cov_to_formula' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getListElement' is deprecated.
+#> Use 'get_list_element' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getListElement' is deprecated.
+#> Use 'get_list_element' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getListElement' is deprecated.
+#> Use 'get_list_element' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getListElement' is deprecated.
+#> Use 'get_list_element' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getListElement' is deprecated.
+#> Use 'get_list_element' instead.
+#> See help("Deprecated")
 tw$est
 #> [1] 0.07016711
 coef(fixest::feols(l_homicide ~ post + l_police + unemployrt | sid + year,
@@ -157,6 +507,24 @@ coef(fixest::feols(l_homicide ~ post + l_police + unemployrt | sid + year,
 #>       post 
 #> 0.07016711 
 summary(tw)
+#> Warning: 'BMisc::getListElement' is deprecated.
+#> Use 'get_list_element' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getListElement' is deprecated.
+#> Use 'get_list_element' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getListElement' is deprecated.
+#> Use 'get_list_element' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getListElement' is deprecated.
+#> Use 'get_list_element' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getListElement' is deprecated.
+#> Use 'get_list_element' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getListElement' is deprecated.
+#> Use 'get_list_element' instead.
+#> See help("Deprecated")
 #> alpha twfe:           0.0702 
 #> alpha decomp:         0.0701 
 #> alpha post only:      0.0181 

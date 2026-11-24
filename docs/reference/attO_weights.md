@@ -46,8 +46,8 @@ attO_weights(
 ## Value
 
 An object of class `mp_weights_obj`; see
-[`twfe_weights()`](twfe_weights.md). Here `weight` holds the \\ATT^o\\
-weights.
+[`twfe_weights()`](https://bcallaway11.github.io/twfeweights/reference/twfe_weights.md).
+Here `weight` holds the \\ATT^o\\ weights.
 
 ## Details
 
@@ -55,8 +55,8 @@ The weight on a post-treatment cell \\(g,t)\\ is \\P(G = g \| G \neq
 0)\\ divided by the number of post-treatment periods for group \\g\\;
 weights on pre-treatment cells are zero. All weights are non-negative
 and sum to one. Comparing these weights with
-[`twfe_weights()`](twfe_weights.md) shows how a TWFE regression
-reweights the same building blocks.
+[`twfe_weights()`](https://bcallaway11.github.io/twfeweights/reference/twfe_weights.md)
+shows how a TWFE regression reweights the same building blocks.
 
 ## References
 
@@ -66,8 +66,8 @@ with Multiple Time Periods." Journal of Econometrics 225.2 (2021).
 
 ## See also
 
-[`twfe_weights()`](twfe_weights.md),
-[`att_simple_weights()`](att_simple_weights.md)
+[`twfe_weights()`](https://bcallaway11.github.io/twfeweights/reference/twfe_weights.md),
+[`att_simple_weights()`](https://bcallaway11.github.io/twfeweights/reference/att_simple_weights.md)
 
 ## Examples
 

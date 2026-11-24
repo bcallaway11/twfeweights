@@ -119,16 +119,17 @@ An object of class `two_period_covs_obj`: a list with
   differences (`unweighted_treat`, `unweighted_untreat`,
   `unweighted_diff`, `weighted_treat`, `weighted_untreat`,
   `weighted_diff`); the pooled standard deviation `sd`
-  ([`pooled_sd()`](pooled_sd.md)); and unweighted and weighted versions
-  of the log ratio of standard deviations
-  ([`log_ratio_sd()`](log_ratio_sd.md)) and the fraction of treated
-  units with extreme values
-  ([`frac_treated_extreme()`](frac_treated_extreme.md)).
+  ([`pooled_sd()`](https://bcallaway11.github.io/twfeweights/reference/pooled_sd.md));
+  and unweighted and weighted versions of the log ratio of standard
+  deviations
+  ([`log_ratio_sd()`](https://bcallaway11.github.io/twfeweights/reference/log_ratio_sd.md))
+  and the fraction of treated units with extreme values
+  ([`frac_treated_extreme()`](https://bcallaway11.github.io/twfeweights/reference/frac_treated_extreme.md)).
 
 - ess:
 
   the effective sample size of the untreated group
-  ([`effective_sample_size()`](effective_sample_size.md)).
+  ([`effective_sample_size()`](https://bcallaway11.github.io/twfeweights/reference/effective_sample_size.md)).
 
 ## Details
 
@@ -137,7 +138,8 @@ enter the regression (here, the changes in the time-varying covariates
 and any time-invariant covariates in `time_invariant_x_formula`) between
 the treated and untreated groups by construction. They do not, in
 general, balance the levels of the time-varying covariates or other
-covariates; the balance table and [`ggtwfeweights()`](ggtwfeweights.md)
+covariates; the balance table and
+[`ggtwfeweights()`](https://bcallaway11.github.io/twfeweights/reference/ggtwfeweights.md)
 show by how much. When parallel trends holds conditional on covariates
 that the regression does not balance, the TWFE estimate can be biased
 even if all treatment effects are the same.
@@ -150,10 +152,10 @@ Parallel Trends Holds Conditional on Covariates." Working paper (2024).
 
 ## See also
 
-[`two_period_aipw_weights()`](two_period_aipw_weights.md) for AIPW,
-regression adjustment and inverse probability weighting;
-[`implicit_twfe_weights()`](implicit_twfe_weights.md) for more than two
-periods.
+[`two_period_aipw_weights()`](https://bcallaway11.github.io/twfeweights/reference/two_period_aipw_weights.md)
+for AIPW, regression adjustment and inverse probability weighting;
+[`implicit_twfe_weights()`](https://bcallaway11.github.io/twfeweights/reference/implicit_twfe_weights.md)
+for more than two periods.
 
 ## Examples
 
@@ -168,8 +170,90 @@ tw <- two_period_reg_weights(
   yname = "l_homicide", tname = "year", idname = "sid", gname = "G",
   xformula = ~ l_police + unemployrt, data = castle2
 )
+#> Warning: 'BMisc::makeBalancedPanel' is deprecated.
+#> Use 'make_balanced_panel' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::rhs.vars' is deprecated.
+#> Use 'rhs_vars' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
+#> Warning: 'BMisc::getWeightedDf' is deprecated.
+#> Use 'weighted_ecdf' instead.
+#> See help("Deprecated")
 tw$est
-#> [1] 0.1218008
+#>        .D 
+#> 0.1218008 
 # changes in the covariates are balanced; their 2000 levels are not
 tw$cov_balance_df[, c("covariate", "unweighted_diff", "weighted_diff")]
 #>         covariate unweighted_diff weighted_diff

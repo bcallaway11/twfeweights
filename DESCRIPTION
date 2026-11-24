@@ -19,7 +19,8 @@ Description: Computes the implicit weights that two-way fixed effects (TWFE)
     weights balance covariates across treated and comparison groups, as in
     Caetano and Callaway (2024) <doi:10.48550/arXiv.2406.15288>.
 License: GPL-3
-URL: https://github.com/bcallaway11/twfeweights
+URL: https://bcallaway11.github.io/twfeweights/,
+    https://github.com/bcallaway11/twfeweights
 BugReports: https://github.com/bcallaway11/twfeweights/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

@@ -1,12 +1,13 @@
 # =============================================================================
 # Title: pkgdown site configuration
 # Description: Reference index groups and articles for the pkgdown site.
-#   Add `url: https://bcallaway11.github.io/twfeweights/` (here and in the
-#   DESCRIPTION URL field) once GitHub Pages is enabled for the repo.
+#   The site is built locally into docs/ and served by GitHub Pages.
 # Author: Brant Callaway
-# Last update: 2026-11-23
+# Last update: 2026-11-24
 # Date created: 2026-11-23
 # =============================================================================
+
+url: https://bcallaway11.github.io/twfeweights/
 
 template:
   bootstrap: 5

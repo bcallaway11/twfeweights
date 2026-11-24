@@ -2,6 +2,7 @@
 
 ### Articles
 
-- [TWFE Weights without Covariates](twfe-weights.md):
+- [TWFE Weights without
+  Covariates](https://bcallaway11.github.io/twfeweights/articles/twfe-weights.md):
 - [Covariates: Implicit Weights and Covariate
-  Balance](covariate-balance.md):
+  Balance](https://bcallaway11.github.io/twfeweights/articles/covariate-balance.md):

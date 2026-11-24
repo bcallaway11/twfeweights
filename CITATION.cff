@@ -1,0 +1,49 @@
+# =============================================================================
+# Title: Citation File Format metadata
+# Description: Citation metadata read by GitHub ("Cite this repository").
+#   Keep version and year in sync with DESCRIPTION and inst/CITATION.
+# Author: Brant Callaway
+# Last update: 2026-11-24
+# Date created: 2026-11-24
+# =============================================================================
+
+cff-version: 1.2.0
+message: 'To cite package "twfeweights" in publications use:'
+type: software
+license: GPL-3.0-only
+title: 'twfeweights: Implicit Weights and Covariate Balance for Difference-in-Differences Estimators'
+version: 1.0.0
+abstract: Computes the implicit weights that two-way fixed effects (TWFE) regressions
+  and other difference-in-differences estimators place on group-time average treatment
+  effects and on individual units, and uses them to assess covariate balance.
+authors:
+- family-names: Callaway
+  given-names: Brantly
+  email: brantly.callaway@uga.edu
+preferred-citation:
+  type: manual
+  title: 'twfeweights: Implicit Weights and Covariate Balance for Difference-in-Differences Estimators'
+  authors:
+  - family-names: Callaway
+    given-names: Brantly
+    email: brantly.callaway@uga.edu
+  year: '2026'
+  notes: R package version 1.0.0
+  url: https://bcallaway11.github.io/twfeweights/
+references:
+- type: article
+  title: Difference-in-Differences when Parallel Trends Holds Conditional on Covariates
+  authors:
+  - family-names: Caetano
+    given-names: Carolina
+  - family-names: Callaway
+    given-names: Brantly
+  year: '2024'
+  doi: 10.48550/arXiv.2406.15288
+  url: https://arxiv.org/abs/2406.15288
+repository-code: https://github.com/bcallaway11/twfeweights
+url: https://bcallaway11.github.io/twfeweights/
+contact:
+- family-names: Callaway
+  given-names: Brantly
+  email: brantly.callaway@uga.edu

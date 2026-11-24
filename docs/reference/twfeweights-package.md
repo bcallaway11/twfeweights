@@ -26,38 +26,46 @@ comparison groups, as in Caetano and Callaway (2024)
 The package has three groups of functions.
 
 **Staggered adoption without covariates.**
-[`twfe_weights()`](twfe_weights.md) recovers the weights that a TWFE
-regression places on each group-time average treatment effect,
-\\ATT(g,t)\\, estimated by
+[`twfe_weights()`](https://bcallaway11.github.io/twfeweights/reference/twfe_weights.md)
+recovers the weights that a TWFE regression places on each group-time
+average treatment effect, \\ATT(g,t)\\, estimated by
 [`did::att_gt()`](https://bcallaway11.github.io/did/reference/att_gt.html).
-[`attO_weights()`](attO_weights.md) and
-[`att_simple_weights()`](att_simple_weights.md) give the weights behind
-the overall average treatment effects of Callaway and Sant'Anna (2021),
-for comparison.
+[`attO_weights()`](https://bcallaway11.github.io/twfeweights/reference/attO_weights.md)
+and
+[`att_simple_weights()`](https://bcallaway11.github.io/twfeweights/reference/att_simple_weights.md)
+give the weights behind the overall average treatment effects of
+Callaway and Sant'Anna (2021), for comparison.
 
 **Covariates, two periods.**
-[`two_period_reg_weights()`](two_period_reg_weights.md) writes a TWFE
-regression with covariates as a reweighting estimator;
-[`two_period_aipw_weights()`](two_period_aipw_weights.md) does the same
-for AIPW, regression adjustment and inverse probability weighting. Both
-report how well the implicit weights balance covariates.
+[`two_period_reg_weights()`](https://bcallaway11.github.io/twfeweights/reference/two_period_reg_weights.md)
+writes a TWFE regression with covariates as a reweighting estimator;
+[`two_period_aipw_weights()`](https://bcallaway11.github.io/twfeweights/reference/two_period_aipw_weights.md)
+does the same for AIPW, regression adjustment and inverse probability
+weighting. Both report how well the implicit weights balance covariates.
 
 **Covariates, staggered adoption.**
-[`implicit_twfe_weights()`](implicit_twfe_weights.md) and
-[`implicit_aipw_weights()`](implicit_aipw_weights.md) extend these to
-many periods; [`twfe_cov_bal()`](twfe_cov_bal.md) and
-[`aipw_cov_bal()`](aipw_cov_bal.md) compute covariate balance.
+[`implicit_twfe_weights()`](https://bcallaway11.github.io/twfeweights/reference/implicit_twfe_weights.md)
+and
+[`implicit_aipw_weights()`](https://bcallaway11.github.io/twfeweights/reference/implicit_aipw_weights.md)
+extend these to many periods;
+[`twfe_cov_bal()`](https://bcallaway11.github.io/twfeweights/reference/twfe_cov_bal.md)
+and
+[`aipw_cov_bal()`](https://bcallaway11.github.io/twfeweights/reference/aipw_cov_bal.md)
+compute covariate balance.
 
-[`ggtwfeweights()`](ggtwfeweights.md) plots the results.
-[`pooled_sd()`](pooled_sd.md), [`log_ratio_sd()`](log_ratio_sd.md),
-[`frac_treated_extreme()`](frac_treated_extreme.md) and
-[`effective_sample_size()`](effective_sample_size.md) compute the
-balance statistics and can be applied to any set of weights.
+[`ggtwfeweights()`](https://bcallaway11.github.io/twfeweights/reference/ggtwfeweights.md)
+plots the results.
+[`pooled_sd()`](https://bcallaway11.github.io/twfeweights/reference/pooled_sd.md),
+[`log_ratio_sd()`](https://bcallaway11.github.io/twfeweights/reference/log_ratio_sd.md),
+[`frac_treated_extreme()`](https://bcallaway11.github.io/twfeweights/reference/frac_treated_extreme.md)
+and
+[`effective_sample_size()`](https://bcallaway11.github.io/twfeweights/reference/effective_sample_size.md)
+compute the balance statistics and can be applied to any set of weights.
 
 See
-[`vignette("twfe-weights", package = "twfeweights")`](../articles/twfe-weights.md)
+[`vignette("twfe-weights", package = "twfeweights")`](https://bcallaway11.github.io/twfeweights/articles/twfe-weights.md)
 and
-[`vignette("covariate-balance", package = "twfeweights")`](../articles/covariate-balance.md).
+[`vignette("covariate-balance", package = "twfeweights")`](https://bcallaway11.github.io/twfeweights/articles/covariate-balance.md).
 
 ## References
 

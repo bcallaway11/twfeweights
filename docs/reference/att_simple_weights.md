@@ -45,8 +45,8 @@ att_simple_weights(
 ## Value
 
 An object of class `mp_weights_obj`; see
-[`twfe_weights()`](twfe_weights.md). Here `weight` holds the
-\\ATT^{simple}\\ weights.
+[`twfe_weights()`](https://bcallaway11.github.io/twfeweights/reference/twfe_weights.md).
+Here `weight` holds the \\ATT^{simple}\\ weights.
 
 ## Details
 
@@ -54,7 +54,7 @@ Each post-treatment cell \\(g,t)\\ gets weight proportional to \\P(G = g
 \| G \neq 0)\\; pre-treatment cells get zero. Because every
 post-treatment period counts once, groups treated earlier (observed for
 more post-treatment periods) get more total weight than under
-[`attO_weights()`](attO_weights.md).
+[`attO_weights()`](https://bcallaway11.github.io/twfeweights/reference/attO_weights.md).
 
 ## References
 
@@ -64,7 +64,8 @@ with Multiple Time Periods." Journal of Econometrics 225.2 (2021).
 
 ## See also
 
-[`twfe_weights()`](twfe_weights.md), [`attO_weights()`](attO_weights.md)
+[`twfe_weights()`](https://bcallaway11.github.io/twfeweights/reference/twfe_weights.md),
+[`attO_weights()`](https://bcallaway11.github.io/twfeweights/reference/attO_weights.md)
 
 ## Examples
 

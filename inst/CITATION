@@ -1,0 +1,31 @@
+# =============================================================================
+# Title: Package citation
+# Description: citation("twfeweights"): the package itself and the paper whose
+#   covariate-balance diagnostics it implements. Update the version and year
+#   by hand at each release.
+# Author: Brant Callaway
+# Last update: 2026-11-24
+# Date created: 2026-11-24
+# =============================================================================
+
+citHeader("To cite the twfeweights package, use:")
+
+bibentry(
+  bibtype = "Manual",
+  title = "twfeweights: Implicit Weights and Covariate Balance for Difference-in-Differences Estimators",
+  author = person("Brantly", "Callaway", email = "brantly.callaway@uga.edu", role = c("aut", "cre")),
+  year = "2026",
+  note = "R package version 1.0.0",
+  url = "https://bcallaway11.github.io/twfeweights/"
+)
+
+bibentry(
+  bibtype = "Misc",
+  header = "For the covariate-balance diagnostics, please also cite:",
+  title = "Difference-in-Differences when Parallel Trends Holds Conditional on Covariates",
+  author = c(person("Carolina", "Caetano"), person("Brantly", "Callaway")),
+  year = "2024",
+  note = "arXiv preprint arXiv:2406.15288",
+  doi = "10.48550/arXiv.2406.15288",
+  url = "https://arxiv.org/abs/2406.15288"
+)

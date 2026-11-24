@@ -11,11 +11,13 @@ is a weighted sum of group-time average treatment effects, $`ATT(g,t)`$,
 the average effect for units first treated in period $`g`$ (group $`g`$)
 in period $`t`$ (de Chaisemartin and D’Haultfoeuille, 2020;
 Goodman-Bacon, 2021). This vignette shows how to recover those weights
-with [`twfe_weights()`](../reference/twfe_weights.md), and how to
-compare them with the weights behind the overall average treatment
-effects of Callaway and Sant’Anna (2021), from
-[`attO_weights()`](../reference/attO_weights.md) and
-[`att_simple_weights()`](../reference/att_simple_weights.md).
+with
+[`twfe_weights()`](https://bcallaway11.github.io/twfeweights/reference/twfe_weights.md),
+and how to compare them with the weights behind the overall average
+treatment effects of Callaway and Sant’Anna (2021), from
+[`attO_weights()`](https://bcallaway11.github.io/twfeweights/reference/attO_weights.md)
+and
+[`att_simple_weights()`](https://bcallaway11.github.io/twfeweights/reference/att_simple_weights.md).
 
 ## Data and group-time average treatment effects
 
@@ -30,7 +32,8 @@ library(did)
 data(mpdta, package = "did")
 ```
 
-[`twfe_weights()`](../reference/twfe_weights.md) takes the output of
+[`twfe_weights()`](https://bcallaway11.github.io/twfeweights/reference/twfe_weights.md)
+takes the output of
 [`did::att_gt()`](https://bcallaway11.github.io/did/reference/att_gt.html).
 Two choices matter. The comparison group must be the never-treated
 group, and the base period must be `"universal"`: every $`ATT(g,t)`$,
@@ -114,8 +117,8 @@ c(
 
 **The weights depend on the timing of treatment, not on how much each
 cell matters for a target parameter.**
-[`ggtwfeweights()`](../reference/ggtwfeweights.md) plots each cell’s
-weight against its $`ATT(g,t)`$:
+[`ggtwfeweights()`](https://bcallaway11.github.io/twfeweights/reference/ggtwfeweights.md)
+plots each cell’s weight against its $`ATT(g,t)`$:
 
 ``` r
 ggtwfeweights(tw)
@@ -127,14 +130,14 @@ ggtwfeweights(tw)
 
 Callaway and Sant’Anna (2021) propose combining the $`ATT(g,t)`$ with
 weights chosen to target a specific parameter.
-[`attO_weights()`](../reference/attO_weights.md) gives the weights for
-$`ATT^o`$, which averages each group’s post-treatment effects and then
-averages across groups by group size;
-[`att_simple_weights()`](../reference/att_simple_weights.md) gives the
-weights for $`ATT^{simple}`$, which weights every post-treatment cell by
-group size, so groups observed for more post-treatment periods count
-more. Both put zero weight on pre-treatment cells, and their weights are
-non-negative.
+[`attO_weights()`](https://bcallaway11.github.io/twfeweights/reference/attO_weights.md)
+gives the weights for $`ATT^o`$, which averages each group’s
+post-treatment effects and then averages across groups by group size;
+[`att_simple_weights()`](https://bcallaway11.github.io/twfeweights/reference/att_simple_weights.md)
+gives the weights for $`ATT^{simple}`$, which weights every
+post-treatment cell by group size, so groups observed for more
+post-treatment periods count more. Both put zero weight on pre-treatment
+cells, and their weights are non-negative.
 
 ``` r
 wo <- attO_weights(attgt)
@@ -195,7 +198,8 @@ ggtwfeweights(wo)
 If
 [`did::att_gt()`](https://bcallaway11.github.io/did/reference/att_gt.html)
 is called with `weightsname`, all three functions use the same sampling
-weights by default, so [`twfe_weights()`](../reference/twfe_weights.md)
+weights by default, so
+[`twfe_weights()`](https://bcallaway11.github.io/twfeweights/reference/twfe_weights.md)
 reproduces a weighted TWFE regression (e.g.,
 `fixest::feols(..., weights = ~w)`).
 
