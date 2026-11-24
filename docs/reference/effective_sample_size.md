@@ -49,14 +49,14 @@ weights.
 Equivalently, with \\a_i\\ normalized to have mean one across the \\n\\
 units, it is \\n / (\widehat{Var}(a) + 1)\\, where the variance uses
 divisor \\n\\; this is the per-cell formula in Caetano and Callaway
-(2024).
+(2026).
 
 ## References
 
 Kish, Leslie. Survey Sampling. Wiley (1965).
 
 Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
-Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+Parallel Trends Holds Conditional on Covariates." Working paper (2026).
 [doi:10.48550/arXiv.2406.15288](https://doi.org/10.48550/arXiv.2406.15288)
 .
 

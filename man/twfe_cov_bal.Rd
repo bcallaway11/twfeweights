@@ -26,7 +26,7 @@ and the never-treated group, for each \eqn{(g,t)} cell.
 \details{
 Each covariate is first averaged over time within each unit, and
 balance is assessed for these time averages (as in Caetano and Callaway,
-2024). Use \code{\link[=summary.decomposed_twfe]{summary.decomposed_twfe()}} for a table averaged over
+2026). Use \code{\link[=summary.decomposed_twfe]{summary.decomposed_twfe()}} for a table averaged over
 post-treatment cells and \code{\link[=ggtwfeweights]{ggtwfeweights()}} to plot it.
 }
 \examples{

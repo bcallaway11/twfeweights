@@ -6,7 +6,7 @@ adjustment or inverse probability weighting, and writes each group-time
 estimate as a reweighting estimator so that
 [`aipw_cov_bal()`](https://bcallaway11.github.io/twfeweights/reference/aipw_cov_bal.md)
 can report how well the implicit weights balance covariates (Caetano and
-Callaway, 2024).
+Callaway, 2026).
 
 ## Usage
 
@@ -130,7 +130,7 @@ the propensity score can then be poorly estimated.
 ## References
 
 Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
-Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+Parallel Trends Holds Conditional on Covariates." Working paper (2026).
 [doi:10.48550/arXiv.2406.15288](https://doi.org/10.48550/arXiv.2406.15288)
 
 Callaway, Brantly and Pedro H. C. Sant'Anna. "Difference-in-Differences

@@ -17,7 +17,7 @@ Description: Computes the implicit weights that two-way fixed effects (TWFE)
     (AIPW), regression adjustment and inverse probability weighting
     estimators as reweighting estimators and reports how well the implied
     weights balance covariates across treated and comparison groups, as in
-    Caetano and Callaway (2024) <doi:10.48550/arXiv.2406.15288>.
+    Caetano and Callaway (2026) <doi:10.48550/arXiv.2406.15288>.
 License: GPL-3
 URL: https://bcallaway11.github.io/twfeweights/,
     https://github.com/bcallaway11/twfeweights

@@ -44,7 +44,7 @@ either set of weights.
 Equivalently, with \eqn{a_i} normalized to have mean one across the
 \eqn{n} units, it is \eqn{n / (\widehat{Var}(a) + 1)}, where the variance
 uses divisor \eqn{n}; this is the per-cell formula in Caetano and
-Callaway (2024).
+Callaway (2026).
 }
 \examples{
 effective_sample_size(rep(1, 50)) # 50: equal weights
@@ -56,6 +56,6 @@ effective_sample_size(rep(1, 50), sampling_weights = c(rep(1, 45), rep(10, 5)))
 Kish, Leslie. Survey Sampling. Wiley (1965).
 
 Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
-Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+Parallel Trends Holds Conditional on Covariates." Working paper (2026).
 \doi{10.48550/arXiv.2406.15288}.
 }

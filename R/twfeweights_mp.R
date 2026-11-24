@@ -262,7 +262,7 @@ twfe_treatment_residual <- function(data, idname, tname, gname, xformula, sampli
 #'  two-way fixed effects (TWFE) regression with covariates,
 #'  `y ~ D + covariates | unit + time`, into weighted comparisons between each
 #'  treated group and the never-treated group in each time period
-#'  (Caetano and Callaway, 2024). The weights within each comparison show how
+#'  (Caetano and Callaway, 2026). The weights within each comparison show how
 #'  the regression reweights units, and [twfe_cov_bal()] reports how well they
 #'  balance covariates.
 #'
@@ -324,7 +324,7 @@ twfe_treatment_residual <- function(data, idname, tname, gname, xformula, sampli
 #'
 #' @references
 #'  Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
-#'  Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+#'  Parallel Trends Holds Conditional on Covariates." Working paper (2026).
 #'  \doi{10.48550/arXiv.2406.15288}
 #'
 #' @seealso [twfe_cov_bal()], [summary.decomposed_twfe()],
@@ -490,7 +490,7 @@ summary.decomposed_twfe <- function(object, ...) {
 #'
 #' @details Each covariate is first averaged over time within each unit, and
 #'  balance is assessed for these time averages (as in Caetano and Callaway,
-#'  2024). Use [summary.decomposed_twfe()] for a table averaged over
+#'  2026). Use [summary.decomposed_twfe()] for a table averaged over
 #'  post-treatment cells and [ggtwfeweights()] to plot it.
 #'
 #' @param decomposed_twfe A `decomposed_twfe` object from
@@ -865,7 +865,7 @@ ggtwfeweights.decomposed_twfe <- function(x,
 #'  adjustment or inverse probability weighting, and writes each group-time
 #'  estimate as a reweighting estimator so that [aipw_cov_bal()] can report
 #'  how well the implicit weights balance covariates (Caetano and Callaway,
-#'  2024).
+#'  2026).
 #'
 #' @details For each treated group \eqn{g} and post-treatment period \eqn{t},
 #'  [two_period_aipw_weights()] is applied to group \eqn{g} and the
@@ -916,7 +916,7 @@ ggtwfeweights.decomposed_twfe <- function(x,
 #'
 #' @references
 #'  Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
-#'  Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+#'  Parallel Trends Holds Conditional on Covariates." Working paper (2026).
 #'  \doi{10.48550/arXiv.2406.15288}
 #'
 #'  Callaway, Brantly and Pedro H. C. Sant'Anna. "Difference-in-Differences

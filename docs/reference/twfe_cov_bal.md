@@ -31,7 +31,7 @@ each element of `twfe_gt`.
 ## Details
 
 Each covariate is first averaged over time within each unit, and balance
-is assessed for these time averages (as in Caetano and Callaway, 2024).
+is assessed for these time averages (as in Caetano and Callaway, 2026).
 Use
 [`summary.decomposed_twfe()`](https://bcallaway11.github.io/twfeweights/reference/summary.decomposed_twfe.md)
 for a table averaged over post-treatment cells and

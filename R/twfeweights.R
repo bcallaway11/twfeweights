@@ -3,7 +3,7 @@
 # Description: Computes the implicit TWFE weights on ATT(g,t) and the weights that deliver
 #   ATT^O and ATT^simple, for staggered adoption without covariates.
 # Author: Brant Callaway
-# Last update: 2026-11-23
+# Last update: 2026-11-24
 # Date created: 2023-05-30
 # =============================================================================
 
@@ -459,6 +459,6 @@ ggtwfeweights.mp_weights_obj <- function(x, ...) {
   ) +
     geom_hline(yintercept = 0, linewidth = 1.5) +
     geom_vline(xintercept = 0, linewidth = 1.5) +
-    geom_point(size = 6) +
+    geom_point(size = 4.5) +
     theme_bw()
 }

@@ -3,7 +3,7 @@
 Writes the augmented inverse probability weighting (AIPW) estimator of
 the average treatment effect on the treated, with two periods, as a
 reweighting estimator and reports how well the implicit weights balance
-covariates (Caetano and Callaway, 2024). Regression adjustment and
+covariates (Caetano and Callaway, 2026). Regression adjustment and
 inverse probability weighting are special cases.
 
 ## Usage
@@ -132,7 +132,7 @@ trimmed, as in DRDID.
 ## References
 
 Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
-Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+Parallel Trends Holds Conditional on Covariates." Working paper (2026).
 [doi:10.48550/arXiv.2406.15288](https://doi.org/10.48550/arXiv.2406.15288)
 
 ## See also

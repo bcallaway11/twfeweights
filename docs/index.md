@@ -13,7 +13,7 @@ into a single number. It covers two settings:
 - **Covariates.** Write TWFE regressions, augmented inverse probability
   weighting (AIPW) and regression adjustment as reweighting estimators,
   and check how well their implicit weights balance covariates (Caetano
-  and Callaway, 2024).
+  and Callaway, 2026).
 
 ## Installation
 
@@ -109,7 +109,7 @@ cover the two-period case.
 ## References
 
 Caetano, Carolina and Brantly Callaway. “Difference-in-Differences when
-Parallel Trends Holds Conditional on Covariates.” Working paper (2024).
+Parallel Trends Holds Conditional on Covariates.” Working paper (2026).
 [arXiv:2406.15288](https://arxiv.org/abs/2406.15288).
 
 Callaway, Brantly and Pedro H. C. Sant’Anna. “Difference-in-Differences

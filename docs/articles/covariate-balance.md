@@ -2,7 +2,7 @@
 
 When parallel trends holds only conditional on covariates, researchers
 often add the covariates to a TWFE regression. Caetano and Callaway
-(2024) show that the TWFE coefficient can then be written as a
+(2026) show that the TWFE coefficient can then be written as a
 reweighting estimator: a weighted comparison of changes in outcomes
 between treated and untreated units. The implicit weights balance the
 covariates that enter the regression in the form they enter it (for
@@ -17,7 +17,7 @@ depend on. The same diagnostic applies to augmented inverse probability
 weighting (AIPW) and regression adjustment, whose implicit weights
 balance every covariate in the outcome model.
 
-The example follows the application in Caetano and Callaway (2024): the
+The example follows the application in Caetano and Callaway (2026): the
 effect of stand-your-ground laws on homicides (Cheng and Hoekstra,
 2013), using a state-level panel for 2000-2010 from the `causaldata`
 package.
@@ -5227,7 +5227,7 @@ sensitive the estimate is to how covariates enter.
 ## References
 
 Caetano, Carolina and Brantly Callaway. “Difference-in-Differences when
-Parallel Trends Holds Conditional on Covariates.” Working paper (2024).
+Parallel Trends Holds Conditional on Covariates.” Working paper (2026).
 arXiv:2406.15288.
 
 Callaway, Brantly and Pedro H. C. Sant’Anna. “Difference-in-Differences

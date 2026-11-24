@@ -38,7 +38,7 @@ references:
     given-names: Carolina
   - family-names: Callaway
     given-names: Brantly
-  year: '2024'
+  year: '2026'
   doi: 10.48550/arXiv.2406.15288
   url: https://arxiv.org/abs/2406.15288
 repository-code: https://github.com/bcallaway11/twfeweights

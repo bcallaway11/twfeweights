@@ -13,7 +13,7 @@ First CRAN release.
 * Covariates, two periods: `two_period_reg_weights()` and
   `two_period_aipw_weights()` write a TWFE regression and AIPW, regression
   adjustment or inverse probability weighting as reweighting estimators and
-  report covariate balance, following Caetano and Callaway (2024).
+  report covariate balance, following Caetano and Callaway (2026).
 * Covariates, staggered adoption: `implicit_twfe_weights()` and
   `implicit_aipw_weights()` decompose the estimate into weighted group-time
   comparisons; `twfe_cov_bal()` and `aipw_cov_bal()` add balance statistics,

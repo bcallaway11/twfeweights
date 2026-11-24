@@ -17,7 +17,7 @@ treatment effect parameters in Callaway and Sant'Anna (2021)
 probability weighting (AIPW), regression adjustment and inverse
 probability weighting estimators as reweighting estimators and reports
 how well the implied weights balance covariates across treated and
-comparison groups, as in Caetano and Callaway (2024)
+comparison groups, as in Caetano and Callaway (2026)
 [doi:10.48550/arXiv.2406.15288](https://doi.org/10.48550/arXiv.2406.15288)
 .
 
@@ -70,7 +70,7 @@ and
 ## References
 
 Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
-Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+Parallel Trends Holds Conditional on Covariates." Working paper (2026).
 [doi:10.48550/arXiv.2406.15288](https://doi.org/10.48550/arXiv.2406.15288)
 
 Callaway, Brantly and Pedro H. C. Sant'Anna. "Difference-in-Differences

@@ -79,7 +79,7 @@ Estimates the overall average treatment effect on the treated,
 adjustment or inverse probability weighting, and writes each group-time
 estimate as a reweighting estimator so that \code{\link[=aipw_cov_bal]{aipw_cov_bal()}} can report
 how well the implicit weights balance covariates (Caetano and Callaway,
-2024).
+2026).
 }
 \details{
 For each treated group \eqn{g} and post-treatment period \eqn{t},
@@ -108,7 +108,7 @@ ra$est
 }
 \references{
 Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
-Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+Parallel Trends Holds Conditional on Covariates." Working paper (2026).
 \doi{10.48550/arXiv.2406.15288}
 
 Callaway, Brantly and Pedro H. C. Sant'Anna. "Difference-in-Differences

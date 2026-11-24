@@ -6,7 +6,7 @@ the change in the covariates. This function writes its coefficient on
 the treatment as a reweighting estimator (comparing weighted averages of
 the change in outcomes for the treated and untreated groups) and reports
 how well the implicit weights balance covariates (Caetano and Callaway,
-2024).
+2026).
 
 ## Usage
 
@@ -147,7 +147,7 @@ even if all treatment effects are the same.
 ## References
 
 Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
-Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+Parallel Trends Holds Conditional on Covariates." Working paper (2026).
 [doi:10.48550/arXiv.2406.15288](https://doi.org/10.48550/arXiv.2406.15288)
 
 ## See also

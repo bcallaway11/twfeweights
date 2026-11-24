@@ -49,7 +49,7 @@ two_period_covs_obj <- function(est,
 #'  writes its coefficient on the treatment as a reweighting estimator
 #'  (comparing weighted averages of the change in outcomes for the treated
 #'  and untreated groups) and reports how well the implicit weights balance
-#'  covariates (Caetano and Callaway, 2024).
+#'  covariates (Caetano and Callaway, 2026).
 #'
 #' @details The implicit regression weights balance the means of the
 #'  covariates that enter the regression (here, the changes in the
@@ -109,7 +109,7 @@ two_period_covs_obj <- function(est,
 #'
 #' @references
 #'  Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
-#'  Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+#'  Parallel Trends Holds Conditional on Covariates." Working paper (2026).
 #'  \doi{10.48550/arXiv.2406.15288}
 #'
 #' @seealso [two_period_aipw_weights()] for AIPW, regression adjustment and
@@ -480,7 +480,7 @@ stack_balance_cols <- function(cov_balance_df, cols) {
 #' @description Writes the augmented inverse probability weighting (AIPW)
 #'  estimator of the average treatment effect on the treated, with two
 #'  periods, as a reweighting estimator and reports how well the implicit
-#'  weights balance covariates (Caetano and Callaway, 2024). Regression
+#'  weights balance covariates (Caetano and Callaway, 2026). Regression
 #'  adjustment and inverse probability weighting are special cases.
 #'
 #' @details The outcome model is a linear regression of the change in the
@@ -525,7 +525,7 @@ stack_balance_cols <- function(cov_balance_df, cols) {
 #'
 #' @references
 #'  Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
-#'  Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+#'  Parallel Trends Holds Conditional on Covariates." Working paper (2026).
 #'  \doi{10.48550/arXiv.2406.15288}
 #'
 #' @seealso [two_period_reg_weights()], [implicit_aipw_weights()] for more
@@ -1116,7 +1116,7 @@ weighted_quantile <- function(x, w, p) {
 #'  Equivalently, with \eqn{a_i} normalized to have mean one across the
 #'  \eqn{n} units, it is \eqn{n / (\widehat{Var}(a) + 1)}, where the variance
 #'  uses divisor \eqn{n}; this is the per-cell formula in Caetano and
-#'  Callaway (2024).
+#'  Callaway (2026).
 #'
 #' @param est_weights A numeric vector of weights from an estimation
 #'  procedure (e.g., implicit regression or AIPW weights) for one group. If
@@ -1131,7 +1131,7 @@ weighted_quantile <- function(x, w, p) {
 #'  Kish, Leslie. Survey Sampling. Wiley (1965).
 #'
 #'  Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
-#'  Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+#'  Parallel Trends Holds Conditional on Covariates." Working paper (2026).
 #'  \doi{10.48550/arXiv.2406.15288}.
 #'
 #' @examples

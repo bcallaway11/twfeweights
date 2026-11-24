@@ -6,7 +6,7 @@ twfeweights computes the implicit weights that two-way fixed effects (TWFE)
 regressions and other difference-in-differences estimators place on
 group-time average treatment effects and on individual units, and uses them
 to assess covariate balance. It implements the diagnostics in Caetano and
-Callaway (2024) <doi:10.48550/arXiv.2406.15288>.
+Callaway (2026) <doi:10.48550/arXiv.2406.15288>.
 
 ## Test environments
 

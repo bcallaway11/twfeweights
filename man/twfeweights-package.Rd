@@ -6,7 +6,7 @@
 \alias{twfeweights-package}
 \title{twfeweights: Implicit Weights and Covariate Balance for Difference-in-Differences Estimators}
 \description{
-Computes the implicit weights that two-way fixed effects (TWFE) regressions and other difference-in-differences estimators place on group-time average treatment effects in staggered treatment adoption designs. Without covariates, the package recovers the weights that a TWFE regression places on each group-time average treatment effect (including pre-treatment periods), following de Chaisemartin and D'Haultfoeuille (2020) \doi{10.1257/aer.20181169} and Goodman-Bacon (2021) \doi{10.1016/j.jeconom.2021.03.014}, and compares them with the weights behind the overall average treatment effect parameters in Callaway and Sant'Anna (2021) \doi{10.1016/j.jeconom.2020.12.001}. With covariates, it writes TWFE regressions and augmented inverse probability weighting (AIPW), regression adjustment and inverse probability weighting estimators as reweighting estimators and reports how well the implied weights balance covariates across treated and comparison groups, as in Caetano and Callaway (2024) \doi{10.48550/arXiv.2406.15288}.
+Computes the implicit weights that two-way fixed effects (TWFE) regressions and other difference-in-differences estimators place on group-time average treatment effects in staggered treatment adoption designs. Without covariates, the package recovers the weights that a TWFE regression places on each group-time average treatment effect (including pre-treatment periods), following de Chaisemartin and D'Haultfoeuille (2020) \doi{10.1257/aer.20181169} and Goodman-Bacon (2021) \doi{10.1016/j.jeconom.2021.03.014}, and compares them with the weights behind the overall average treatment effect parameters in Callaway and Sant'Anna (2021) \doi{10.1016/j.jeconom.2020.12.001}. With covariates, it writes TWFE regressions and augmented inverse probability weighting (AIPW), regression adjustment and inverse probability weighting estimators as reweighting estimators and reports how well the implied weights balance covariates across treated and comparison groups, as in Caetano and Callaway (2026) \doi{10.48550/arXiv.2406.15288}.
 }
 \details{
 The package has three groups of functions.
@@ -37,7 +37,7 @@ See \code{vignette("twfe-weights", package = "twfeweights")} and
 }
 \references{
 Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
-Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+Parallel Trends Holds Conditional on Covariates." Working paper (2026).
 \doi{10.48550/arXiv.2406.15288}
 
 Callaway, Brantly and Pedro H. C. Sant'Anna. "Difference-in-Differences

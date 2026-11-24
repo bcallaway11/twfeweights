@@ -62,7 +62,7 @@ Decomposes the coefficient on the treatment indicator from a
 two-way fixed effects (TWFE) regression with covariates,
 \code{y ~ D + covariates | unit + time}, into weighted comparisons between each
 treated group and the never-treated group in each time period
-(Caetano and Callaway, 2024). The weights within each comparison show how
+(Caetano and Callaway, 2026). The weights within each comparison show how
 the regression reweights units, and \code{\link[=twfe_cov_bal]{twfe_cov_bal()}} reports how well they
 balance covariates.
 }
@@ -109,7 +109,7 @@ summary(tw)
 }
 \references{
 Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
-Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+Parallel Trends Holds Conditional on Covariates." Working paper (2026).
 \doi{10.48550/arXiv.2406.15288}
 }
 \seealso{

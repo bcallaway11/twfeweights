@@ -23,7 +23,7 @@ First CRAN release.
   [`two_period_aipw_weights()`](https://bcallaway11.github.io/twfeweights/reference/two_period_aipw_weights.md)
   write a TWFE regression and AIPW, regression adjustment or inverse
   probability weighting as reweighting estimators and report covariate
-  balance, following Caetano and Callaway (2024).
+  balance, following Caetano and Callaway (2026).
 - Covariates, staggered adoption:
   [`implicit_twfe_weights()`](https://bcallaway11.github.io/twfeweights/reference/implicit_twfe_weights.md)
   and

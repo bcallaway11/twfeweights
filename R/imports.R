@@ -5,7 +5,7 @@
 #   `pkg::` and need no import directive.  caret is imported only because
 #   BMisc::drop_collinear() needs it in BMisc <= 1.4.11 (see note below).
 # Author: Brant Callaway
-# Last update: 2026-11-23
+# Last update: 2026-11-24
 # Date created: 2024-05-24
 # =============================================================================
 
@@ -39,7 +39,7 @@
 #'
 #' @references
 #'  Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
-#'  Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+#'  Parallel Trends Holds Conditional on Covariates." Working paper (2026).
 #'  \doi{10.48550/arXiv.2406.15288}
 #'
 #'  Callaway, Brantly and Pedro H. C. Sant'Anna. "Difference-in-Differences

@@ -85,7 +85,7 @@ treatment indicator and the change in the covariates. This function
 writes its coefficient on the treatment as a reweighting estimator
 (comparing weighted averages of the change in outcomes for the treated
 and untreated groups) and reports how well the implicit weights balance
-covariates (Caetano and Callaway, 2024).
+covariates (Caetano and Callaway, 2026).
 }
 \details{
 The implicit regression weights balance the means of the
@@ -118,7 +118,7 @@ ggtwfeweights(tw)
 }
 \references{
 Caetano, Carolina and Brantly Callaway. "Difference-in-Differences when
-Parallel Trends Holds Conditional on Covariates." Working paper (2024).
+Parallel Trends Holds Conditional on Covariates." Working paper (2026).
 \doi{10.48550/arXiv.2406.15288}
 }
 \seealso{

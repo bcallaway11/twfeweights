@@ -71,13 +71,13 @@ Title: Vignette: covariates and covariate balance
 Description: Implicit TWFE, AIPW and regression adjustment weights and covariate
 balance, two periods and staggered adoption (causaldata::castle).
 Author: Brant Callaway
-Last update: 2026-11-23
+Last update: 2026-11-24
 Date created: 2026-11-23
 =============================================================================
 -->
 <p>When parallel trends holds only conditional on covariates,
 researchers often add the covariates to a TWFE regression. Caetano and
-Callaway (2024) show that the TWFE coefficient can then be written as a
+Callaway (2026) show that the TWFE coefficient can then be written as a
 reweighting estimator: a weighted comparison of changes in outcomes
 between treated and untreated units. The implicit weights balance the
 covariates that enter the regression in the form they enter it (for
@@ -90,7 +90,7 @@ how well they balance the covariates that parallel trends is thought to
 depend on. The same diagnostic applies to augmented inverse probability
 weighting (AIPW) and regression adjustment, whose implicit weights
 balance every covariate in the outcome model.</p>
-<p>The example follows the application in Caetano and Callaway (2024):
+<p>The example follows the application in Caetano and Callaway (2026):
 the effect of stand-your-ground laws on homicides (Cheng and Hoekstra,
 2013), using a state-level panel for 2000-2010 from the
 <code>causaldata</code> package.</p>
@@ -5270,7 +5270,7 @@ sensitive the estimate is to how covariates enter.</p>
 </h2>
 <p>Caetano, Carolina and Brantly Callaway. “Difference-in-Differences
 when Parallel Trends Holds Conditional on Covariates.” Working paper
-(2024). arXiv:2406.15288.</p>
+(2026). arXiv:2406.15288.</p>
 <p>Callaway, Brantly and Pedro H. C. Sant’Anna.
 “Difference-in-Differences with Multiple Time Periods.” <em>Journal of
 Econometrics</em> 225.2 (2021): 200-230.</p>

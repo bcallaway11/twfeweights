@@ -1,6 +1,17 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+<!--
+=============================================================================
+Title: Package README
+Description: Source for README.md and the pkgdown home page: what the package
+  does, installation, and one example per setting.
+Author: Brant Callaway
+Last update: 2026-11-24
+Date created: 2023-05-30
+=============================================================================
+-->
+
 # twfeweights
 
 `twfeweights` computes the implicit weights that two-way fixed effects
@@ -16,7 +27,7 @@ into a single number. It covers two settings:
 - **Covariates.** Write TWFE regressions, augmented inverse probability
   weighting (AIPW) and regression adjustment as reweighting estimators,
   and check how well their implicit weights balance covariates (Caetano
-  and Callaway, 2024).
+  and Callaway, 2026).
 
 ## Installation
 
@@ -99,7 +110,7 @@ regression adjustment; `two_period_reg_weights()` and
 ## References
 
 Caetano, Carolina and Brantly Callaway. “Difference-in-Differences when
-Parallel Trends Holds Conditional on Covariates.” Working paper (2024).
+Parallel Trends Holds Conditional on Covariates.” Working paper (2026).
 [arXiv:2406.15288](https://arxiv.org/abs/2406.15288).
 
 Callaway, Brantly and Pedro H. C. Sant’Anna. “Difference-in-Differences

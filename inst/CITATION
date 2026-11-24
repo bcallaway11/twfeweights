@@ -24,7 +24,7 @@ bibentry(
   header = "For the covariate-balance diagnostics, please also cite:",
   title = "Difference-in-Differences when Parallel Trends Holds Conditional on Covariates",
   author = c(person("Carolina", "Caetano"), person("Brantly", "Callaway")),
-  year = "2024",
+  year = "2026",
   note = "arXiv preprint arXiv:2406.15288",
   doi = "10.48550/arXiv.2406.15288",
   url = "https://arxiv.org/abs/2406.15288"
